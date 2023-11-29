@@ -1,1 +1,4 @@
-export const USER_ROLES = ['user', 'admin'];
+export const USER_ROLES = Object.freeze({
+  admin: 'admin',
+  user: 'user',
+});

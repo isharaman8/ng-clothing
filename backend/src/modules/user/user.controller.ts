@@ -1,6 +1,7 @@
 // third party imports
 import { Response } from 'express';
 import {
+  Body,
   Controller,
   InternalServerErrorException,
   Patch,
@@ -10,6 +11,8 @@ import {
 
 // inner imports
 import { UserService } from './user.service';
+import { CreateOrUpdateUserDto } from 'src/dto';
+import { _getParsedUserBody } from 'src/helpers/parser';
 
 @Controller('user')
 export class UserController {
@@ -17,8 +20,12 @@ export class UserController {
 
   @Post('')
   @Patch(':user_id')
-  async createOrUpdateUser(@Res() response: Response) {
-    const { payload, oldUser } = response.locals;
+  async createOrUpdateUser(
+    @Body('user') user: CreateOrUpdateUserDto,
+    @Res() response: Response,
+  ) {
+    const { oldUser } = response.locals;
+    const payload = _getParsedUserBody(user);
 
     let createdUser: any;
 

@@ -2,7 +2,7 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Body, Injectable, NestMiddleware } from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
@@ -17,7 +17,8 @@ export class ValidateUserMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const { user = {} } = req.body;
+    let { user = {} } = req.body;
+
     const params = req.params;
     const parsedUserBody = _getParsedUserBody(user);
 
@@ -39,7 +40,6 @@ export class ValidateUserMiddleware implements NestMiddleware {
     }
 
     // attach to response
-    res.locals.payload = parsedUserBody;
     res.locals.oldUser = oldUser;
 
     next();
