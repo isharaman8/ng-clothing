@@ -2,12 +2,16 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Body, Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  BadRequestException,
+} from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
-import { _getParsedUserBody } from 'src/helpers/parser';
 import { UserService } from 'src/modules/user/user.service';
+import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
@@ -19,20 +23,26 @@ export class ValidateUserMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     let { user = {} } = req.body;
 
-    const params = req.params;
+    const params = _getParsedParams(req.params);
     const parsedUserBody = _getParsedUserBody(user);
 
     let oldUser: any;
 
     // adding uid for update request
-    if (params.user_uid) {
-      oldUser = await this.userService.getAllUsers({ uid: params.uid });
+    if (params.userId && req.method.toUpperCase() === 'PATCH') {
+      const query = { userId: params.userId };
 
-      if (oldUser.length) {
-        parsedUserBody.uid = params.user_uid;
+      oldUser = await this.userService.getAllUsers(query);
 
-        oldUser = user[0];
+      if (!oldUser.length) {
+        throw new BadRequestException(
+          `user with given uid: ${params.userId} does not exists`,
+        );
       }
+
+      parsedUserBody.uid = params.userId;
+
+      oldUser = oldUser[0];
     }
 
     if (!oldUser) {

@@ -1,14 +1,19 @@
 // third party imports
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
 import { _getUserPayload } from 'src/helpers/user';
 import {
-  _getEmailAggregationFilter,
+  _getUidAggregationFilter,
   _getNameAggregationFilter,
+  _getEmailAggregationFilter,
   _getUserNameAggregationFilter,
 } from 'src/helpers/aggregationFIlters';
 
@@ -21,14 +26,17 @@ export class UserService {
       ..._getUserNameAggregationFilter(query),
       ..._getEmailAggregationFilter(query),
       ..._getNameAggregationFilter(query),
+      ..._getUidAggregationFilter(query),
     ];
     const baseQuery = [];
 
-    if (andQuery.length) {
-      baseQuery.push({ $match: { $and: andQuery } });
+    if (!andQuery.length) {
+      throw new BadRequestException(
+        'finding users required at least one filter',
+      );
     }
 
-    console.log('USER QUERY', baseQuery);
+    baseQuery.push({ $match: { $and: andQuery } });
 
     let users = [];
 
