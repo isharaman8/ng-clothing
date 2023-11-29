@@ -17,13 +17,13 @@ export class User {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   email: string;
 
   @Prop({ required: true })
   password: string;
 
-  @Prop({ default: null })
+  @Prop({ required: true, unique: true })
   username: string;
 
   @Prop({ enum: Object.values(USER_ROLES), default: [], type: Array<string> })

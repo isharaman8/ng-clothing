@@ -16,6 +16,7 @@ import {
   _getEmailAggregationFilter,
   _getUserNameAggregationFilter,
 } from 'src/helpers/aggregationFIlters';
+import { _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,6 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
 
-    return JSON.parse(JSON.stringify(payload));
+    return _getParsedUserResponsePayload(payload);
   }
 }

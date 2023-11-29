@@ -25,7 +25,7 @@ export class CreateOrUpdateUserDto {
   active: boolean;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   username: string;
 
   @IsString()

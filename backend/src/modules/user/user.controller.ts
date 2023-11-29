@@ -18,28 +18,6 @@ import { _getParsedUserBody } from 'src/helpers/parser';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  async createOrUpdateUser(
-    user: CreateOrUpdateUserDto,
-    oldUser: CreateOrUpdateUserDto,
-  ) {
-    const payload = _getParsedUserBody(user);
-
-    let createdOrUpdatedUser: any;
-
-    try {
-      createdOrUpdatedUser = await this.userService.createOrUpdateUser(
-        payload,
-        oldUser,
-      );
-    } catch (error) {
-      console.log('CREATE OR UPDATE USER ERROR', error);
-
-      throw new InternalServerErrorException(error.message);
-    }
-
-    return createdOrUpdatedUser;
-  }
-
   @Post('')
   async createUser(
     @Body('user') user: CreateOrUpdateUserDto,
@@ -51,7 +29,7 @@ export class UserController {
     let createdUser: any;
 
     try {
-      createdUser = await this.createOrUpdateUser(payload, oldUser);
+      createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
     } catch (error) {
       console.log('CREATE USER ERROR', error);
 
@@ -72,7 +50,7 @@ export class UserController {
     let createdUser: any;
 
     try {
-      createdUser = await this.createOrUpdateUser(payload, oldUser);
+      createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
     } catch (error) {
       console.log('UPDATE USER ERROR', error);
 
