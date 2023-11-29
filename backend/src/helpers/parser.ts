@@ -52,4 +52,9 @@ export const _getParsedUserResponsePayload = (user: any) => {
   delete user.$setOnInsert;
   delete user._id;
   delete user.__v;
+  delete user.password;
+  delete user.active;
+  delete user.roles;
+
+  return user;
 };
