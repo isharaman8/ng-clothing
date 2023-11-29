@@ -3,7 +3,6 @@ import * as _ from 'lodash';
 
 export const _getUserPayload = (user: any = {}, oldUser: any = {}) => {
   const payload: any = {
-    age: _.defaultTo(user.age, oldUser.age),
     active: _.defaultTo(user.active, true),
     uid: _.defaultTo(user.uid, oldUser.uid),
     name: _.defaultTo(user.name, oldUser.name),

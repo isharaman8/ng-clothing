@@ -2,8 +2,9 @@
 import * as _ from 'lodash';
 import * as nid from 'nanoid';
 import * as bcrypt from 'bcrypt';
+import { CreateOrUpdateUserDto } from 'src/dto';
 
-export const _getParsedUserBody = (body: any = {}) => {
+export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
   const {
     uid,
     name,
@@ -11,7 +12,6 @@ export const _getParsedUserBody = (body: any = {}) => {
     roles,
     password,
     active,
-    age,
     username,
     profile_picture,
   } = body;
@@ -22,7 +22,6 @@ export const _getParsedUserBody = (body: any = {}) => {
     email: _.defaultTo(email, null),
     roles: _.defaultTo(roles, null),
     active: _.defaultTo(active, true),
-    age: _.defaultTo(age, null),
     username: _.defaultTo(username, null),
     profile_picture: _.defaultTo(profile_picture, null),
   };
@@ -32,6 +31,10 @@ export const _getParsedUserBody = (body: any = {}) => {
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
     payload.password = hashedPassword;
+  }
+
+  if (!payload.roles) {
+    payload.roles = ['user'];
   }
 
   return payload;
