@@ -28,3 +28,13 @@ export const _getUserNameAggregationFilter = (query) => {
 
   return filter;
 };
+
+export const _getUidAggregationFilter = (query) => {
+  const filter = [];
+
+  if (query.userId) {
+    filter.push({ uid: { $in: [query.userId] } });
+  }
+
+  return filter;
+};

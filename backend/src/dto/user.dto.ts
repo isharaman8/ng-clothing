@@ -13,7 +13,7 @@ export class CreateOrUpdateUserDto {
   email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   password: string;
 
   @IsString()

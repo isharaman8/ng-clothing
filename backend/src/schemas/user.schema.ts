@@ -5,7 +5,11 @@ import { USER_ROLES } from 'src/constants/constants';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
+@Schema({
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+  versionKey: false,
+  minimize: false,
+})
 export class User {
   @Prop({ unique: true, required: true })
   uid: string;

@@ -1,6 +1,5 @@
 // third party imports
 import * as _ from 'lodash';
-import * as nid from 'nanoid';
 import * as bcrypt from 'bcrypt';
 import { CreateOrUpdateUserDto } from 'src/dto';
 
@@ -18,7 +17,7 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
 
   const payload: any = {
     name: _.defaultTo(name, null),
-    uid: _.defaultTo(uid, nid.nanoid()),
+    uid: _.defaultTo(uid, null),
     email: _.defaultTo(email, null),
     roles: _.defaultTo(roles, null),
     active: _.defaultTo(active, true),
@@ -38,4 +37,19 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
   }
 
   return payload;
+};
+
+export const _getParsedParams = (params: any = {}) => {
+  return {
+    userId: params.user_id,
+  };
+};
+
+export const _getParsedUserResponsePayload = (user: any) => {
+  user = JSON.parse(JSON.stringify(user));
+
+  // delete unnecessary properties
+  delete user.$setOnInsert;
+  delete user._id;
+  delete user.__v;
 };
