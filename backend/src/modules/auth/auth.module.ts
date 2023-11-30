@@ -1,11 +1,6 @@
 // third party imports
-import {
-  Module,
-  NestModule,
-  RequestMethod,
-  MiddlewareConsumer,
-} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Module, NestModule, RequestMethod, MiddlewareConsumer } from '@nestjs/common';
 
 // inner imports
 import { AuthService } from './auth.service';
@@ -15,9 +10,7 @@ import { User, UserSchema } from 'src/schemas/user.schema';
 import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
   controllers: [AuthController],
   providers: [UserService, AuthService],
 })

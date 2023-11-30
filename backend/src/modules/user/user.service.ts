@@ -1,11 +1,7 @@
 // third party imports
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
@@ -32,9 +28,7 @@ export class UserService {
     const baseQuery = [];
 
     if (!andQuery.length) {
-      throw new BadRequestException(
-        'finding users required at least one filter',
-      );
+      throw new BadRequestException('finding users required at least one filter');
     }
 
     baseQuery.push({ $match: { $and: andQuery } });
@@ -61,6 +55,6 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
 
-    return _getParsedUserResponsePayload(payload);
+    return payload;
   }
 }

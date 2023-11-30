@@ -10,7 +10,7 @@ export const _getUserPayload = (user: any = {}, oldUser: any = {}) => {
     email: _.defaultTo(user.email, oldUser.email),
     roles: _.defaultTo(user.roles, oldUser.roles),
     username: _.defaultTo(user.username, oldUser.username),
-    password: _.defaultTo(user.password, oldUser.password),
+    password: _.defaultTo(user.hashed_password, oldUser.password),
     profile_picture: _.defaultTo(user.profile_picture, oldUser.profile_picture),
   };
 
