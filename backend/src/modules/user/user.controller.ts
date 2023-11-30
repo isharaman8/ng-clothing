@@ -1,28 +1,18 @@
 // third party imports
 import { Response } from 'express';
-import {
-  Body,
-  Controller,
-  InternalServerErrorException,
-  Patch,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, InternalServerErrorException, Patch, Post, Res } from '@nestjs/common';
 
 // inner imports
 import { UserService } from './user.service';
 import { CreateOrUpdateUserDto } from 'src/dto';
-import { _getParsedUserBody } from 'src/helpers/parser';
+import { _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('')
-  async createUser(
-    @Body('user') user: CreateOrUpdateUserDto,
-    @Res() response: Response,
-  ) {
+  async createUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
     const { oldUser } = response.locals;
     const payload = _getParsedUserBody(user);
 
@@ -36,14 +26,11 @@ export class UserController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(201).send({ user: createdUser });
+    return response.status(201).send({ user: _getParsedUserResponsePayload(createdUser) });
   }
 
   @Patch(':user_id')
-  async updateUser(
-    @Body('user') user: CreateOrUpdateUserDto,
-    @Res() response: Response,
-  ) {
+  async updateUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
     const { oldUser } = response.locals;
     const payload = _getParsedUserBody(user);
 
@@ -57,6 +44,6 @@ export class UserController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(200).send({ user: createdUser });
+    return response.status(200).send({ user: _getParsedUserResponsePayload(createdUser) });
   }
 }

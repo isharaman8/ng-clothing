@@ -4,16 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateOrUpdateUserDto } from 'src/dto';
 
 export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
-  const {
-    uid,
-    name,
-    email,
-    roles,
-    password,
-    active,
-    username,
-    profile_picture,
-  } = body;
+  const { uid, name, email, roles, password, active, username, profile_picture } = body;
 
   const payload: any = {
     name: _.defaultTo(name, null),
@@ -22,6 +13,7 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
     roles: _.defaultTo(roles, null),
     active: _.defaultTo(active, true),
     username: _.defaultTo(username, null),
+    password: _.defaultTo(password, null),
     profile_picture: _.defaultTo(profile_picture, null),
   };
 
@@ -29,7 +21,8 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
     const saltRounds = 8;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-    payload.password = hashedPassword;
+    // additional property of hashed_password
+    payload.hashed_password = hashedPassword;
   }
 
   if (!payload.roles) {

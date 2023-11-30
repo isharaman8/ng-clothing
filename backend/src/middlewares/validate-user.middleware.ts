@@ -4,57 +4,21 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response, NextFunction } from 'express';
-import {
-  Injectable,
-  NestMiddleware,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware, BadRequestException } from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
-import { UserService } from 'src/modules/user/user.service';
 import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
+import { CreateOrUpdateUserDto } from 'src/dto';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async use(req: Request, res: Response, next: NextFunction) {
-    let { user = {} } = req.body;
-
-    const params = _getParsedParams(req.params);
-    const parsedUserBody = _getParsedUserBody(user);
-
-    let oldUser: any;
-
+  getFindUserQuery(originalUrl: string, method: string, parsedUserBody: CreateOrUpdateUserDto, params: any) {
     let query: any;
 
-    if (
-      (req.originalUrl.includes('/signup') ||
-        req.originalUrl.includes('/login')) &&
-      req.method.toUpperCase() === 'POST'
-    ) {
-      if (
-        (!(parsedUserBody.email || parsedUserBody.username) ||
-          !parsedUserBody.password) &&
-        req.originalUrl.includes('/login')
-      ) {
-        throw new BadRequestException(
-          'email/username and password required for login',
-        );
-      }
-
-      if (
-        (!parsedUserBody.email ||
-          !parsedUserBody.username ||
-          !parsedUserBody.password) &&
-        req.originalUrl.includes('/signup')
-      ) {
-        throw new BadRequestException(
-          'email, password, and username required for signup',
-        );
-      }
-
+    if ((originalUrl.includes('/signup') || originalUrl.includes('/login')) && method.toUpperCase() === 'POST') {
       query = [];
 
       if (parsedUserBody.email) {
@@ -65,57 +29,79 @@ export class ValidateUserMiddleware implements NestMiddleware {
       }
     }
 
-    if (
-      req.originalUrl.includes('/user') &&
-      req.method.toUpperCase() === 'PATCH'
-    ) {
+    if (originalUrl.includes('/user') && method.toUpperCase() === 'PATCH') {
       query = [{ uid: params.userId }];
     }
 
-    oldUser = await this.userModel.find({ $or: query });
+    return query;
+  }
 
-    // validate for signup request
-    if (req.originalUrl.includes('/signup') && oldUser.length) {
-      throw new BadRequestException(
-        `user with given email id and/or username already exists`,
-      );
+  validateParsedUserBody(originalUrl: string, parsedUserBody: CreateOrUpdateUserDto) {
+    if (
+      (!(parsedUserBody.email || parsedUserBody.username) || !parsedUserBody.password) &&
+      originalUrl.includes('/login')
+    ) {
+      throw new BadRequestException('email/username and password required for login');
     }
 
-    // validate for login request
-    if (req.originalUrl.includes('/login')) {
-      if (!oldUser.length) {
-        throw new BadRequestException('user not found');
+    if (
+      (!parsedUserBody.email || !parsedUserBody.username || !parsedUserBody.password) &&
+      originalUrl.includes('/signup')
+    ) {
+      throw new BadRequestException('email, password, and username required for signup');
+    }
+  }
+
+  validateSignupRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto) {
+    if (originalUrl.includes('/signup') && oldUser) {
+      throw new BadRequestException(`user with given email id and/or username already exists`);
+    }
+  }
+
+  validateLoginRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto, parsedUserBody: CreateOrUpdateUserDto) {
+    if (originalUrl.includes('/login')) {
+      if (!oldUser) {
+        throw new BadRequestException('incorrect email/password');
       }
 
-      console.log('PARSED USER BODY', parsedUserBody);
-      console.log('OLD USER', oldUser);
-
-      const checkPassword = bcrypt.compareSync(
-        parsedUserBody.password,
-        oldUser.password,
-      );
+      const checkPassword = bcrypt.compareSync(parsedUserBody.password, oldUser.password);
 
       if (!checkPassword) {
-        throw new BadRequestException('user not found');
+        throw new BadRequestException('incorrect email/password');
       }
     }
+  }
 
-    // validate for update user request
-    if (
-      req.originalUrl.includes('user') &&
-      req.method.toUpperCase() === 'PATCH'
-    ) {
-      if (!oldUser.length) {
-        throw new BadRequestException(
-          `user with given uid: ${params.userId} does not exists`,
-        );
+  validateUserUpdateRequest(
+    originalUrl: string,
+    method: string,
+    oldUser: CreateOrUpdateUserDto | undefined,
+    params: any,
+  ) {
+    if (originalUrl.includes('user') && method.toUpperCase() === 'PATCH') {
+      if (!oldUser) {
+        throw new BadRequestException(`user with given uid: ${params.userId} does not exists`);
       }
-
-      // adding uid for update request
-      parsedUserBody.uid = params.userId;
-
-      oldUser = oldUser[0];
     }
+  }
+
+  async use(req: Request, res: Response, next: NextFunction) {
+    let { user = {} } = req.body;
+
+    const params = _getParsedParams(req.params);
+    const parsedUserBody = _getParsedUserBody(user);
+    const query = this.getFindUserQuery(req.originalUrl, req.method, parsedUserBody, params);
+
+    this.validateParsedUserBody(req.originalUrl, parsedUserBody);
+
+    let oldUser: any = await this.userModel.find({ $or: query });
+    oldUser = oldUser[0];
+
+    this.validateSignupRequest(req.originalUrl, oldUser);
+
+    this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);
+
+    this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params);
 
     if (!oldUser) {
       oldUser = new this.userModel();
