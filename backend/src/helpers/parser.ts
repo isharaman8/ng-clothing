@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
 import { CreateOrUpdateUserDto } from 'src/dto';
 
-export const _getParsedUserBody = (body: CreateOrUpdateUserDto) => {
+export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateUserDto => {
   const { uid, name, email, roles, password, active, username, profile_picture } = body;
 
   const payload: any = {
@@ -48,6 +48,8 @@ export const _getParsedUserResponsePayload = (user: any) => {
   delete user.password;
   delete user.active;
   delete user.roles;
+  delete user.created_at;
+  delete user.updated_at;
 
   return user;
 };
