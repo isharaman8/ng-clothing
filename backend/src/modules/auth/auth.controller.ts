@@ -1,23 +1,23 @@
 // third party imports
 import {
-  Body,
-  Controller,
   Get,
-  InternalServerErrorException,
-  Post,
   Req,
   Res,
-  UnauthorizedException,
+  Body,
+  Post,
   UseGuards,
+  Controller,
+  UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
-import { Response, response } from 'express';
+import { Response } from 'express';
 
 // inner imports
-import { CreateOrUpdateUserDto, LoginUserDto } from 'src/dto';
-import { UserService } from '../user/user.service';
-import { _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
+import { UserService } from '../user/user.service';
+import { AuthGuard } from '../../guards/auth.guard';
+import { CreateOrUpdateUserDto, LoginUserDto } from 'src/dto';
+import { _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Controller('auth')
 export class AuthController {
