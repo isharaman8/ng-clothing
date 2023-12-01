@@ -10,4 +10,11 @@ export const config = () => ({
     password: process.env.MONGODB_PASSWORD,
     username: process.env.MONGODB_USERNAME,
   },
+  jwt: {
+    global: true,
+    secret: process.env.JWT_SECRET,
+    signOptions: {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    },
+  },
 });
