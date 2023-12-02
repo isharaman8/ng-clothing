@@ -8,6 +8,7 @@ import { UserService } from '../user/user.service';
 import { AuthController } from './auth.controller';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
+import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
@@ -17,6 +18,8 @@ import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
+      .apply(AuthMiddleware)
+      .forRoutes({ path: 'auth/profile', method: RequestMethod.GET })
       .apply(ValidateUserMiddleware)
       .forRoutes(
         { path: 'auth/login', method: RequestMethod.POST },
