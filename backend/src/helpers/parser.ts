@@ -1,7 +1,7 @@
 // third party imports
 import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
-import { Params } from 'src/interfaces';
+import { Params, QueryParams } from 'src/interfaces';
 import { CreateOrUpdateProductDto, CreateOrUpdateUserDto } from 'src/dto';
 import { parseArray } from 'src/utils/general';
 
@@ -50,9 +50,24 @@ export const _getParsedProductBody = (body: CreateOrUpdateProductDto): CreateOrU
 };
 
 export const _getParsedParams = (params: Params = {}) => {
+  console.log(params);
+  console.log({ userId: params.user_id, productId: params.product_uid });
+
   return {
     userId: params.user_id,
-    productId: params.product_id,
+    productId: params.product_uid,
+  };
+};
+
+export const _getParsedQuery = (query: QueryParams) => {
+  return {
+    uid: _.defaultTo(query.uid, null),
+    name: _.defaultTo(query.name, null),
+    price: _.defaultTo(query.price, null),
+    active: _.defaultTo(query.active, true),
+    userId: _.defaultTo(query.user_id, null),
+    minPrice: _.defaultTo(query.min_price, 0),
+    maxPrice: _.defaultTo(query.max_price, Number.MAX_SAFE_INTEGER),
   };
 };
 
@@ -70,4 +85,15 @@ export const _getParsedUserResponsePayload = (user: any) => {
   delete user.updated_at;
 
   return user;
+};
+
+export const _getParsedProductResponsePayload = (product: any) => {
+  product = JSON.parse(JSON.stringify(product));
+
+  // delete unnecessary properties
+  delete product.$setOnInsert;
+  delete product._id;
+  delete product.__v;
+
+  return product;
 };

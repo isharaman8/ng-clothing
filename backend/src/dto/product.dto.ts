@@ -22,6 +22,6 @@ export class CreateOrUpdateProductDto {
   images: Array<string>;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   user_id: string;
 }

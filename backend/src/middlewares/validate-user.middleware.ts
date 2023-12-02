@@ -4,12 +4,12 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Injectable, NestMiddleware, BadRequestException } from '@nestjs/common';
+import { Injectable, NestMiddleware, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
-import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
 import { CreateOrUpdateUserDto } from 'src/dto';
+import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
@@ -93,8 +93,13 @@ export class ValidateUserMiddleware implements NestMiddleware {
 
     this.validateParsedUserBody(req.originalUrl, parsedUserBody);
 
-    let oldUser: any = await this.userModel.find({ $or: query });
-    oldUser = oldUser[0];
+    let oldUser: any;
+
+    try {
+      oldUser = await this.userModel.findOne({ $or: query });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
 
     this.validateSignupRequest(req.originalUrl, oldUser);
 
