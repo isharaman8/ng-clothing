@@ -5,7 +5,6 @@ import {
   Res,
   Body,
   Post,
-  UseGuards,
   Controller,
   UnauthorizedException,
   InternalServerErrorException,
@@ -15,7 +14,6 @@ import { Response } from 'express';
 // inner imports
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
-import { AuthGuard } from '../../guards/auth.guard';
 import { CreateOrUpdateUserDto, LoginUserDto } from 'src/dto';
 import { _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
 
@@ -62,7 +60,6 @@ export class AuthController {
   }
 
   @Get('/profile')
-  @UseGuards(AuthGuard)
   async getProfile(@Req() request: any, @Res() response: Response) {
     let user: Array<CreateOrUpdateUserDto> | CreateOrUpdateUserDto;
 

@@ -86,8 +86,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
-    let { user = {} } = req.body;
-
+    const { user = {} } = req.body;
     const params = _getParsedParams(req.params);
     const parsedUserBody = _getParsedUserBody(user);
     const query = this.getFindUserQuery(req.originalUrl, req.method, parsedUserBody, params);

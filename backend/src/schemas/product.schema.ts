@@ -22,7 +22,7 @@ export class Product {
   images: string[];
 
   @Prop({ default: null })
-  username: string;
+  user_id: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

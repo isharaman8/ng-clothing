@@ -1,7 +1,9 @@
 // third party imports
 import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
-import { CreateOrUpdateUserDto } from 'src/dto';
+import { Params } from 'src/interfaces';
+import { CreateOrUpdateProductDto, CreateOrUpdateUserDto } from 'src/dto';
+import { parseArray } from 'src/utils/general';
 
 export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateUserDto => {
   const { uid, name, email, roles, password, active, username, profile_picture } = body;
@@ -10,7 +12,7 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateU
     name: _.defaultTo(name, null),
     uid: _.defaultTo(uid, null),
     email: _.defaultTo(email, null),
-    roles: _.defaultTo(roles, null),
+    roles: parseArray(roles, null),
     active: _.defaultTo(active, true),
     username: _.defaultTo(username, null),
     password: _.defaultTo(password, null),
@@ -32,9 +34,25 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateU
   return payload;
 };
 
-export const _getParsedParams = (params: any = {}) => {
+export const _getParsedProductBody = (body: CreateOrUpdateProductDto): CreateOrUpdateProductDto => {
+  const { active, images, name, price, uid, user_id } = body;
+
+  const payload: any = {
+    uid: _.defaultTo(uid, null),
+    name: _.defaultTo(name, null),
+    price: _.defaultTo(price, null),
+    images: parseArray(images, null),
+    active: _.defaultTo(active, true),
+    user_id: _.defaultTo(user_id, null),
+  };
+
+  return payload;
+};
+
+export const _getParsedParams = (params: Params = {}) => {
   return {
     userId: params.user_id,
+    productId: params.product_id,
   };
 };
 

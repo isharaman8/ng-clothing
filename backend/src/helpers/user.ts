@@ -1,9 +1,10 @@
 // third party imports
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
+import { CreateOrUpdateUserDto } from 'src/dto';
 
-export const _getUserPayload = (user: any = {}, oldUser: any = {}) => {
-  const payload: any = {
+export const _getUserPayload = (user: any = {}, oldUser: any = {}): CreateOrUpdateUserDto => {
+  const payload = {
     active: _.defaultTo(user.active, true),
     uid: _.defaultTo(oldUser.uid, nanoid()),
     name: _.defaultTo(user.name, oldUser.name),
