@@ -64,7 +64,7 @@ export class AuthController {
     let user: Array<CreateOrUpdateUserDto> | CreateOrUpdateUserDto;
 
     try {
-      user = await this.userService.getAllUsers({ userId: request.user.uid });
+      user = await this.userService.getAllUsers({ uid: request.user.uid });
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

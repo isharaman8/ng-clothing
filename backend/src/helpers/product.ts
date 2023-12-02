@@ -1,7 +1,10 @@
+// third party imports
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
-import { CreateOrUpdateProductDto } from 'src/dto';
+
+// inner imports
 import { parseArray } from 'src/utils/general';
+import { CreateOrUpdateProductDto } from 'src/dto';
 
 export const _getProductPayload = (
   product: any = {},

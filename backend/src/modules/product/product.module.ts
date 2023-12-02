@@ -8,6 +8,7 @@ import { ProductController } from './product.controller';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { ValidateProductMiddleware } from 'src/middlewares/validate-product.middleware';
+import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -21,6 +22,15 @@ import { ValidateProductMiddleware } from 'src/middlewares/validate-product.midd
 })
 export class ProductModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ValidateProductMiddleware).forRoutes({ path: 'product', method: RequestMethod.GET });
+    const allowedRoutes = [
+      { path: 'product', method: RequestMethod.POST },
+      { path: 'product/:product_uid', method: RequestMethod.PATCH },
+    ];
+
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(...allowedRoutes)
+      .apply(ValidateProductMiddleware)
+      .forRoutes(...allowedRoutes);
   }
 }
