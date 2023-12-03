@@ -5,9 +5,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 // inner imports
+import { parseObject } from './utils';
 import { config } from './config/config';
 import { AppService } from './app.service';
-import { parseObject } from './utils/general';
 import { AppController } from './app.controller';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';

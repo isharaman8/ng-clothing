@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Injectable, NestMiddleware, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 
 // inner imports
+import { _notEmpty } from 'src/utils';
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
@@ -32,8 +33,8 @@ export class ValidateUserMiddleware implements NestMiddleware {
     if (originalUrl.includes('/user') && method.toUpperCase() === 'PATCH') {
       query = [{ uid: params.userId }];
     }
-
-    return query;
+    ``;
+    return _.filter(query, _notEmpty);
   }
 
   validateParsedUserBody(originalUrl: string, parsedUserBody: CreateOrUpdateUserDto) {

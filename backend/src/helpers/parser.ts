@@ -1,19 +1,21 @@
 // third party imports
 import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
+
+// inner imports
 import { Params, QueryParams } from 'src/interfaces';
+import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 import { CreateOrUpdateProductDto, CreateOrUpdateUserDto } from 'src/dto';
-import { parseArray } from 'src/utils/general';
 
 export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateUserDto => {
   const { uid, name, email, roles, password, active, username, profile_picture } = body;
 
   const payload: any = {
-    name: _.defaultTo(name, null),
     uid: _.defaultTo(uid, null),
-    email: _.defaultTo(email, null),
+    name: _.defaultTo(name, null),
     roles: parseArray(roles, null),
-    active: _.defaultTo(active, true),
+    email: _.defaultTo(email, null),
+    active: parseBoolean(active, true),
     username: _.defaultTo(username, null),
     password: _.defaultTo(password, null),
     profile_picture: _.defaultTo(profile_picture, null),
@@ -34,25 +36,22 @@ export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateU
   return payload;
 };
 
-export const _getParsedProductBody = (body: CreateOrUpdateProductDto): CreateOrUpdateProductDto => {
-  const { active, images, name, price, uid, user_id } = body;
+export const _getParsedProductBody = (body: CreateOrUpdateProductDto, user: any = {}): CreateOrUpdateProductDto => {
+  const { active, images, name, price, uid } = body;
 
   const payload: any = {
     uid: _.defaultTo(uid, null),
     name: _.defaultTo(name, null),
-    price: _.defaultTo(price, null),
+    price: parseNumber(price, null),
     images: parseArray(images, null),
-    active: _.defaultTo(active, true),
-    user_id: _.defaultTo(user_id, null),
+    active: parseBoolean(active, true),
+    user_id: _.defaultTo(user.uid, null),
   };
 
   return payload;
 };
 
 export const _getParsedParams = (params: Params = {}) => {
-  console.log(params);
-  console.log({ userId: params.user_id, productId: params.product_uid });
-
   return {
     userId: params.user_id,
     productId: params.product_uid,
@@ -60,15 +59,22 @@ export const _getParsedParams = (params: Params = {}) => {
 };
 
 export const _getParsedQuery = (query: QueryParams) => {
-  return {
+  const queryPayload = {
     uid: _.defaultTo(query.uid, null),
     name: _.defaultTo(query.name, null),
-    price: _.defaultTo(query.price, null),
-    active: _.defaultTo(query.active, true),
+    price: parseNumber(query.price, null),
+    active: parseBoolean(query.active, true),
     userId: _.defaultTo(query.user_id, null),
-    minPrice: _.defaultTo(query.min_price, 0),
-    maxPrice: _.defaultTo(query.max_price, Number.MAX_SAFE_INTEGER),
+    minPrice: parseNumber(query.min_price, 0),
+    maxPrice: parseNumber(query.max_price, Number.MAX_SAFE_INTEGER),
   };
+
+  if (queryPayload.minPrice > queryPayload.maxPrice) {
+    queryPayload.minPrice = 0;
+    queryPayload.maxPrice = Number.MAX_SAFE_INTEGER;
+  }
+
+  return queryPayload;
 };
 
 export const _getParsedUserResponsePayload = (user: any) => {

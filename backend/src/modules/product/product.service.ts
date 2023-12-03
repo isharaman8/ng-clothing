@@ -42,8 +42,8 @@ export class ProductService {
     return products;
   }
 
-  async createOrUpdateProduct(product: any, oldProduct: any) {
-    const payload = _getProductPayload(product, oldProduct);
+  async createOrUpdateProduct(product: any, oldProduct: any, user: any) {
+    const payload = _getProductPayload(product, oldProduct, user);
 
     try {
       await this.productModel.updateOne({ uid: payload.uid }, payload, {

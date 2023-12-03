@@ -1,16 +1,17 @@
 // third party imports
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable, InternalServerErrorException, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 
 // inner imports
-import { parseArray } from 'src/utils/general';
+import { parseArray } from 'src/utils';
+import { CRequest, CResponse } from 'src/interfaces';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private jwtService: JwtService) {}
 
-  async use(request: Request, _response: Response, next: NextFunction) {
+  async use(request: CRequest, _response: CResponse, next: NextFunction) {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -28,7 +29,7 @@ export class AuthMiddleware implements NestMiddleware {
     return next();
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private extractTokenFromHeader(request: CRequest): string | undefined {
     const [type, token] = parseArray(request.headers.authorization?.split(' '), []);
 
     return type === 'Bearer' ? token : undefined;
