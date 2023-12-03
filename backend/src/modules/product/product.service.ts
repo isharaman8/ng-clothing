@@ -55,4 +55,14 @@ export class ProductService {
 
     return payload;
   }
+
+  async deleteProduct(productUid: string) {
+    try {
+      await this.productModel.updateOne({ uid: productUid }, { active: false });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return true;
+  }
 }

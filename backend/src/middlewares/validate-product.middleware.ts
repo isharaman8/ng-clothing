@@ -36,13 +36,21 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
 
     if (!validUserRole) {
-      throw new UnauthorizedException('not authorized for creating/updating a product');
+      throw new UnauthorizedException('not authorized for creating/updating/deleting products');
     }
   }
 
   validatePatchRequest(method: string, oldProduct: CreateOrUpdateProductDto) {
     if (method.toUpperCase() === 'PATCH' && !oldProduct) {
       throw new NotFoundException('product not found');
+    }
+  }
+
+  validateDeleteRequest(method: string, oldProduct?: CreateOrUpdateProductDto) {
+    if (method.toUpperCase() === 'DELETE') {
+      if (!oldProduct) {
+        throw new NotFoundException('product not found');
+      }
     }
   }
 
@@ -61,6 +69,8 @@ export class ValidateProductMiddleware implements NestMiddleware {
     const parsedProduct = _getParsedProductBody(product, user);
     const findQuery = _.filter([{ uid: params.productId }, { user_id: user.uid }], _notEmpty);
 
+    console.log('FIND QUERY', JSON.stringify(findQuery));
+
     this.validateUserRole(user);
 
     this.validatePostRequest(req.method, parsedProduct);
@@ -74,6 +84,8 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
 
     this.validatePatchRequest(req.method, oldProduct);
+
+    this.validateDeleteRequest(req.method, oldProduct);
 
     if (!oldProduct) {
       oldProduct = new this.productModel();

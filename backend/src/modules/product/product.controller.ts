@@ -11,6 +11,7 @@ import {
   Query,
   Controller,
   InternalServerErrorException,
+  Delete,
 } from '@nestjs/common';
 
 // inner imports
@@ -81,6 +82,9 @@ export class ProductController {
     const { user = {} } = request;
     const payload = _getParsedProductBody(product);
 
+    // remove unwanted attributes
+    delete payload.active;
+
     let createdProduct: any;
 
     try {
@@ -111,5 +115,18 @@ export class ProductController {
     }
 
     return response.status(200).send({ product: _getParsedProductResponsePayload(createdProduct) });
+  }
+
+  @Delete(':product_uid')
+  async deleteProduct(@Param() params: any, @Res() response: CResponse) {
+    const parsedParams = _getParsedParams(params);
+
+    try {
+      await this.productService.deleteProduct(parsedParams.productId);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return response.status(204).send();
   }
 }
