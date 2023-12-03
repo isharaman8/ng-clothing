@@ -6,9 +6,9 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { User, UserSchema } from 'src/schemas/user.schema';
+import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { ValidateProductMiddleware } from 'src/middlewares/validate-product.middleware';
-import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -25,6 +25,7 @@ export class ProductModule implements NestModule {
     const allowedRoutes = [
       { path: 'product', method: RequestMethod.POST },
       { path: 'product/:product_uid', method: RequestMethod.PATCH },
+      { path: 'product/:product_uid', method: RequestMethod.DELETE },
     ];
 
     consumer
