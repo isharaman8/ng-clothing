@@ -1,19 +1,21 @@
 // third party imports
 import * as _ from 'lodash';
 import { Model } from 'mongoose';
+import { NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
-import { Response, NextFunction } from 'express';
 import {
   Injectable,
-  InternalServerErrorException,
   NestMiddleware,
   NotFoundException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
-import { parseArray } from 'src/utils/general';
+import { _notEmpty, parseArray } from 'src/utils';
+import { CreateOrUpdateProductDto } from 'src/dto';
+import { CRequest, CResponse } from 'src/interfaces';
 import { Product } from 'src/schemas/product.schema';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 import { _getParsedParams, _getParsedProductBody, _getParsedUserBody } from 'src/helpers/parser';
@@ -38,27 +40,34 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
   }
 
-  validatePatchRequest(method: string, oldProduct: any) {
+  validatePatchRequest(method: string, oldProduct: CreateOrUpdateProductDto) {
     if (method.toUpperCase() === 'PATCH' && !oldProduct) {
       throw new NotFoundException('product not found');
     }
   }
 
-  async use(req: any, res: Response, next: NextFunction) {
-    const { user = {} } = req;
+  validatePostRequest(method: string, product: CreateOrUpdateProductDto) {
+    if (method.toUpperCase() === 'POST' && !product.user_id) {
+      throw new UnauthorizedException('user_id required to create product');
+    }
+  }
+
+  async use(req: CRequest, res: CResponse, next: NextFunction) {
+    const {
+      user = {},
+      body: { product = {} },
+    } = req;
     const params = _getParsedParams(req.params);
-
-    console.log('PARAMS', params);
-
-    const findQuery = [{ uid: params.productId }, { user_id: user.uid }];
+    const parsedProduct = _getParsedProductBody(product, user);
+    const findQuery = _.filter([{ uid: params.productId }, { user_id: user.uid }], _notEmpty);
 
     this.validateUserRole(user);
+
+    this.validatePostRequest(req.method, parsedProduct);
 
     let oldProduct: any;
 
     try {
-      console.log('OR QUERY', JSON.stringify(findQuery));
-
       oldProduct = await this.productModel.findOne({ $or: findQuery });
     } catch (error) {
       throw new InternalServerErrorException(error.message);

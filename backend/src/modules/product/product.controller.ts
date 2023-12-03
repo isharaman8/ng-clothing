@@ -1,11 +1,22 @@
 // third party imports
 import * as _ from 'lodash';
-import { Response } from 'express';
-import { Body, Controller, Get, InternalServerErrorException, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import {
+  Res,
+  Req,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Query,
+  Controller,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 // inner imports
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { ProductService } from './product.service';
+import { CRequest, CResponse } from 'src/interfaces';
 import {
   _getParsedParams,
   _getParsedProductBody,
@@ -18,7 +29,7 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get()
-  async getProducts(@Query() query: any, @Res() response: Response) {
+  async getProducts(@Query() query: any, @Res() response: CResponse) {
     const parsedQuery = _getParsedQuery(query);
 
     let products = [];
@@ -36,7 +47,7 @@ export class ProductController {
   }
 
   @Get(':product_uid')
-  async getProductByUid(@Query() query: any, @Param() params: any, @Res() response: Response) {
+  async getProductByUid(@Query() query: any, @Param() params: any, @Res() response: CResponse) {
     let product: any;
 
     const parsedQuery = _getParsedQuery(query);
@@ -61,14 +72,19 @@ export class ProductController {
   }
 
   @Post('')
-  async createProduct(@Body('product') product: CreateOrUpdateProductDto, @Res() response: Response) {
+  async createProduct(
+    @Body('product') product: CreateOrUpdateProductDto,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
     const { oldProduct } = response.locals;
+    const { user = {} } = request;
     const payload = _getParsedProductBody(product);
 
     let createdProduct: any;
 
     try {
-      createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct);
+      createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -77,14 +93,19 @@ export class ProductController {
   }
 
   @Patch(':product_uid')
-  async updateProduct(@Body('product') product: CreateOrUpdateProductDto, @Res() response: Response) {
+  async updateProduct(
+    @Body('product') product: CreateOrUpdateProductDto,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
     const { oldProduct } = response.locals;
     const payload = _getParsedProductBody(product);
+    const { user = {} } = request;
 
     let createdProduct: any;
 
     try {
-      createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct);
+      createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

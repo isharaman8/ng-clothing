@@ -3,8 +3,8 @@ import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
 
 // inner imports
-import { parseArray } from 'src/utils/general';
 import { CreateOrUpdateProductDto } from 'src/dto';
+import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 
 export const _getProductPayload = (
   product: any = {},
@@ -14,10 +14,10 @@ export const _getProductPayload = (
   const payload = {
     uid: _.defaultTo(oldProduct.uid, nanoid()),
     name: _.defaultTo(product.name, oldProduct.name),
-    price: _.defaultTo(product.price, oldProduct.price),
-    active: _.defaultTo(product.active, oldProduct.active),
-    images: parseArray(product.images, oldProduct.images),
     user_id: _.defaultTo(oldProduct.user_id, user.uid),
+    price: parseNumber(product.price, oldProduct.price),
+    images: parseArray(product.images, oldProduct.images),
+    active: parseBoolean(product.active, oldProduct.active),
   };
 
   return payload;
