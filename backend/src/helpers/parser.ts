@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 // inner imports
 import { Params, QueryParams } from 'src/interfaces';
 import { parseArray, parseBoolean, parseNumber } from 'src/utils';
-import { CreateOrUpdateProductDto, CreateOrUpdateUserDto } from 'src/dto';
+import { CreateOrUpdateProductDto, CreateOrUpdatePurchaseDto, CreateOrUpdateUserDto } from 'src/dto';
 
 export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateUserDto => {
   const { uid, name, email, roles, password, active, username, profile_picture } = body;
@@ -51,14 +51,28 @@ export const _getParsedProductBody = (body: CreateOrUpdateProductDto, user: any 
   return payload;
 };
 
+export const _getParsedPurchaseBody = (body: any, user: any = {}): CreateOrUpdatePurchaseDto => {
+  const { uid, products, verified } = body;
+
+  const payload: any = {
+    uid: _.defaultTo(uid, null),
+    products: parseArray(products, []),
+    user_id: _.defaultTo(user.uid, null),
+    verified: parseBoolean(verified, false),
+  };
+
+  return payload;
+};
+
 export const _getParsedParams = (params: Params = {}) => {
   return {
     userId: params.user_id,
     productId: params.product_uid,
+    purchaseId: params.purchase_uid,
   };
 };
 
-export const _getParsedQuery = (query: QueryParams) => {
+export const _getParsedQuery = (query: QueryParams = {}) => {
   const queryPayload = {
     uid: _.defaultTo(query.uid, null),
     name: _.defaultTo(query.name, null),
@@ -77,7 +91,7 @@ export const _getParsedQuery = (query: QueryParams) => {
   return queryPayload;
 };
 
-export const _getParsedUserResponsePayload = (user: any) => {
+export const _getParsedUserResponsePayload = (user: any = {}) => {
   user = JSON.parse(JSON.stringify(user));
 
   // delete unnecessary properties
@@ -93,7 +107,7 @@ export const _getParsedUserResponsePayload = (user: any) => {
   return user;
 };
 
-export const _getParsedProductResponsePayload = (product: any) => {
+export const _getParsedProductResponsePayload = (product: any = {}) => {
   product = JSON.parse(JSON.stringify(product));
 
   // delete unnecessary properties
@@ -102,4 +116,15 @@ export const _getParsedProductResponsePayload = (product: any) => {
   delete product.__v;
 
   return product;
+};
+
+export const _getParsedPurchaseResponsePayload = (purchase: any = {}) => {
+  purchase = JSON.parse(JSON.stringify(purchase));
+
+  // delete unnecessary properties
+  delete purchase.$setOnInsert;
+  delete purchase._id;
+  delete purchase.__v;
+
+  return purchase;
 };

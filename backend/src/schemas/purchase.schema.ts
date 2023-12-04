@@ -1,6 +1,9 @@
-// inner imports
+// third party imports
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
+// inner imports
+import { PurchaseProduct } from 'src/interfaces';
 
 export type PurchaseDocument = HydratedDocument<Purchase>;
 
@@ -9,14 +12,11 @@ export class Purchase {
   @Prop({ unique: true, required: true })
   uid: string;
 
-  @Prop({ required: true })
-  products: Array<any>;
+  @Prop({ required: true, type: Array })
+  products: Array<PurchaseProduct>;
 
   @Prop({ required: true })
-  user_uid: string;
-
-  @Prop({ default: null })
-  price: number;
+  user_id: string;
 
   @Prop({ default: false })
   verified: boolean;
