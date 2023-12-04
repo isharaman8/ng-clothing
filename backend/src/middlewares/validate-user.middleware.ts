@@ -4,13 +4,20 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { Injectable, NestMiddleware, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  BadRequestException,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 // inner imports
-import { _notEmpty } from 'src/utils';
+import { _notEmpty, parseArray } from 'src/utils';
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
+import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
@@ -78,10 +85,18 @@ export class ValidateUserMiddleware implements NestMiddleware {
     method: string,
     oldUser: CreateOrUpdateUserDto | undefined,
     params: any,
+    user: any = {},
   ) {
     if (originalUrl.includes('user') && method.toUpperCase() === 'PATCH') {
       if (!oldUser) {
         throw new BadRequestException(`user with given uid: ${params.userId} does not exists`);
+      }
+
+      if (
+        !oldUser.uid === user.uid &&
+        !parseArray(user.roles, []).some((role: string) => ALLOWED_USER_ROLES.user.includes(role))
+      ) {
+        throw new UnauthorizedException(`only to be updated user or admin can update a user`);
       }
     }
   }
@@ -106,7 +121,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
 
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);
 
-    this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params);
+    this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params, user);
 
     if (!oldUser) {
       oldUser = new this.userModel();
