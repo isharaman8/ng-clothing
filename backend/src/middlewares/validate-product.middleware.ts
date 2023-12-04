@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 
 // inner imports
-import { User } from 'src/schemas/user.schema';
 import { _notEmpty, parseArray } from 'src/utils';
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
@@ -22,7 +21,7 @@ import { _getParsedParams, _getParsedProductBody, _getParsedUserBody } from 'src
 
 @Injectable()
 export class ValidateProductMiddleware implements NestMiddleware {
-  constructor(@InjectModel(User.name) private productModel: Model<Product>) {}
+  constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
 
   validateUserRole(user: any) {
     let validUserRole = false;
@@ -69,8 +68,6 @@ export class ValidateProductMiddleware implements NestMiddleware {
     const parsedProduct = _getParsedProductBody(product, user);
     const findQuery = _.filter([{ uid: params.productId }, { user_id: user.uid }], _notEmpty);
 
-    console.log('FIND QUERY', JSON.stringify(findQuery));
-
     this.validateUserRole(user);
 
     this.validatePostRequest(req.method, parsedProduct);
@@ -78,7 +75,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
     let oldProduct: any;
 
     try {
-      oldProduct = await this.productModel.findOne({ $or: findQuery });
+      oldProduct = await this.productModel.findOne({ $and: findQuery });
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
