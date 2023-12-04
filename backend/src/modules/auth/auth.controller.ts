@@ -9,13 +9,13 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Response } from 'express';
 
 // inner imports
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
+import { CRequest, CResponse } from 'src/interfaces';
 import { CreateOrUpdateUserDto, LoginUserDto } from 'src/dto';
-import { _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
+import { _getParsedQuery, _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +25,7 @@ export class AuthController {
   ) {}
 
   @Post('signup')
-  async signUpUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
+  async signUpUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: CResponse) {
     const { oldUser } = response.locals;
     const payload = _getParsedUserBody(user);
 
@@ -45,7 +45,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async loginUser(@Body('user') _user: LoginUserDto, @Res() response: Response) {
+  async loginUser(@Body('user') _user: LoginUserDto, @Res() response: CResponse) {
     const { oldUser } = response.locals;
 
     let userToken: string;
@@ -60,11 +60,16 @@ export class AuthController {
   }
 
   @Get('/profile')
-  async getProfile(@Req() request: any, @Res() response: Response) {
+  async getProfile(@Req() request: CRequest, @Res() response: CResponse) {
+    const parsedQuery = _getParsedQuery(request.query);
+
     let user: Array<CreateOrUpdateUserDto> | CreateOrUpdateUserDto;
 
+    // add props in query
+    parsedQuery.uid = request.user.uid;
+
     try {
-      user = await this.userService.getAllUsers({ uid: request.user.uid });
+      user = await this.userService.getAllUsers(parsedQuery);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

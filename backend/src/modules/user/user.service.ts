@@ -14,12 +14,13 @@ import {
   _getActiveAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 import { _getParsedUserResponsePayload } from 'src/helpers/parser';
+import { QueryParams } from 'src/interfaces';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async getAllUsers(query: any) {
+  async getAllUsers(query: QueryParams) {
     const baseQuery = [
       {
         $match: {
@@ -33,6 +34,8 @@ export class UserService {
         },
       },
     ];
+
+    console.log('BASE QUERY', JSON.stringify(baseQuery));
 
     let users = [];
 
