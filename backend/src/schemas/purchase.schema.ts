@@ -10,13 +10,16 @@ export class Purchase {
   uid: string;
 
   @Prop({ required: true })
-  product_uid: string;
+  products: Array<any>;
 
   @Prop({ required: true })
   user_uid: string;
 
   @Prop({ default: null })
   price: number;
+
+  @Prop({ default: false })
+  verified: boolean;
 }
 
 export const PurchaseSchema = SchemaFactory.createForClass(Purchase);
