@@ -94,7 +94,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
 
       if (
         !oldUser.uid === user.uid &&
-        !parseArray(user.roles, []).some((role: string) => ALLOWED_USER_ROLES.user.includes(role))
+        !_.some(parseArray(user.roles, []), (role: string) => ALLOWED_USER_ROLES.user.includes(role))
       ) {
         throw new UnauthorizedException(`only to be updated user or admin can update a user`);
       }

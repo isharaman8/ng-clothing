@@ -1,8 +1,11 @@
+// inner imports
+import { parseArray } from 'src/utils';
+
 export const _getNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.name) {
-    filter.push({ name: { $in: [query.name] } });
+  if (query.name?.length) {
+    filter.push({ name: { $in: parseArray(query.name, [query.name]) } });
   }
 
   return filter;
@@ -11,8 +14,8 @@ export const _getNameAggregationFilter = (query: any = {}) => {
 export const _getEmailAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.email) {
-    filter.push({ email: { $in: [query.email] } });
+  if (query.email?.length) {
+    filter.push({ email: { $in: parseArray(query.email, [query.email]) } });
   }
 
   return filter;
@@ -21,8 +24,8 @@ export const _getEmailAggregationFilter = (query: any = {}) => {
 export const _getUserNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.username) {
-    filter.push({ username: { $in: [query.username] } });
+  if (query.username?.length) {
+    filter.push({ username: { $in: parseArray(query.username, [query.username]) } });
   }
 
   return filter;
@@ -31,12 +34,12 @@ export const _getUserNameAggregationFilter = (query: any = {}) => {
 export const _getUidAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.uid) {
-    filter.push({ uid: { $in: [query.uid] } });
+  if (query.uid?.length) {
+    filter.push({ uid: { $in: parseArray(query.uid, [query.uid]) } });
   }
 
   if (query.userId) {
-    filter.push({ user_id: query.userId });
+    filter.push({ user_id: { $in: parseArray(query.userId, [query.userId]) } });
   }
 
   return filter;
@@ -57,9 +60,19 @@ export const _getPriceAggregationFilter = (query: any = {}) => {
   const priceFilter: any = { price: { $lte: query.maxPrice, $gte: query.minPrice } };
 
   if (query.price && !isNaN(query.price)) {
-    filter.push({ price: { $in: [query.price] } });
+    filter.push({ price: query.price });
   } else {
     filter.push(priceFilter);
+  }
+
+  return filter;
+};
+
+export const _getVerifiedAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.verified !== null) {
+    filter.push({ verified: Boolean(query.verified) });
   }
 
   return filter;

@@ -1,27 +1,20 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { PurchaseProduct } from 'src/interfaces';
 
-export class CreateOrUpdateProductDto {
+export class CreateOrUpdatePurchaseDto {
   @IsString()
   @IsOptional()
   uid: string;
 
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
-
-  @IsBoolean()
-  @IsNotEmpty()
-  active: boolean;
-
   @IsArray()
   @IsNotEmpty()
-  images: Array<string>;
+  products: Array<PurchaseProduct>;
 
   @IsString()
   @IsOptional()
   user_id: string;
+
+  @IsBoolean()
+  @IsOptional()
+  verified: boolean;
 }
