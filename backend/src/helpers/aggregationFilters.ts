@@ -1,4 +1,3 @@
-// For Users
 export const _getNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
