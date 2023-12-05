@@ -1,4 +1,5 @@
 // third party imports
+import * as _ from 'lodash';
 import {
   Res,
   Req,
@@ -11,16 +12,15 @@ import {
   Controller,
   InternalServerErrorException,
 } from '@nestjs/common';
-import * as _ from 'lodash';
 
 // inner imports
-import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import {
   _getParsedParams,
   _getParsedPurchaseBody,
   _getParsedPurchaseResponsePayload,
   _getParsedQuery,
 } from 'src/helpers/parser';
+import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { PurchaseService } from './purchase.service';
 
@@ -28,15 +28,15 @@ import { PurchaseService } from './purchase.service';
 export class PurchaseController {
   constructor(private purchaseService: PurchaseService) {}
 
-  @Post(':purchase_uid')
+  @Post('')
   async createPurchase(
-    @Body('purchase') purchase: CreateOrUpdatePurchaseDto,
+    @Body('purchase') _purchase: CreateOrUpdatePurchaseDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
     const { user = {} } = request;
     const { oldPurchase } = response.locals;
-    const payload = _getParsedPurchaseBody(purchase);
+    const payload = response.locals.purchase;
 
     let createdPurchase: any;
 
@@ -47,19 +47,6 @@ export class PurchaseController {
     }
 
     return response.status(201).send({ purchase: _getParsedPurchaseResponsePayload(createdPurchase) });
-  }
-
-  @Patch(':purchase_uid/verify')
-  async verifyPurchase(@Param() params: any, @Res() response: CResponse) {
-    const { oldPurchase = {} } = response.locals;
-
-    let updatedPurchase: any;
-
-    try {
-      updatedPurchase = await this.purchaseService.createOrUpdatePurchase({ verified: true }, oldPurchase);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
   }
 
   @Get('')
@@ -83,6 +70,21 @@ export class PurchaseController {
     purchases = _.map(purchases, _getParsedPurchaseResponsePayload);
 
     return response.status(200).send({ purchases });
+  }
+
+  @Patch(':purchase_uid/verify')
+  async verifyPurchase(@Param() _params: any, @Res() response: CResponse) {
+    const { oldPurchase = {} } = response.locals;
+
+    let updatedPurchase: any;
+
+    try {
+      updatedPurchase = await this.purchaseService.createOrUpdatePurchase({ verified: true }, oldPurchase);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return response.status(204).send();
   }
 
   @Get(':purchase_uid')
@@ -115,6 +117,6 @@ export class PurchaseController {
     // parse response payload
     purchase = _getParsedPurchaseResponsePayload(purchase);
 
-    return response.status(200).send({ products: [purchase] });
+    return response.status(200).send({ purchases: [purchase] });
   }
 }

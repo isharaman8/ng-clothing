@@ -13,4 +13,5 @@ export interface QueryParams {
   user_id?: string | string[];
   max_price?: number;
   uid?: string | string[];
+  verified?: boolean;
 }

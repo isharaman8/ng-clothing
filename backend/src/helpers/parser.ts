@@ -80,6 +80,7 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
     active: parseBoolean(query.active, true),
     userId: _.defaultTo(query.user_id, null),
     minPrice: parseNumber(query.min_price, 0),
+    verified: parseBoolean(query.verified, null),
     maxPrice: parseNumber(query.max_price, Number.MAX_SAFE_INTEGER),
   };
 

@@ -1,5 +1,8 @@
+// third party imports
 import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
+
+// inner imports
 import { parseArray, parseBoolean } from 'src/utils';
 
 export const _getPurchasePayload = (purchase: any = {}, oldPurchase: any = {}, user: any = {}) => {
