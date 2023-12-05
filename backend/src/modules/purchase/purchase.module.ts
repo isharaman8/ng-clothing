@@ -23,6 +23,17 @@ import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.mi
 })
 export class PurchaseModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*').apply(ValidatePurchaseMiddleware).forRoutes('purchase/*');
+    const allowedRoutes = [
+      { path: 'purchase', method: RequestMethod.GET },
+      { path: 'purchase/', method: RequestMethod.POST },
+      { path: 'purchase/:purchase_uid', method: RequestMethod.GET },
+      { path: 'purchase/:purchase_uid/verify', method: RequestMethod.PATCH },
+    ];
+
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes('purchase')
+      .apply(ValidatePurchaseMiddleware)
+      .forRoutes(...allowedRoutes);
   }
 }

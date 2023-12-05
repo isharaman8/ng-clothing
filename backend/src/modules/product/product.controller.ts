@@ -9,9 +9,9 @@ import {
   Patch,
   Param,
   Query,
+  Delete,
   Controller,
   InternalServerErrorException,
-  Delete,
 } from '@nestjs/common';
 
 // inner imports
@@ -19,10 +19,10 @@ import { CreateOrUpdateProductDto } from 'src/dto';
 import { ProductService } from './product.service';
 import { CRequest, CResponse } from 'src/interfaces';
 import {
+  _getParsedQuery,
   _getParsedParams,
   _getParsedProductBody,
   _getParsedProductResponsePayload,
-  _getParsedQuery,
 } from 'src/helpers/parser';
 
 @Controller('product')

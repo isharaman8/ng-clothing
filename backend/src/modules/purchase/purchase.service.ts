@@ -36,6 +36,8 @@ export class PurchaseService {
 
     let purchases = [];
 
+    console.log('PURCHASE QUERY', JSON.stringify(baseQuery));
+
     try {
       purchases = await this.purchaseModel.aggregate(baseQuery);
     } catch (error) {

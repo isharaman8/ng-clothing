@@ -7,10 +7,10 @@ import { BadRequestException, Injectable, InternalServerErrorException, NestMidd
 
 // inner imports
 import { _notEmpty, parseArray } from 'src/utils';
+import { CRequest, CResponse } from 'src/interfaces';
 import { Purchase } from 'src/schemas/purchase.schema';
 import { ProductService } from 'src/modules/product/product.service';
-import { CRequest, CResponse, PurchaseProduct } from 'src/interfaces';
-import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
+import { _getParsedParams, _getParsedPurchaseBody, _getParsedQuery } from 'src/helpers/parser';
 
 @Injectable()
 export class ValidatePurchaseMiddleware implements NestMiddleware {
@@ -19,9 +19,9 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
     private productService: ProductService,
   ) {}
 
-  async validateProducts(productArray: Array<PurchaseProduct>) {
-    const productUids: Array<string> = _.map(productArray, (product) => product.uid);
+  async validateAndParseProducts(productUids: Array<string>) {
     const query = _getParsedQuery({ uid: productUids });
+    const parsedProductArray = [];
 
     let products = [];
 
@@ -33,6 +33,7 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
       throw new InternalServerErrorException(error.message);
     }
 
+    // validate if products exist
     for (const uid of productUids) {
       const reqdProduct = _.find(products, (product) => product.uid === uid);
 
@@ -40,9 +41,21 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
         throw new BadRequestException('product not found');
       }
     }
+
+    // get parsed products
+    for (const product of products) {
+      parsedProductArray.push({
+        uid: product.uid,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+      });
+    }
+
+    return parsedProductArray;
   }
 
-  validateVerifyRequest(method: string, originalUrl: string, oldPurchase: any = {}) {
+  validateVerifyRequest(method: string, originalUrl: string, oldPurchase: any) {
     if (method.toUpperCase() === 'PATCH' && originalUrl.endsWith('/verify')) {
       if (!oldPurchase) {
         throw new BadRequestException('invalid verify request');
@@ -52,8 +65,12 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
 
   async use(req: CRequest, res: CResponse, next: NextFunction) {
     // attach to response
-    const { user = {} } = req;
+    const {
+      user = {},
+      body: { purchase = {} },
+    } = req;
     const params = _getParsedParams(req.params);
+    const parsedPurchase = _getParsedPurchaseBody(purchase, user);
     const findQuery = _.filter([{ uid: params.purchaseId }, { user_id: user.uid }], _notEmpty);
 
     let oldPurchase: any;
@@ -66,9 +83,10 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
       throw new InternalServerErrorException(error.message);
     }
 
-    await this.validateProducts(parseArray(oldPurchase?.products, []));
-
     this.validateVerifyRequest(req.method, req.originalUrl, oldPurchase);
+
+    // attach validated products
+    parsedPurchase.products = await this.validateAndParseProducts(parseArray(parsedPurchase.products, []));
 
     // for post request
     if (!oldPurchase) {
@@ -77,6 +95,7 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
 
     // attach to res.locals
     res.locals.oldPurchase = oldPurchase;
+    res.locals.purchase = parsedPurchase;
 
     next();
   }
