@@ -14,8 +14,8 @@ import {
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { CRequest, CResponse } from 'src/interfaces';
+import { _getParsedQuery } from 'src/helpers/parser';
 import { CreateOrUpdateUserDto, LoginUserDto } from 'src/dto';
-import { _getParsedQuery, _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Controller('auth')
 export class AuthController {
@@ -27,7 +27,7 @@ export class AuthController {
   @Post('signup')
   async signUpUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: CResponse) {
     const { oldUser } = response.locals;
-    const payload = _getParsedUserBody(user);
+    const payload = this.userService.getParsedUserBody(user);
 
     let userToken: string;
     let createdUser: CreateOrUpdateUserDto;
@@ -41,14 +41,16 @@ export class AuthController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(200).send({ user: _getParsedUserResponsePayload(createdUser), auth_token: userToken });
+    // parse response
+    createdUser = this.userService.getParsedUserResponsePayload(createdUser);
+
+    return response.status(200).send({ user: createdUser, auth_token: userToken });
   }
 
   @Post('login')
   async loginUser(@Body('user') _user: LoginUserDto, @Res() response: CResponse) {
-    const { oldUser } = response.locals;
-
     let userToken: string;
+    let { oldUser } = response.locals;
 
     try {
       userToken = await this.authService.getAuthToken(oldUser);
@@ -56,7 +58,10 @@ export class AuthController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(200).send({ user: _getParsedUserResponsePayload(oldUser), auth_token: userToken });
+    // parse response
+    oldUser = this.userService.getParsedUserResponsePayload(oldUser);
+
+    return response.status(200).send({ user: oldUser, auth_token: userToken });
   }
 
   @Get('/profile')
@@ -78,8 +83,9 @@ export class AuthController {
       throw new UnauthorizedException('user not found');
     }
 
-    user = user[0];
+    // parse response
+    user = this.userService.getParsedUserResponsePayload(user[0]);
 
-    return response.status(200).send({ user: _getParsedUserResponsePayload(user) });
+    return response.status(200).send({ user });
   }
 }

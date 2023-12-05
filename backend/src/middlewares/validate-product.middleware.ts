@@ -16,12 +16,16 @@ import { _notEmpty, parseArray } from 'src/utils';
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { Product } from 'src/schemas/product.schema';
+import { _getParsedParams } from 'src/helpers/parser';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
-import { _getParsedParams, _getParsedProductBody, _getParsedUserBody } from 'src/helpers/parser';
+import { ProductService } from 'src/modules/product/product.service';
 
 @Injectable()
 export class ValidateProductMiddleware implements NestMiddleware {
-  constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
+  constructor(
+    @InjectModel(Product.name) private productModel: Model<Product>,
+    private productService: ProductService,
+  ) {}
 
   validateUserRole(user: any) {
     let validUserRole = false;
@@ -65,7 +69,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
       body: { product = {} },
     } = req;
     const params = _getParsedParams(req.params);
-    const parsedProduct = _getParsedProductBody(product, user);
+    const parsedProduct = this.productService.getParsedProductBody(product, user);
     const findQuery = _.filter([{ uid: params.productId }, { user_id: user.uid }], _notEmpty);
 
     this.validateUserRole(user);

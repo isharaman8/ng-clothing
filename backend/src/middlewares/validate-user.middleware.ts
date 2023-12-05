@@ -13,15 +13,19 @@ import {
 } from '@nestjs/common';
 
 // inner imports
-import { _notEmpty, parseArray } from 'src/utils';
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
-import { _getParsedParams, _getParsedUserBody } from 'src/helpers/parser';
+import { _notEmpty, parseArray } from 'src/utils';
+import { _getParsedParams } from 'src/helpers/parser';
+import { UserService } from 'src/modules/user/user.service';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private userService: UserService,
+  ) {}
 
   getFindUserQuery(originalUrl: string, method: string, parsedUserBody: CreateOrUpdateUserDto, params: any) {
     let query: any;
@@ -104,7 +108,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const { user = {} } = req.body;
     const params = _getParsedParams(req.params);
-    const parsedUserBody = _getParsedUserBody(user);
+    const parsedUserBody = this.userService.getParsedUserBody(user);
     const query = this.getFindUserQuery(req.originalUrl, req.method, parsedUserBody, params);
 
     this.validateParsedUserBody(req.originalUrl, parsedUserBody);

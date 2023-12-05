@@ -10,13 +10,15 @@ import { _notEmpty, parseArray } from 'src/utils';
 import { CRequest, CResponse } from 'src/interfaces';
 import { Purchase } from 'src/schemas/purchase.schema';
 import { ProductService } from 'src/modules/product/product.service';
-import { _getParsedParams, _getParsedPurchaseBody, _getParsedQuery } from 'src/helpers/parser';
+import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
+import { PurchaseService } from 'src/modules/purchase/purchase.service';
 
 @Injectable()
 export class ValidatePurchaseMiddleware implements NestMiddleware {
   constructor(
     @InjectModel(Purchase.name) private purchaseModel: Model<Purchase>,
     private productService: ProductService,
+    private purchaseService: PurchaseService,
   ) {}
 
   async validateAndParseProducts(productUids: Array<string>) {
@@ -70,7 +72,7 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
       body: { purchase = {} },
     } = req;
     const params = _getParsedParams(req.params);
-    const parsedPurchase = _getParsedPurchaseBody(purchase, user);
+    const parsedPurchase = this.purchaseService.getParsedPurchaseBody(purchase, user);
     const findQuery = _.filter([{ uid: params.purchaseId }, { user_id: user.uid }], _notEmpty);
 
     let oldPurchase: any;

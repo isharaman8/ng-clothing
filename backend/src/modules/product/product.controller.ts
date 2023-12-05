@@ -18,12 +18,7 @@ import {
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { ProductService } from './product.service';
 import { CRequest, CResponse } from 'src/interfaces';
-import {
-  _getParsedQuery,
-  _getParsedParams,
-  _getParsedProductBody,
-  _getParsedProductResponsePayload,
-} from 'src/helpers/parser';
+import { _getParsedQuery, _getParsedParams, _getParsedProductResponsePayload } from 'src/helpers/parser';
 
 @Controller('product')
 export class ProductController {
@@ -80,7 +75,7 @@ export class ProductController {
   ) {
     const { oldProduct } = response.locals;
     const { user = {} } = request;
-    const payload = _getParsedProductBody(product);
+    const payload = this.productService.getParsedProductBody(product);
 
     // remove unwanted attributes
     delete payload.active;
@@ -103,7 +98,7 @@ export class ProductController {
     @Res() response: CResponse,
   ) {
     const { oldProduct } = response.locals;
-    const payload = _getParsedProductBody(product);
+    const payload = this.productService.getParsedProductBody(product);
     const { user = {} } = request;
 
     let createdProduct: any;

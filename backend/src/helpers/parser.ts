@@ -4,65 +4,7 @@ import * as bcrypt from 'bcrypt';
 
 // inner imports
 import { Params, QueryParams } from 'src/interfaces';
-import { parseArray, parseBoolean, parseNumber } from 'src/utils';
-import { CreateOrUpdateProductDto, CreateOrUpdatePurchaseDto, CreateOrUpdateUserDto } from 'src/dto';
-
-export const _getParsedUserBody = (body: CreateOrUpdateUserDto): CreateOrUpdateUserDto => {
-  const { uid, name, email, roles, password, active, username, profile_picture } = body;
-
-  const payload: any = {
-    uid: _.defaultTo(uid, null),
-    name: _.defaultTo(name, null),
-    roles: parseArray(roles, null),
-    email: _.defaultTo(email, null),
-    active: parseBoolean(active, true),
-    username: _.defaultTo(username, null),
-    password: _.defaultTo(password, null),
-    profile_picture: _.defaultTo(profile_picture, null),
-  };
-
-  if (password) {
-    const saltRounds = 8;
-    const hashedPassword = bcrypt.hashSync(password, saltRounds);
-
-    // additional property of hashed_password
-    payload.hashed_password = hashedPassword;
-  }
-
-  if (!payload.roles) {
-    payload.roles = ['user'];
-  }
-
-  return payload;
-};
-
-export const _getParsedProductBody = (body: CreateOrUpdateProductDto, user: any = {}): CreateOrUpdateProductDto => {
-  const { active, images, name, price, uid } = body;
-
-  const payload: any = {
-    uid: _.defaultTo(uid, null),
-    name: _.defaultTo(name, null),
-    price: parseNumber(price, null),
-    images: parseArray(images, null),
-    active: parseBoolean(active, true),
-    user_id: _.defaultTo(user.uid, null),
-  };
-
-  return payload;
-};
-
-export const _getParsedPurchaseBody = (body: any, user: any = {}): CreateOrUpdatePurchaseDto => {
-  const { uid, products, verified } = body;
-
-  const payload: any = {
-    uid: _.defaultTo(uid, null),
-    products: parseArray(products, []),
-    user_id: _.defaultTo(user.uid, null),
-    verified: parseBoolean(verified, false),
-  };
-
-  return payload;
-};
+import { parseBoolean, parseNumber } from 'src/utils';
 
 export const _getParsedParams = (params: Params = {}) => {
   return {
