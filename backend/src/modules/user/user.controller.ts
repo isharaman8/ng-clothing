@@ -5,7 +5,7 @@ import { Body, Controller, InternalServerErrorException, Patch, Post, Res } from
 // inner imports
 import { UserService } from './user.service';
 import { CreateOrUpdateUserDto } from 'src/dto';
-import { _getParsedUserBody, _getParsedUserResponsePayload } from 'src/helpers/parser';
+import { _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Controller('user')
 export class UserController {
@@ -14,7 +14,7 @@ export class UserController {
   @Post('')
   async createUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
     const { oldUser } = response.locals;
-    const payload = _getParsedUserBody(user);
+    const payload = this.userService.getParsedUserBody(user);
 
     let createdUser: any;
 
@@ -32,7 +32,7 @@ export class UserController {
   @Patch(':user_id')
   async updateUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
     const { oldUser } = response.locals;
-    const payload = _getParsedUserBody(user);
+    const payload = this.userService.getParsedUserBody(user);
 
     let createdUser: any;
 

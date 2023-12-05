@@ -1,11 +1,12 @@
 // third party imports
+import * as _ from 'lodash';
+import { nanoid } from 'nanoid';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 // inner imports
-import { User } from 'src/schemas/user.schema';
-import { _getUserPayload } from 'src/helpers/user';
 import {
   _getUidAggregationFilter,
   _getNameAggregationFilter,
@@ -13,8 +14,12 @@ import {
   _getUserNameAggregationFilter,
   _getActiveAggregationFilter,
 } from 'src/helpers/aggregationFilters';
-import { _getParsedUserResponsePayload } from 'src/helpers/parser';
 import { QueryParams } from 'src/interfaces';
+import { CreateOrUpdateUserDto } from 'src/dto';
+import { User } from 'src/schemas/user.schema';
+import { _getUserPayload } from 'src/helpers/user';
+import { parseArray, parseBoolean } from 'src/utils';
+import { _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Injectable()
 export class UserService {
@@ -58,6 +63,66 @@ export class UserService {
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+
+    return payload;
+  }
+
+  getParsedUserBody(body: CreateOrUpdateUserDto) {
+    const { uid, name, email, roles, password, active, username, profile_picture } = body;
+
+    const payload: any = {
+      uid: _.defaultTo(uid, null),
+      name: _.defaultTo(name, null),
+      roles: parseArray(roles, null),
+      email: _.defaultTo(email, null),
+      active: parseBoolean(active, true),
+      username: _.defaultTo(username, null),
+      password: _.defaultTo(password, null),
+      profile_picture: _.defaultTo(profile_picture, null),
+    };
+
+    if (password) {
+      const saltRounds = 8;
+      const hashedPassword = bcrypt.hashSync(password, saltRounds);
+
+      // additional property of hashed_password
+      payload.hashed_password = hashedPassword;
+    }
+
+    if (!payload.roles) {
+      payload.roles = ['user'];
+    }
+
+    return payload;
+  }
+
+  getParsedUserResponsePayload(user: any = {}) {
+    user = JSON.parse(JSON.stringify(user));
+
+    // delete unnecessary properties
+    delete user.$setOnInsert;
+    delete user._id;
+    delete user.__v;
+    delete user.password;
+    delete user.active;
+    delete user.roles;
+    delete user.created_at;
+    delete user.updated_at;
+
+    return user;
+  }
+
+  getCreateOrUpdateUserPayload(user: any = {}, oldUser: any = {}): CreateOrUpdateUserDto {
+    const payload = {
+      active: parseBoolean(user.active, true),
+      uid: _.defaultTo(oldUser.uid, nanoid()),
+      name: _.defaultTo(user.name, oldUser.name),
+      email: _.defaultTo(user.email, oldUser.email),
+      roles: parseArray(user.roles, oldUser.roles),
+      username: _.defaultTo(user.username, oldUser.username),
+      password: _.defaultTo(user.hashed_password, oldUser.password),
+      profile_picture: _.defaultTo(user.profile_picture, oldUser.profile_picture),
+    };
 
     return payload;
   }
