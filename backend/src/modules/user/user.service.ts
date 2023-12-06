@@ -17,9 +17,7 @@ import {
 import { QueryParams } from 'src/interfaces';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { User } from 'src/schemas/user.schema';
-import { _getUserPayload } from 'src/helpers/user';
 import { parseArray, parseBoolean } from 'src/utils';
-import { _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Injectable()
 export class UserService {
@@ -54,7 +52,7 @@ export class UserService {
   }
 
   async createOrUpdateUser(user: any, oldUser: any) {
-    const payload = _getUserPayload(user, oldUser);
+    const payload = this.getCreateOrUpdateUserPayload(user, oldUser);
 
     try {
       await this.userModel.updateOne({ uid: payload.uid }, payload, {

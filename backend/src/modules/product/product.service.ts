@@ -14,7 +14,6 @@ import {
 } from 'src/helpers/aggregationFilters';
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { Product } from 'src/schemas/product.schema';
-import { _getProductPayload } from 'src/helpers/product';
 import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 
 @Injectable()
@@ -49,7 +48,7 @@ export class ProductService {
   }
 
   async createOrUpdateProduct(product: any, oldProduct: any, user: any) {
-    const payload = _getProductPayload(product, oldProduct, user);
+    const payload = this.getCreateOrUpdateProductPayload(product, oldProduct, user);
 
     try {
       await this.productModel.updateOne({ uid: payload.uid }, payload, {
@@ -87,7 +86,7 @@ export class ProductService {
     return payload;
   }
 
-  getProductResponsePayload(product: any = {}) {
+  getParsedProductResponsePayload(product: any = {}) {
     product = JSON.parse(JSON.stringify(product));
 
     // delete unnecessary properties
@@ -98,7 +97,7 @@ export class ProductService {
     return product;
   }
 
-  getProductPayload(product: any = {}, oldProduct: any = {}, user: any = {}): CreateOrUpdateProductDto {
+  getCreateOrUpdateProductPayload(product: any = {}, oldProduct: any = {}, user: any = {}): CreateOrUpdateProductDto {
     const payload = {
       uid: _.defaultTo(oldProduct.uid, nanoid()),
       name: _.defaultTo(product.name, oldProduct.name),

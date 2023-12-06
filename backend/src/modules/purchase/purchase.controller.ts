@@ -17,7 +17,7 @@ import {
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { PurchaseService } from './purchase.service';
-import { _getParsedParams, _getParsedPurchaseResponsePayload, _getParsedQuery } from 'src/helpers/parser';
+import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -41,7 +41,9 @@ export class PurchaseController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(201).send({ purchase: _getParsedPurchaseResponsePayload(createdPurchase) });
+    return response
+      .status(201)
+      .send({ purchase: this.purchaseService.getParsedPurchaseResponsePayload(createdPurchase) });
   }
 
   @Get('')
@@ -62,7 +64,7 @@ export class PurchaseController {
     }
 
     // parsing response payload
-    purchases = _.map(purchases, _getParsedPurchaseResponsePayload);
+    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
 
     return response.status(200).send({ purchases });
   }
@@ -101,17 +103,13 @@ export class PurchaseController {
 
     try {
       purchase = await this.purchaseService.getAllPurchases(parsedQuery);
-
-      if (purchase.length) {
-        purchase = purchase[0];
-      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
     // parse response payload
-    purchase = _getParsedPurchaseResponsePayload(purchase);
+    purchase = _.map(purchase, this.purchaseService.getParsedPurchaseResponsePayload);
 
-    return response.status(200).send({ purchases: [purchase] });
+    return response.status(200).send({ purchase });
   }
 }
