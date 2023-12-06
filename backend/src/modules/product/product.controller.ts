@@ -18,7 +18,7 @@ import {
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { ProductService } from './product.service';
 import { CRequest, CResponse } from 'src/interfaces';
-import { _getParsedQuery, _getParsedParams, _getParsedProductResponsePayload } from 'src/helpers/parser';
+import { _getParsedQuery, _getParsedParams } from 'src/helpers/parser';
 
 @Controller('product')
 export class ProductController {
@@ -37,7 +37,7 @@ export class ProductController {
     }
 
     // parse response payload
-    products = _.map(products, _getParsedProductResponsePayload);
+    products = _.map(products, this.productService.getParsedProductResponsePayload);
 
     return response.status(200).send({ products });
   }
@@ -53,18 +53,14 @@ export class ProductController {
 
     try {
       product = await this.productService.getAllProducts(parsedQuery);
-
-      if (product.length) {
-        product = product[0];
-      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
     // parse response payload
-    product = _getParsedProductResponsePayload(product);
+    product = _.map(product, this.productService.getParsedProductResponsePayload);
 
-    return response.status(200).send({ products: [product] });
+    return response.status(200).send({ products: product });
   }
 
   @Post('')
@@ -88,7 +84,7 @@ export class ProductController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(201).send({ product: _getParsedProductResponsePayload(createdProduct) });
+    return response.status(201).send({ product: this.productService.getParsedProductResponsePayload(createdProduct) });
   }
 
   @Patch(':product_uid')
@@ -109,7 +105,7 @@ export class ProductController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(200).send({ product: _getParsedProductResponsePayload(createdProduct) });
+    return response.status(200).send({ product: this.productService.getParsedProductResponsePayload(createdProduct) });
   }
 
   @Delete(':product_uid')

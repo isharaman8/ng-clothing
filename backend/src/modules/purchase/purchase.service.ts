@@ -9,7 +9,6 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { parseArray, parseBoolean } from 'src/utils';
 import { Purchase } from 'src/schemas/purchase.schema';
-import { _getPurchasePayload } from 'src/helpers/purchase';
 import { _getUidAggregationFilter, _getVerifiedAggregationFilter } from 'src/helpers/aggregationFilters';
 
 @Injectable()
@@ -17,7 +16,7 @@ export class PurchaseService {
   constructor(@InjectModel(Purchase.name) private purchaseModel: Model<Purchase>) {}
 
   async createOrUpdatePurchase(purchase: any, oldPurchase: CreateOrUpdatePurchaseDto, user: any = {}) {
-    const payload = _getPurchasePayload(purchase, oldPurchase, user);
+    const payload = this.getCreateOrUpdatePurchasePayload(purchase, oldPurchase, user);
 
     try {
       await this.purchaseModel.updateOne({ uid: payload.uid }, payload, { upsert: true });
@@ -74,7 +73,11 @@ export class PurchaseService {
     return purchase;
   }
 
-  getPurchasePayload(purchase: any = {}, oldPurchase: any = {}, user: any = {}): CreateOrUpdatePurchaseDto {
+  getCreateOrUpdatePurchasePayload(
+    purchase: any = {},
+    oldPurchase: any = {},
+    user: any = {},
+  ): CreateOrUpdatePurchaseDto {
     return {
       user_id: user.uid,
       uid: _.defaultTo(oldPurchase.uid, nanoid()),

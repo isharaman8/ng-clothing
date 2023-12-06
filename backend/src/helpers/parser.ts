@@ -1,6 +1,5 @@
 // third party imports
 import * as _ from 'lodash';
-import * as bcrypt from 'bcrypt';
 
 // inner imports
 import { Params, QueryParams } from 'src/interfaces';
@@ -32,42 +31,4 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
   }
 
   return queryPayload;
-};
-
-export const _getParsedUserResponsePayload = (user: any = {}) => {
-  user = JSON.parse(JSON.stringify(user));
-
-  // delete unnecessary properties
-  delete user.$setOnInsert;
-  delete user._id;
-  delete user.__v;
-  delete user.password;
-  delete user.active;
-  delete user.roles;
-  delete user.created_at;
-  delete user.updated_at;
-
-  return user;
-};
-
-export const _getParsedProductResponsePayload = (product: any = {}) => {
-  product = JSON.parse(JSON.stringify(product));
-
-  // delete unnecessary properties
-  delete product.$setOnInsert;
-  delete product._id;
-  delete product.__v;
-
-  return product;
-};
-
-export const _getParsedPurchaseResponsePayload = (purchase: any = {}) => {
-  purchase = JSON.parse(JSON.stringify(purchase));
-
-  // delete unnecessary properties
-  delete purchase.$setOnInsert;
-  delete purchase._id;
-  delete purchase.__v;
-
-  return purchase;
 };

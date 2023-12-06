@@ -5,7 +5,6 @@ import { Body, Controller, InternalServerErrorException, Patch, Post, Res } from
 // inner imports
 import { UserService } from './user.service';
 import { CreateOrUpdateUserDto } from 'src/dto';
-import { _getParsedUserResponsePayload } from 'src/helpers/parser';
 
 @Controller('user')
 export class UserController {
@@ -26,7 +25,7 @@ export class UserController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(201).send({ user: _getParsedUserResponsePayload(createdUser) });
+    return response.status(201).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }
 
   @Patch(':user_id')
@@ -44,6 +43,6 @@ export class UserController {
       throw new InternalServerErrorException(error.message);
     }
 
-    return response.status(200).send({ user: _getParsedUserResponsePayload(createdUser) });
+    return response.status(200).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }
 }
