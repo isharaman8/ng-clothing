@@ -9,6 +9,7 @@ import { parseObject } from './utils';
 import { config } from './config/config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { S3Module } from './modules/s3/s3.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductModule } from './modules/product/product.module';
@@ -38,6 +39,7 @@ import { PurchaseModule } from './modules/purchase/purchase.module';
     AuthModule,
     ProductModule,
     PurchaseModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
