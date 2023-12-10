@@ -1,4 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, IsArray, IsBoolean, IsOptional } from 'class-validator';
+// third party imports
+import { IsEmail, IsNotEmpty, IsString, IsArray, IsBoolean, IsOptional, IsObject } from 'class-validator';
+
+// inner imports
+import { UploadedImage } from 'src/interfaces';
 
 export class CreateOrUpdateUserDto {
   @IsEmail()
@@ -29,9 +33,9 @@ export class CreateOrUpdateUserDto {
   @IsOptional()
   roles: string[];
 
-  @IsString()
+  @IsObject()
   @IsOptional()
-  profile_picture: string;
+  profile_picture: UploadedImage;
 }
 
 export class LoginUserDto {

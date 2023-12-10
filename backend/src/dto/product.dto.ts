@@ -1,4 +1,8 @@
+// third pary imports
 import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+
+// inner imports
+import { UploadedImage } from 'src/interfaces';
 
 export class CreateOrUpdateProductDto {
   @IsString()
@@ -19,7 +23,7 @@ export class CreateOrUpdateProductDto {
 
   @IsArray()
   @IsNotEmpty()
-  images: Array<string>;
+  images: Array<UploadedImage>;
 
   @IsString()
   @IsOptional()
