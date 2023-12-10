@@ -3,6 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 
+// inner imports
+import { ALLOWED_MIMETYPES } from 'src/constants/constants';
+
 @Injectable()
 export class S3Service {
   constructor(private configService: ConfigService) {}
@@ -19,11 +22,15 @@ export class S3Service {
     const responses = [];
 
     for (const file of files) {
-      const { originalname } = file;
-      const uploadResponses = await this.s3Upload(file.buffer, this.AWS_S3_BUCKET, originalname, file.mimetype);
-      console.log(uploadResponses);
+      const { originalname, mimetype, buffer } = file;
 
-      responses.push(uploadResponses);
+      if (this.validateImageMimetype(mimetype)) {
+        const uploadResponse = await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype);
+
+        console.log('UPLOAD RESPONSE', uploadResponse);
+
+        responses.push(uploadResponse);
+      }
     }
 
     return responses;
@@ -51,5 +58,13 @@ export class S3Service {
     }
 
     return s3Response;
+  }
+
+  validateImageMimetype(mimetype: string) {
+    if (ALLOWED_MIMETYPES.image.includes(mimetype)) {
+      return true;
+    }
+
+    return false;
   }
 }
