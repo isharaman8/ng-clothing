@@ -1,6 +1,6 @@
 // third party imports
-import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 

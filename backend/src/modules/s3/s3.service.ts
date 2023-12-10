@@ -1,9 +1,10 @@
 // third party imports
-import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 
 // inner imports
+import { S3GetArray } from 'src/interfaces';
 import { ALLOWED_MIMETYPES } from 'src/constants/constants';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class S3Service {
   s3Config = this.configService.get('s3');
   AWS_S3_BUCKET = this.s3Config.bucket;
   s3 = new S3Client({
+    region: this.s3Config.region,
     credentials: { accessKeyId: this.s3Config.accessKeyId, secretAccessKey: this.s3Config.secretAccessKey },
   });
 
@@ -29,7 +31,9 @@ export class S3Service {
 
         console.log('UPLOAD RESPONSE', uploadResponse);
 
-        responses.push(uploadResponse);
+        if (uploadResponse) {
+          responses.push(uploadResponse);
+        }
       }
     }
 
@@ -47,6 +51,8 @@ export class S3Service {
       abortController = new AbortController(),
       abortSignal = abortController.signal;
 
+    console.log('PARAMS', params);
+
     let s3Response: any;
 
     try {
@@ -57,7 +63,20 @@ export class S3Service {
       console.log(e);
     }
 
-    return s3Response;
+    if (s3Response) {
+      return s3Response;
+    }
+  }
+
+  async getFiles(keys: Array<S3GetArray>) {
+    let fileUrls = [];
+
+    try {
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return fileUrls;
   }
 
   validateImageMimetype(mimetype: string) {
