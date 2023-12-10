@@ -1,11 +1,12 @@
 // third party imports
 import { ConfigService } from '@nestjs/config';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 
 // inner imports
-import { S3GetArray } from 'src/interfaces';
+import { S3GetUrlArray } from 'src/interfaces';
 import { ALLOWED_MIMETYPES } from 'src/constants/constants';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 @Injectable()
 export class S3Service {
@@ -19,28 +20,29 @@ export class S3Service {
   });
 
   async uploadFiles(files: Array<Express.Multer.File>) {
-    console.log('FILES', files);
-
     const responses = [];
 
-    for (const file of files) {
-      const { originalname, mimetype, buffer } = file;
+    try {
+      // pushing promises to promiseArray
+      for (const file of files) {
+        const { originalname, mimetype, buffer, size } = file;
 
-      if (this.validateImageMimetype(mimetype)) {
-        const uploadResponse = await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype);
+        if (this.validateImageMimetype(mimetype)) {
+          const response = await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype, size);
 
-        console.log('UPLOAD RESPONSE', uploadResponse);
-
-        if (uploadResponse) {
-          responses.push(uploadResponse);
+          if (response) {
+            responses.push(response);
+          }
         }
       }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
 
     return responses;
   }
 
-  async s3Upload(file: Buffer, bucket: string, name: string, mimetype: string) {
+  async s3Upload(file: Buffer, bucket: string, name: string, mimetype: string, size: number) {
     const params: PutObjectCommandInput = {
         Body: file,
         Bucket: bucket,
@@ -51,34 +53,56 @@ export class S3Service {
       abortController = new AbortController(),
       abortSignal = abortController.signal;
 
-    console.log('PARAMS', params);
-
-    let s3Response: any;
+    let response: any;
 
     try {
-      s3Response = await this.s3.send(new PutObjectCommand(params), { abortSignal });
+      await this.s3.send(new PutObjectCommand(params), { abortSignal });
 
-      console.log('S3 Response', s3Response);
+      // creating response
+      const fileUrl = await this.getFileUrl(bucket, String(name));
+
+      if (fileUrl) {
+        response = {
+          key: String(name),
+          bucket,
+          url: fileUrl,
+          urlExpiryDate: new Date(new Date().getTime() + 604800000).toISOString(),
+          size,
+        };
+
+        return response;
+      }
     } catch (e) {
       console.log(e);
     }
 
-    if (s3Response) {
-      return s3Response;
-    }
+    return null;
   }
 
-  async getFiles(keys: Array<S3GetArray>) {
-    let fileUrls = [];
+  async getFileUrl(bucket: string, key: string) {
+    const getComand = new GetObjectCommand({ Bucket: bucket, Key: key });
+
+    return getSignedUrl(this.s3, getComand, { expiresIn: 604800 });
+  }
+
+  async getUpdatedFileUrls(s3Array: Array<S3GetUrlArray>) {
+    const responses = [];
 
     try {
+      for (const obj of s3Array) {
+        const { bucket, key, uid } = obj;
+        const newFileUrl = await this.getFileUrl(bucket, key);
+
+        responses.push({ uid, url: newFileUrl });
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
-    return fileUrls;
+    return responses;
   }
 
+  // validators
   validateImageMimetype(mimetype: string) {
     if (ALLOWED_MIMETYPES.image.includes(mimetype)) {
       return true;

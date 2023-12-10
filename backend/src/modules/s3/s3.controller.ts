@@ -13,16 +13,14 @@ export class S3Controller {
   @Post('image-upload')
   @UseInterceptors(FilesInterceptor('images'))
   async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Res() response: CResponse) {
-    let rs: any;
+    let rs = [];
 
     try {
-      rs = await this.s3Service.uploadFiles(files);
+      rs.push(...(await this.s3Service.uploadFiles(files)));
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
-    console.log('RS', rs);
-
-    return response.status(200).send({ hello: 'hello' });
+    return response.status(200).send({ responses: rs });
   }
 }

@@ -12,13 +12,18 @@ import {
   _getPriceAggregationFilter,
   _getActiveAggregationFilter,
 } from 'src/helpers/aggregationFilters';
+import { S3Service } from '../s3/s3.service';
+import { UploadedImage } from 'src/interfaces';
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { Product } from 'src/schemas/product.schema';
 import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
+  constructor(
+    @InjectModel(Product.name) private productModel: Model<Product>,
+    private s3Service: S3Service,
+  ) {}
 
   async getAllProducts(query: any = {}) {
     let products = [];
@@ -93,6 +98,8 @@ export class ProductService {
     delete product.$setOnInsert;
     delete product._id;
     delete product.__v;
+
+    product.images = _.map(product.images, (image: UploadedImage) => image.url);
 
     return product;
   }

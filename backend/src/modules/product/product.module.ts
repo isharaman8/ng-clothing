@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 
 // inner imports
+import { S3Service } from '../s3/s3.service';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { User, UserSchema } from 'src/schemas/user.schema';
@@ -18,7 +19,7 @@ import { ValidateProductMiddleware } from 'src/middlewares/validate-product.midd
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, S3Service],
 })
 export class ProductModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
