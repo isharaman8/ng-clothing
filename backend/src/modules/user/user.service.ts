@@ -14,14 +14,18 @@ import {
   _getUserNameAggregationFilter,
   _getActiveAggregationFilter,
 } from 'src/helpers/aggregationFilters';
-import { QueryParams } from 'src/interfaces';
-import { CreateOrUpdateUserDto } from 'src/dto';
+import { S3Service } from '../s3/s3.service';
 import { User } from 'src/schemas/user.schema';
+import { CreateOrUpdateUserDto } from 'src/dto';
 import { parseArray, parseBoolean } from 'src/utils';
+import { QueryParams, S3GetUrlArray, UploadedImage } from 'src/interfaces';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private s3Service: S3Service,
+  ) {}
 
   async getAllUsers(query: QueryParams) {
     const baseQuery = [
@@ -63,6 +67,75 @@ export class UserService {
     }
 
     return payload;
+  }
+
+  async getUpdatedProfilePictureUrl(users: Array<CreateOrUpdateUserDto>) {
+    const profilePictureUids = _.compact(_.map(users, (user) => user.profile_picture));
+    const s3Array: Array<S3GetUrlArray> = [];
+
+    let dbProfilePictures = [];
+    let updatedFileUrls = [];
+
+    try {
+      dbProfilePictures = await this.s3Service.getAllUploads(profilePictureUids);
+
+      // filtering to be updated users
+      for (const user of users) {
+        if (user.profile_picture) {
+          const reqdProfilePicture = _.find(dbProfilePictures, (picture) => picture.uid === user.profile_picture);
+
+          if (reqdProfilePicture) {
+            const prevTime = new Date(reqdProfilePicture.urlExpiryDate),
+              currentTime = new Date();
+
+            if (currentTime >= prevTime) {
+              s3Array.push({
+                uid: reqdProfilePicture.uid,
+                bucket: reqdProfilePicture.bucket,
+                key: reqdProfilePicture.key,
+                service_uid: user.uid,
+              });
+            }
+          }
+        }
+      }
+
+      // fetching updated image objs
+      if (s3Array.length) {
+        updatedFileUrls = await this.s3Service.getUpdatedFileUrls(s3Array);
+      }
+
+      // updating dbArray
+      for (const url of updatedFileUrls) {
+        const reqdImageIdx = _.findIndex(dbProfilePictures, (image) => image.uid === url.uid);
+
+        if (reqdImageIdx !== -1) {
+          const oldProfilePictureObj: UploadedImage = dbProfilePictures[reqdImageIdx],
+            newProfilePicture: UploadedImage = {
+              ...JSON.parse(JSON.stringify(oldProfilePictureObj)),
+              url: url.url,
+              urlExpiryDate: url.urlExpiryDate,
+            };
+
+          dbProfilePictures[reqdImageIdx] = newProfilePicture;
+        }
+      }
+
+      // parsing user response;
+      for (const user of users) {
+        if (user.profile_picture) {
+          const reqdImage = _.find(dbProfilePictures, (image) => image.uid === user.profile_picture);
+
+          if (reqdImage) {
+            user['profile_picture'] = reqdImage.url;
+          }
+        }
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return users;
   }
 
   getParsedUserBody(body: CreateOrUpdateUserDto) {

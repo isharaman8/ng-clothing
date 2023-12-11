@@ -120,7 +120,6 @@ export class ProductService {
   }
 
   async getUpdatedImageArray(products: Array<CreateOrUpdateProductDto>) {
-    const bulkWriteArray = [];
     const newImageArrayMap = new Map();
     const s3Array: Array<S3GetUrlArray> = [];
     const imageUids = _.compact(_.flatMap(products, (product) => parseArray(product.images, [])));
@@ -153,12 +152,16 @@ export class ProductService {
 
       // setting new image array in newImageArrayMap with key = product.uid and value = newimages
       for (const url of updatedFileUrls) {
-        const reqdProduct = _.find(products, (product) => product.uid === url.uid);
+        const reqdProduct = _.find(products, (product) => product.uid === url.service_uid);
         const reqdImageIdx = _.findIndex(dbImages, (image) => image.uid === url.uid);
 
         if (reqdImageIdx !== -1) {
           const prevImageObj: UploadedImage = dbImages[reqdImageIdx];
-          const newImageObj: UploadedImage = { ...prevImageObj, url: url.url, urlExpiryDate: url.urlExpiryDate };
+          const newImageObj: UploadedImage = {
+            ...JSON.parse(JSON.stringify(prevImageObj)),
+            url: url.url,
+            urlExpiryDate: url.urlExpiryDate,
+          };
 
           dbImages[reqdImageIdx] = newImageObj;
 
@@ -171,29 +174,11 @@ export class ProductService {
         }
       }
 
-      // creating bulkwrite array
-      newImageArrayMap.forEach((value, key) => {
-        bulkWriteArray.push({
-          updateOne: {
-            filter: { uid: key },
-            update: {
-              $set: {
-                images: _.map(parseArray(value, []), (image) => image.uid),
-              },
-            },
-          },
-        });
-      });
-
       // parsing product.images for response;
       for (const product of products) {
         const reqdDBImages = _.filter(dbImages, (image) => product.images.includes(image.uid));
 
         product['images'] = reqdDBImages;
-      }
-
-      if (bulkWriteArray.length) {
-        await this.productModel.bulkWrite(bulkWriteArray);
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

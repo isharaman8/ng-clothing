@@ -33,9 +33,9 @@ export class CreateOrUpdateUserDto {
   @IsOptional()
   roles: string[];
 
-  @IsObject()
+  @IsString()
   @IsOptional()
-  profile_picture: UploadedImage;
+  profile_picture: string;
 }
 
 export class LoginUserDto {
