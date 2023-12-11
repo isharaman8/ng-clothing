@@ -31,7 +31,6 @@ export class S3Service {
     const bulkWriteArray = [];
 
     try {
-      // pushing promises to promiseArray
       for (const file of files) {
         const { originalname, mimetype, buffer, size } = file;
 

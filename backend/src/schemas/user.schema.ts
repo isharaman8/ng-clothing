@@ -3,7 +3,6 @@ import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 // inner imports
-import { UploadedImage } from 'src/interfaces';
 import { USER_ROLES } from 'src/constants/constants';
 
 export type UserDocument = HydratedDocument<User>;
@@ -32,8 +31,8 @@ export class User {
   @Prop({ enum: Object.values(USER_ROLES), default: [], type: Array<string> })
   roles: string[];
 
-  @Prop({ default: null, type: Object })
-  profile_picture: UploadedImage;
+  @Prop({ default: null })
+  profile_picture: string;
 
   @Prop({ default: true })
   active: boolean;

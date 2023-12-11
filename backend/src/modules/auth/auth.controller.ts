@@ -35,6 +35,11 @@ export class AuthController {
     try {
       createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
       userToken = await this.authService.getAuthToken(createdUser);
+
+      // get updated profile picture url
+      const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
+
+      createdUser = tempUser[0];
     } catch (error) {
       console.log('UPDATE USER ERROR', error);
 
@@ -54,6 +59,11 @@ export class AuthController {
 
     try {
       userToken = await this.authService.getAuthToken(oldUser);
+
+      // get updated profile picture url
+      const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser]);
+
+      oldUser = tempUser[0];
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
