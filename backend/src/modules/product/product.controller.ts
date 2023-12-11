@@ -33,7 +33,7 @@ export class ProductController {
     try {
       products = await this.productService.getAllProducts(parsedQuery);
 
-      // update for new urls
+      // get updated product images
       products = await this.productService.getUpdatedImageArray(products);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -57,7 +57,7 @@ export class ProductController {
     try {
       product = await this.productService.getAllProducts(parsedQuery);
 
-      // update for new image urls
+      // get updated product images
       product = await this.productService.getUpdatedImageArray(product);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -86,6 +86,11 @@ export class ProductController {
 
     try {
       createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
+
+      // get updated product images
+      const tempProduct = await this.productService.getUpdatedImageArray([createdProduct]);
+
+      createdProduct = tempProduct[0];
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -107,6 +112,11 @@ export class ProductController {
 
     try {
       createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
+
+      // get updated images
+      const tempProduct = await this.productService.getUpdatedImageArray([createdProduct]);
+
+      createdProduct = tempProduct[0];
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

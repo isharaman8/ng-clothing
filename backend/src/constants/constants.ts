@@ -4,8 +4,9 @@ export const USER_ROLES = Object.freeze({
 });
 
 export const ALLOWED_USER_ROLES = Object.freeze({
-  product: ['admin'],
   user: ['admin'],
+  upload: ['admin'],
+  product: ['admin'],
 });
 
 export const ALLOWED_MIMETYPES = Object.freeze({

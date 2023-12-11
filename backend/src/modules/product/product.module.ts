@@ -7,6 +7,7 @@ import { S3Service } from '../s3/s3.service';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { User, UserSchema } from 'src/schemas/user.schema';
+import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { ValidateProductMiddleware } from 'src/middlewares/validate-product.middleware';
@@ -14,8 +15,9 @@ import { ValidateProductMiddleware } from 'src/middlewares/validate-product.midd
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Product.name, schema: ProductSchema },
       { name: User.name, schema: UserSchema },
+      { name: Upload.name, schema: UploadSchema },
+      { name: Product.name, schema: ProductSchema },
     ]),
   ],
   controllers: [ProductController],

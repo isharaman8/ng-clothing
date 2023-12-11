@@ -2,7 +2,6 @@
 import { HydratedDocument } from 'mongoose';
 
 // third party imports
-import { UploadedImage } from 'src/interfaces';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export type ProductDocument = HydratedDocument<Product>;
@@ -21,8 +20,8 @@ export class Product {
   @Prop({ default: true })
   active: boolean;
 
-  @Prop({ default: [], type: Array })
-  images: Array<UploadedImage>;
+  @Prop({ default: [] })
+  images: Array<string>;
 
   @Prop({ default: null })
   user_id: string;
