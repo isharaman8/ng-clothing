@@ -93,7 +93,13 @@ export class S3Service {
         const { bucket, key, uid } = obj;
         const newFileUrl = await this.getFileUrl(bucket, key);
 
-        responses.push({ uid, url: newFileUrl });
+        responses.push({
+          uid,
+          key,
+          bucket,
+          url: newFileUrl,
+          urlExpiryDate: new Date(new Date().getTime() + 604800000).toISOString(),
+        });
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

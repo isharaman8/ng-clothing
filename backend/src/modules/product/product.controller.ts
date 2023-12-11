@@ -32,6 +32,9 @@ export class ProductController {
 
     try {
       products = await this.productService.getAllProducts(parsedQuery);
+
+      // update for new urls
+      products = await this.productService.getUpdatedImageArray(products);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -53,6 +56,9 @@ export class ProductController {
 
     try {
       product = await this.productService.getAllProducts(parsedQuery);
+
+      // update for new image urls
+      product = await this.productService.getUpdatedImageArray(product);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
