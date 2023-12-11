@@ -116,4 +116,71 @@ export class ProductService {
 
     return payload;
   }
+
+  async getUpdatedImageArray(products: Array<CreateOrUpdateProductDto>) {
+    const s3Array = [];
+    const bulkWriteArray = [];
+    const newImageArrayMap = new Map();
+
+    let updatedFileUrls = [];
+
+    for (const product of products) {
+      for (const image of parseArray(product.images, [])) {
+        const imageExpiryDate = new Date(image.urlExpiryDate),
+          currentDate = new Date();
+
+        if (currentDate >= imageExpiryDate) {
+          s3Array.push({ uid: product.uid, bucket: image.bucket, key: image.key });
+        }
+      }
+    }
+
+    try {
+      if (s3Array.length) {
+        updatedFileUrls = await this.s3Service.getUpdatedFileUrls(s3Array);
+      }
+
+      // setting new image array in newImageArrayMap with key = product.uid and value = newimages
+      for (const url of updatedFileUrls) {
+        const reqdProduct = _.find(products, (product) => product.uid === url.uid);
+        const images: Array<UploadedImage> = parseArray(reqdProduct.images, []);
+        const reqdImageIdx = _.findIndex(
+          images,
+          (image: UploadedImage) => image.key === url.key && image.bucket === url.bucket,
+        );
+
+        if (reqdImageIdx !== -1) {
+          const prevImageObj: UploadedImage = images[reqdImageIdx];
+          const newImageObj: UploadedImage = { ...prevImageObj, urlExpiryDate: url.urlExpiryDate };
+
+          reqdProduct.images = images;
+          images[reqdImageIdx] = newImageObj;
+
+          newImageArrayMap.set(reqdProduct.uid, images);
+        }
+      }
+
+      // creating bulkwrite array
+      newImageArrayMap.forEach((value, key) => {
+        bulkWriteArray.push({
+          updateOne: {
+            filter: { uid: key },
+            update: {
+              $set: {
+                images: value,
+              },
+            },
+          },
+        });
+      });
+
+      if (bulkWriteArray.length) {
+        await this.productModel.bulkWrite(bulkWriteArray);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return products;
+  }
 }
