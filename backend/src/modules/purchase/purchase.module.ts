@@ -8,6 +8,7 @@ import { PurchaseService } from './purchase.service';
 import { PurchaseController } from './purchase.controller';
 import { ProductService } from '../product/product.service';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
+import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { Purchase, PurchaseSchema } from 'src/schemas/purchase.schema';
 import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.middleware';
@@ -15,6 +16,7 @@ import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.mi
 @Module({
   imports: [
     MongooseModule.forFeature([
+      { name: Upload.name, schema: UploadSchema },
       { name: Product.name, schema: ProductSchema },
       { name: Purchase.name, schema: PurchaseSchema },
     ]),

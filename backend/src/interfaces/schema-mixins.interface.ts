@@ -11,4 +11,5 @@ export interface UploadedImage {
   size: number;
   bucket: string;
   urlExpiryDate: string;
+  uid: string;
 }
