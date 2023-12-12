@@ -37,6 +37,11 @@ export class PurchaseController {
 
     try {
       createdPurchase = await this.purchaseService.createOrUpdatePurchase(payload, oldPurchase, user);
+
+      // get updated image urls
+      let tempPurchase = await this.purchaseService.getUpatedPurchaseImageUrls([createdPurchase]);
+
+      createdPurchase = tempPurchase[0];
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -59,6 +64,9 @@ export class PurchaseController {
 
     try {
       purchases = await this.purchaseService.getAllPurchases(parsedQuery);
+
+      // get updated image urls
+      purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -95,21 +103,24 @@ export class PurchaseController {
     const parsedParams = _getParsedParams(params);
     const { user = {} } = request;
 
-    let purchase: any;
+    let purchases: any;
 
     // adding props to parsedQuery
     parsedQuery.userId = user.uid;
     parsedQuery.uid = parsedParams.purchaseId;
 
     try {
-      purchase = await this.purchaseService.getAllPurchases(parsedQuery);
+      purchases = await this.purchaseService.getAllPurchases(parsedQuery);
+
+      // get updated image urls
+      purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
     // parse response payload
-    purchase = _.map(purchase, this.purchaseService.getParsedPurchaseResponsePayload);
+    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
 
-    return response.status(200).send({ purchase });
+    return response.status(200).send({ purchases });
   }
 }
