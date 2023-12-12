@@ -85,6 +85,11 @@ export class AuthController {
 
     try {
       user = await this.userService.getAllUsers(parsedQuery);
+
+      // get updated profile picture url
+      const tempUser = await this.userService.getUpdatedProfilePictureUrl(user);
+
+      user = tempUser;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
