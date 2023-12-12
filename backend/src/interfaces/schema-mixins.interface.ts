@@ -2,7 +2,7 @@ export interface PurchaseProduct {
   uid: string;
   price: number;
   name: string;
-  images: Array<UploadedImage>;
+  images: Array<string>;
 }
 
 export interface UploadedImage {

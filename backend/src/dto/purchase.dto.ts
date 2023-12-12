@@ -1,6 +1,9 @@
 // third party imports
 import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
+// inner imports
+import { PurchaseProduct } from 'src/interfaces';
+
 export class CreateOrUpdatePurchaseDto {
   @IsString()
   @IsOptional()
@@ -8,7 +11,7 @@ export class CreateOrUpdatePurchaseDto {
 
   @IsArray()
   @IsNotEmpty()
-  products: Array<string>;
+  products: Array<PurchaseProduct>;
 
   @IsString()
   @IsOptional()
