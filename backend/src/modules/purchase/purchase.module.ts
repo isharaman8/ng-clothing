@@ -5,6 +5,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 // inner imports
 import { S3Service } from '../s3/s3.service';
 import { PurchaseService } from './purchase.service';
+import { SharedService } from '../shared/shared.service';
 import { PurchaseController } from './purchase.controller';
 import { ProductService } from '../product/product.service';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
@@ -22,7 +23,7 @@ import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.mi
     ]),
   ],
   controllers: [PurchaseController],
-  providers: [PurchaseService, ProductService, S3Service],
+  providers: [PurchaseService, ProductService, S3Service, SharedService],
 })
 export class PurchaseModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

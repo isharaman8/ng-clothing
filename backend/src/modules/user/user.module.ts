@@ -6,6 +6,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { UserService } from './user.service';
 import { S3Service } from '../s3/s3.service';
 import { UserController } from './user.controller';
+import { SharedService } from '../shared/shared.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
@@ -18,7 +19,7 @@ import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService, S3Service],
+  providers: [UserService, S3Service, SharedService],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
