@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
 import { S3Module } from './modules/s3/s3.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { SharedModule } from './modules/shared/shared.module';
 import { ProductModule } from './modules/product/product.module';
 import { PurchaseModule } from './modules/purchase/purchase.module';
 
@@ -40,6 +41,7 @@ import { PurchaseModule } from './modules/purchase/purchase.module';
     ProductModule,
     PurchaseModule,
     S3Module,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

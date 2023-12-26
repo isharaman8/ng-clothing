@@ -7,6 +7,7 @@ import { S3Service } from '../s3/s3.service';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { AuthController } from './auth.controller';
+import { SharedService } from '../shared/shared.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
@@ -20,7 +21,7 @@ import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware
     ]),
   ],
   controllers: [AuthController],
-  providers: [UserService, AuthService, S3Service],
+  providers: [UserService, AuthService, S3Service, SharedService],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
