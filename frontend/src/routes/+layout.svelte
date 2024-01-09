@@ -3,7 +3,7 @@
 	import Navbar from '../components/Navbar/Navbar.svelte';
 </script>
 
-<div class="app bg-white w-[100vw] min-h-[100vh]">
+<div class="app">
 	<Navbar />
 
 	<main>
