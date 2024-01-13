@@ -16,6 +16,8 @@ async function bootstrap() {
   // envs
   const PORT = configService.get<number>('port') || 3000;
 
+  console.log('PORT', PORT);
+
   await app.listen(PORT);
 }
 bootstrap();
