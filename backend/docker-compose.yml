@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  # node API service
+  node:
+    build: .
+    ports:
+      - 3008:3008
+    volumes:
+      - ./:/usr/src/app
+    env_file:
+      - .env
+    networks:
+      - my_network
+
+volumes:
+  mongo_db: {}
+
+networks:
+  my_network:

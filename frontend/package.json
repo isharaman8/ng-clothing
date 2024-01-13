@@ -33,5 +33,10 @@
 		"typescript": "^5.0.0",
 		"vite": "^5.0.3"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"flowbite-svelte-icons": "^0.4.5",
+		"lodash": "^4.17.21",
+		"tailwind-merge": "^2.2.0"
+	}
 }
