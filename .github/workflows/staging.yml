@@ -3,7 +3,7 @@ name: Node.js Docker AWS Deployment
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -24,8 +24,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: Dockerfile
+          context: backend
+          file: backend/Dockerfile
           push: true
           tags: isharaman8/ng-clothing:latest
 
@@ -40,4 +40,4 @@ jobs:
             docker container stop ng-clothing || true
             docker container rm -v -f ng-clothing || true
             docker pull isharaman8/ng-clothing:latest
-            docker run -d --restart always --env-file=staging.env -p 3001:3001 --name ng-clothing isharaman8/ng-clothing:latest
+            docker run -d --restart always --env-file=staging.env -p 3008:3008 --name ng-clothing isharaman8/ng-clothing:latest
