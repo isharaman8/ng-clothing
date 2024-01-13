@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/usr/src/app
     env_file:
-      - .env
+      - staging.env
     networks:
       - my_network
 
