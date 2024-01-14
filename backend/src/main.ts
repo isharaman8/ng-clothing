@@ -13,6 +13,9 @@ async function bootstrap() {
   // pipes
   app.useGlobalPipes(new ValidationPipe());
 
+  // cors
+  app.enableCors();
+
   // envs
   const PORT = Number(configService.get<number>('port')) || 3000;
 
