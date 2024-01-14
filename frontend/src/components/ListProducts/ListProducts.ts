@@ -2,6 +2,7 @@
 import axios from 'axios';
 
 // inner imports
+import { ROUTES } from '../../constants';
 import settings from '../../config/settings';
 import { parseBoolean, parseNumber, parseString } from '../../utils';
 
@@ -62,7 +63,7 @@ export const getProducts = async (queryParams: any = {}) => {
 	let products = [];
 
 	try {
-		const _products = await axios.get(settings.config.baseApiUrl, {
+		const _products = await axios.get(`${settings.config.baseApiUrl}/${ROUTES.products}`, {
 			params
 		});
 
