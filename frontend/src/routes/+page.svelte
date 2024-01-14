@@ -11,6 +11,3 @@
 <section class="mt-24 w-[100vw] min-h-[88vh]">
 	<ListProducts title="Trending" />
 </section>
-
-<style>
-</style>
