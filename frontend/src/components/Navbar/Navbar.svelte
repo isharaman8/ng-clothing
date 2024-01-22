@@ -50,6 +50,9 @@
 						<CartOutline class="h-5" /> Cart
 					</a>
 				</li>
+				<li>
+					<a class="flex justify-center items-center gap-2" href={getUrl('login')}> Login/Signup </a>
+				</li>
 			</ul>
 		</div>
 	</div>

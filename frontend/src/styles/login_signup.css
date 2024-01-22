@@ -1,0 +1,13 @@
+.form_label {
+	display: flex;
+	justify-items: center;
+	align-items: start;
+	flex-direction: column;
+	margin-top: 15px;
+	gap: 5px;
+}
+
+.form_input {
+	padding: 5px 10px;
+	border-radius: 10px;
+}
