@@ -1,7 +1,7 @@
 .form_label {
 	display: flex;
 	justify-items: center;
-	align-items: start;
+	align-items: flex-start;
 	flex-direction: column;
 	margin-top: 15px;
 	gap: 5px;
