@@ -1,5 +1,6 @@
 // inner imports
 import { ROUTES } from '../../constants';
+import { validateEmail } from '../../utils';
 import settings from '../../config/settings';
 
 // third party imports
@@ -11,6 +12,10 @@ export const login = async (email: string, password: string) => {
 	try {
 		if (!email || !password) {
 			throw new Error('email or password missing');
+		}
+
+		if (!validateEmail(email)) {
+			throw new Error('Please write valid email');
 		}
 
 		const payload = { user: { email, password } };
@@ -26,8 +31,10 @@ export const login = async (email: string, password: string) => {
 		returnData['data'] = tempData.data;
 	} catch (error: any) {
 		returnData['error'] = true;
-		returnData['message'] = error.message;
+		returnData['message'] = error?.response?.data?.message || error.message;
 	}
+
+	console.log('RETURN DATA', returnData);
 
 	return returnData;
 };
