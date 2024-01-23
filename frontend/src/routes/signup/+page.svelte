@@ -2,7 +2,7 @@
 	// inner imports
 	import '../../styles/login_signup.css';
 
-	import { login } from '../../helpers/auth';
+	import { signup } from '../../helpers/auth';
 	import { authUserData } from '../../stores';
 	import Loader from '../../components/misc/Loader.svelte';
 
@@ -11,8 +11,10 @@
 	import { goto } from '$app/navigation';
 
 	// variables
+	let name = '';
 	let email = '';
 	let password = '';
+	let username = '';
 	let loading = false;
 
 	// functions
@@ -24,7 +26,8 @@
 		loading = true;
 
 		try {
-			const tempValue = await login(email, password);
+			const signupData = { name, email, password, username };
+			const tempValue = await signup(signupData);
 
 			if (tempValue.error) {
 				throw new Error(tempValue.message);
@@ -34,7 +37,7 @@
 
 			authUserData.set(returnValue);
 
-			alert('login successful');
+			alert('signup successful');
 			goto('/');
 		} catch (error: any) {
 			return alert(error.message);
@@ -49,7 +52,7 @@
 		class="flex flex-col justify-center items-center gap-2 rounded-lg bg-gray-300 p-8 shadow-xl"
 		on:submit={handleSubmit}
 	>
-		<h1 class="text-start w-full text-2xl font-semibold">Login</h1>
+		<h1 class="text-start w-full text-2xl font-semibold">Signup</h1>
 		<label class="form_label">
 			Email
 			<input type="email" placeholder="email" class="form_input" bind:value={email} />
@@ -58,7 +61,14 @@
 			Password
 			<input type="password" placeholder="password" class="form_input" bind:value={password} />
 		</label>
-		<a href="/signup" class="w-full text-xs text-gray-900 text-right my-2 underline">New Account? Signup</a>
+		<label class="form_label">
+			Username
+			<input type="text" placeholder="username" class="form_input" bind:value={username} />
+		</label>
+		<label class="form_label">
+			Name
+			<input type="text" placeholder="name" class="form_input" bind:value={name} />
+		</label>
 		<button class="bg-gray-800 px-3 py-2 text-white font-semibold rounded-lg mt-3">
 			{#if loading}
 				<Loader />
