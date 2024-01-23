@@ -1,13 +1,37 @@
-<script>
+<script lang="ts">
 	// css imports
 	import '../../styles/navbar.css';
 
 	// inner imports
 	import { getUrl } from './Navbar';
+	import { authUserData } from '../../stores';
 
 	// third party imports
 	import _ from 'lodash';
-	import { CartOutline, SearchOutline } from 'flowbite-svelte-icons';
+	import * as store from 'svelte/store';
+	import { CartOutline, SearchOutline, AngleDownOutline } from 'flowbite-svelte-icons';
+
+	// variables
+	let userData: any;
+	let dropdownvar: any;
+
+	$: userData = store.get(authUserData);
+
+	// functions
+	function toggleDropdownVisibility() {
+		if (dropdownvar) {
+			dropdownvar.classList.toggle('hidden');
+		}
+	}
+
+	function logout() {
+		authUserData.set({});
+
+		toggleDropdownVisibility();
+	}
+
+	// store subscribe
+	authUserData.subscribe((value: any) => (userData = value));
 </script>
 
 <nav class="border-gray-200 fixed top-0 left-0 w-[100vw] shadow-lg backdrop-blur-2xl">
@@ -41,7 +65,7 @@
 		</form>
 
 		<!-- cart and login -->
-		<div class="hidden w-full md:block md:w-auto" id="navbar-default">
+		<div class="md:block md:w-auto" id="navbar-default">
 			<ul
 				class="font-medium flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 justify-center items-center"
 			>
@@ -51,7 +75,35 @@
 					</a>
 				</li>
 				<li>
-					<a class="flex justify-center items-center gap-2" href={getUrl('login')}> Login/Signup </a>
+					{#if userData.auth_token}
+						<button
+							id="dropdownNavbarLink"
+							on:click={toggleDropdownVisibility}
+							class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto"
+							>Hi, {userData.user.name} <AngleDownOutline class="size-3 ml-2" /></button
+						>
+						<!-- Dropdown menu -->
+						<div
+							bind:this={dropdownvar}
+							id="dropdownNavbar"
+							class="z-10 hidden absolute font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44"
+						>
+							<ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
+								<li>
+									<a href="/profile" class="block px-4 py-2 hover:bg-gray-100">Profile</a>
+								</li>
+							</ul>
+							<div class="py-1">
+								<button
+									on:click={logout}
+									class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start"
+									>Sign out</button
+								>
+							</div>
+						</div>
+					{:else}
+						<a class="flex justify-center items-center gap-2" href={getUrl('login')}> Login/Signup </a>
+					{/if}
 				</li>
 			</ul>
 		</div>

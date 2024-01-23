@@ -14,10 +14,6 @@ const getActiveClass = (id: string, section: string) => {
 		return 'active';
 	}
 
-	console.log('ID', id);
-	console.log('SECTION', section);
-	console.log('VALUE', _.includes(id, section) ? 'active' : '');
-
 	return _.includes(id, section) ? 'active' : '';
 };
 
