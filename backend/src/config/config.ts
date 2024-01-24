@@ -26,7 +26,5 @@ export const config = () => {
     },
   };
 
-  console.log('CONFIG OBJ', configObj);
-
   return configObj;
 };
