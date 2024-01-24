@@ -16,6 +16,7 @@ export class AppController {
 
   @Get('/ping')
   getServicePing(@Res() response: CResponse) {
+    console.log('PING_SUCCESSFUL');
     return response.status(200).send();
   }
 }
