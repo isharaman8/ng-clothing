@@ -1,6 +1,6 @@
 <script lang="ts">
 	// inner imports
-	import { sampleProducts, sampleTitle, getProducts } from './ListProducts';
+	import { sampleTitle, getProducts } from './ListProducts';
 	import ProductCard from '../ProductCard/ProductCard.svelte';
 
 	// props
