@@ -1,0 +1,3 @@
+[build]
+ command = "netlify run build"
+ publish = "build"
