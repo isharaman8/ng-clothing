@@ -25,5 +25,5 @@ export const CartSchema = SchemaFactory.createForClass(Cart);
 /**
  * fix PurchaseProduct -> add qty as well, change in controllers accordingly
  * return total_price in purchase and cart request
- * add cart controller and services
+ * * add cart controller and services
  */
