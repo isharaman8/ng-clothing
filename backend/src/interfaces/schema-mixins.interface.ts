@@ -3,6 +3,7 @@ export interface PurchaseProduct {
   price: number;
   name: string;
   images: Array<string>;
+  qty: number;
 }
 
 export interface UploadedImage {
