@@ -1,9 +1,10 @@
 // third party imports
-import { Controller, Get, InternalServerErrorException, Req } from '@nestjs/common';
+import { Body, Controller, Get, InternalServerErrorException, Post, Req, Res } from '@nestjs/common';
 
 // inner imports
-import { CRequest } from 'src/interfaces';
 import { CartService } from './cart.service';
+import { CreateOrUpdateCartDto } from 'src/dto';
+import { CRequest, CResponse } from 'src/interfaces';
 
 @Controller('cart')
 export class CartController {
@@ -11,7 +12,7 @@ export class CartController {
 
   @Get()
   async getUserCart(@Req() request: CRequest) {
-    let cart: any;
+    let cart = { products: [] };
 
     try {
       cart = await this.cartSerivce.getUserCart(request.user);
@@ -20,5 +21,25 @@ export class CartController {
     }
 
     return { cart: this.cartSerivce.getParsedCartResponsePayload(cart) };
+  }
+
+  @Post('create-or-update')
+  async createOrUpdateUserCart(
+    @Body('cart') cart: CreateOrUpdateCartDto,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
+    const { oldCart } = response.locals;
+    const payload = this.cartSerivce.getParsedCartPayload(cart);
+
+    let createdOrUpdatedCart = { products: [] };
+
+    try {
+      createdOrUpdatedCart = await this.cartSerivce.createOrUpdateUserCart(payload, oldCart, request.user);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return response.status(200).send({ cart: this.cartSerivce.getParsedCartResponsePayload(createdOrUpdatedCart) });
   }
 }
