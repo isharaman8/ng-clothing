@@ -12,7 +12,7 @@ export class Cart {
   @Prop({ unique: true, required: true })
   uid: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   user_id: string;
 
   @Prop({ required: true, type: Array })
@@ -20,6 +20,9 @@ export class Cart {
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
+
+// Indexes
+CartSchema.index({ uid: 1, user_id: 1 }, { unique: true });
 
 // TODO
 /**
