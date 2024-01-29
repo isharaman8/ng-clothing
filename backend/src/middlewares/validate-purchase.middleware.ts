@@ -9,53 +9,17 @@ import { BadRequestException, Injectable, InternalServerErrorException, NestMidd
 import { _notEmpty, parseArray } from 'src/utils';
 import { CRequest, CResponse } from 'src/interfaces';
 import { Purchase } from 'src/schemas/purchase.schema';
-import { ProductService } from 'src/modules/product/product.service';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 import { PurchaseService } from 'src/modules/purchase/purchase.service';
+import { SharedValidatorService } from 'src/modules/shared/shared-validator.service';
 
 @Injectable()
 export class ValidatePurchaseMiddleware implements NestMiddleware {
   constructor(
     @InjectModel(Purchase.name) private purchaseModel: Model<Purchase>,
-    private productService: ProductService,
     private purchaseService: PurchaseService,
+    private sharedValidatorService: SharedValidatorService,
   ) {}
-
-  async validateAndParseProducts(productUids: Array<string>) {
-    const query = _getParsedQuery({ uid: productUids });
-    const parsedProductArray = [];
-
-    let products = [];
-
-    try {
-      if (productUids.length) {
-        products = await this.productService.getAllProducts(query);
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-
-    // validate if products exist
-    for (const uid of productUids) {
-      const reqdProduct = _.find(products, (product) => product.uid === uid);
-
-      if (!reqdProduct) {
-        throw new BadRequestException('product not found');
-      }
-    }
-
-    // get parsed products
-    for (const product of products) {
-      parsedProductArray.push({
-        uid: product.uid,
-        name: product.name,
-        price: product.price,
-        images: product.images,
-      });
-    }
-
-    return parsedProductArray;
-  }
 
   validateVerifyRequest(method: string, originalUrl: string, oldPurchase: any) {
     if (method.toUpperCase() === 'PATCH' && originalUrl.endsWith('/verify')) {
@@ -88,7 +52,9 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
     this.validateVerifyRequest(req.method, req.originalUrl, oldPurchase);
 
     // attach validated products
-    parsedPurchase.products = await this.validateAndParseProducts(parseArray(parsedPurchase.products, []));
+    parsedPurchase.products = await this.sharedValidatorService.validateAndParseProducts(
+      parseArray(parsedPurchase.products, []),
+    );
 
     // for post request
     if (!oldPurchase) {

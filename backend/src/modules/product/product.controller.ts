@@ -71,13 +71,12 @@ export class ProductController {
 
   @Post('')
   async createProduct(
-    @Body('product') product: CreateOrUpdateProductDto,
+    @Body('product') _product: CreateOrUpdateProductDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldProduct } = response.locals;
+    const { oldProduct, product: payload } = response.locals;
     const { user = {} } = request;
-    const payload = this.productService.getParsedProductBody(product);
 
     // remove unwanted attributes
     delete payload.active;
@@ -100,12 +99,12 @@ export class ProductController {
 
   @Patch(':product_uid')
   async updateProduct(
-    @Body('product') product: CreateOrUpdateProductDto,
+    @Body('product') _product: CreateOrUpdateProductDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldProduct } = response.locals;
-    const payload = this.productService.getParsedProductBody(product);
+    const { oldProduct, product: payload } = response.locals;
+
     const { user = {} } = request;
 
     let createdProduct: any;

@@ -2,6 +2,7 @@ export interface Params {
   product_uid?: string;
   user_id?: string;
   purchase_uid?: string;
+  cart_uid?: string;
 }
 
 export interface QueryParams {

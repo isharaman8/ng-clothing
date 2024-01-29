@@ -7,7 +7,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 // inner imports
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
-import { parseArray, parseBoolean } from 'src/utils';
+import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 import { Purchase } from 'src/schemas/purchase.schema';
 import { SharedService } from '../shared/shared.service';
 import { _getUidAggregationFilter, _getVerifiedAggregationFilter } from 'src/helpers/aggregationFilters';
@@ -62,7 +62,9 @@ export class PurchaseService {
 
     try {
       // fetching uids
-      dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+      if (!_.isEmpty(imageUids)) {
+        dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+      }
 
       // parsing purchases for responses
       for (const purchase of purchases) {
@@ -94,6 +96,14 @@ export class PurchaseService {
 
   getParsedPurchaseResponsePayload(purchase: any = {}) {
     purchase = JSON.parse(JSON.stringify(purchase));
+
+    const totalCartPrice = _.reduce(
+      purchase.products,
+      (acc, curr) => acc + parseNumber(curr.price, 0) * parseNumber(curr.qty, 0),
+      0,
+    );
+
+    purchase['total_price'] = totalCartPrice;
 
     // delete unnecessary properties
     delete purchase.$setOnInsert;
