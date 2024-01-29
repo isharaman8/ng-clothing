@@ -26,8 +26,10 @@ export class Product {
   @Prop({ default: null })
   user_id: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   slug: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+
+ProductSchema.index({ slug: 1 });
