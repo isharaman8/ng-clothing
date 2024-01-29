@@ -12,6 +12,7 @@ import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { Purchase, PurchaseSchema } from 'src/schemas/purchase.schema';
+import { SharedValidatorService } from '../shared/shared-validator.service';
 import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.middleware';
 
 @Module({
@@ -23,7 +24,7 @@ import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.mi
     ]),
   ],
   controllers: [PurchaseController],
-  providers: [PurchaseService, ProductService, S3Service, SharedService],
+  providers: [PurchaseService, ProductService, S3Service, SharedService, SharedValidatorService],
 })
 export class PurchaseModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

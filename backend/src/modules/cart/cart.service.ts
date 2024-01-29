@@ -8,17 +8,25 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { Cart } from 'src/schemas/cart.schema';
 import { parseArray, parseNumber } from 'src/utils';
+import { SharedService } from '../shared/shared.service';
 import { CreateOrUpdateCartDto, CreateOrUpdateUserDto } from 'src/dto';
 
 @Injectable()
 export class CartService {
-  constructor(@InjectModel(Cart.name) private cartModel: Model<Cart>) {}
+  constructor(
+    @InjectModel(Cart.name) private cartModel: Model<Cart>,
+    private sharedService: SharedService,
+  ) {}
 
   async getUserCart(user: CreateOrUpdateUserDto) {
     let cart = { products: [] };
 
     try {
-      cart = await this.cartModel.findOne({ user_id: user.uid });
+      const tempCart = await this.cartModel.findOne({ user_id: user.uid });
+
+      if (!_.isEmpty(tempCart)) {
+        cart = tempCart;
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -33,10 +41,10 @@ export class CartService {
 
     try {
       if (!oldCart.uid) {
-        updatedCart = await this.cartModel.create(body);
+        updatedCart = await this.cartModel.create(payload);
       } else {
         updatedCart = await this.cartModel.findOneAndUpdate(
-          { uid: body.uid },
+          { uid: oldCart.uid },
           { $set: { products: payload.products } },
         );
       }
@@ -80,5 +88,30 @@ export class CartService {
     };
 
     return payload;
+  }
+
+  async getUpatedCartImageUrls(cart: CreateOrUpdateCartDto) {
+    const imageUids = _.compact(_.flatMap(cart.products, (product) => product.images));
+
+    let dbImages = [];
+
+    try {
+      // fetching uids
+      if (!_.isEmpty(imageUids)) {
+        dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+      }
+
+      // parsing carts for responses
+
+      for (const product of cart.products) {
+        const reqdImages = _.filter(dbImages, (image) => _.includes(product.images, image.uid));
+
+        product['images'] = _.map(reqdImages, (img) => img.url);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return cart;
   }
 }

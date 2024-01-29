@@ -17,6 +17,7 @@ import { CreateOrUpdateProductDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { Product } from 'src/schemas/product.schema';
 import { _getParsedParams } from 'src/helpers/parser';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 import { ProductService } from 'src/modules/product/product.service';
 
@@ -25,6 +26,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     private productService: ProductService,
+    private uploadService: S3Service,
   ) {}
 
   validateUserRole(user: any) {
@@ -63,6 +65,24 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
   }
 
+  async validateAndParseProductImages(product: CreateOrUpdateProductDto) {
+    const imageUids = parseArray(product.images, []);
+
+    let newImageUids = [];
+
+    try {
+      if (!_.isEmpty(imageUids)) {
+        const uploads = await this.uploadService.getAllUploads(imageUids);
+
+        newImageUids = _.map(uploads, (upload) => upload.uid);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return newImageUids;
+  }
+
   async use(req: CRequest, res: CResponse, next: NextFunction) {
     const {
       user = {},
@@ -73,7 +93,6 @@ export class ValidateProductMiddleware implements NestMiddleware {
     const findQuery = _.filter([{ uid: params.productId }, { user_id: user.uid }], _notEmpty);
 
     this.validateUserRole(user);
-
     this.validatePostRequest(req.method, parsedProduct);
 
     let oldProduct: any;
@@ -85,8 +104,13 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
 
     this.validatePatchRequest(req.method, oldProduct);
-
     this.validateDeleteRequest(req.method, oldProduct);
+
+    try {
+      parsedProduct.images = await this.validateAndParseProductImages(parsedProduct);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
 
     if (!oldProduct) {
       oldProduct = new this.productModel();
@@ -94,6 +118,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
 
     // attach to response
     res.locals.oldProduct = oldProduct;
+    res.locals.product = parsedProduct;
 
     next();
   }

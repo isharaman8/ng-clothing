@@ -10,6 +10,7 @@ export const _getParsedParams = (params: Params = {}) => {
     userId: params.user_id,
     productId: params.product_uid,
     purchaseId: params.purchase_uid,
+    cartId: params.cart_uid,
   };
 };
 

@@ -12,10 +12,11 @@ export class CartController {
 
   @Get()
   async getUserCart(@Req() request: CRequest) {
-    let cart = { products: [] };
+    let cart: any = { products: [] };
 
     try {
       cart = await this.cartSerivce.getUserCart(request.user);
+      cart = await this.cartSerivce.getUpatedCartImageUrls(cart);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -25,17 +26,17 @@ export class CartController {
 
   @Post('create-or-update')
   async createOrUpdateUserCart(
-    @Body('cart') cart: CreateOrUpdateCartDto,
+    @Body('cart') _cart: CreateOrUpdateCartDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldCart } = response.locals;
-    const payload = this.cartSerivce.getParsedCartPayload(cart);
+    const { oldCart, cart: payload } = response.locals;
 
-    let createdOrUpdatedCart = { products: [] };
+    let createdOrUpdatedCart: any = { products: [] };
 
     try {
       createdOrUpdatedCart = await this.cartSerivce.createOrUpdateUserCart(payload, oldCart, request.user);
+      createdOrUpdatedCart = await this.cartSerivce.getUpatedCartImageUrls(createdOrUpdatedCart);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
