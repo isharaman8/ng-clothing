@@ -14,14 +14,20 @@ import {
 } from '@nestjs/common';
 
 // inner imports
+import { parseArray } from 'src/utils';
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { PurchaseService } from './purchase.service';
+import { ProductService } from '../product/product.service';
+import { ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 
 @Controller('purchase')
 export class PurchaseController {
-  constructor(private purchaseService: PurchaseService) {}
+  constructor(
+    private purchaseService: PurchaseService,
+    private productService: ProductService,
+  ) {}
 
   @Post('')
   async createPurchase(
@@ -42,6 +48,11 @@ export class PurchaseController {
       let tempPurchase = await this.purchaseService.getUpatedPurchaseImageUrls([createdPurchase]);
 
       createdPurchase = tempPurchase[0];
+
+      // update sizes in products
+      const productSizeBulkUpdateArray = this.purchaseService.getUpdatedProductSizes(createdPurchase.products);
+
+      await this.productService.bulkUpdateOp(productSizeBulkUpdateArray);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -56,7 +67,7 @@ export class PurchaseController {
     const parsedQuery = _getParsedQuery(query);
     const { user = {} } = request;
 
-    if (!parsedQuery.userId) {
+    if (!_.includes(parseArray(user.roles, []), 'admin')) {
       parsedQuery.userId = user.uid;
     }
 
@@ -81,10 +92,11 @@ export class PurchaseController {
   async verifyPurchase(@Param() _params: any, @Res() response: CResponse) {
     const { oldPurchase = {} } = response.locals;
 
-    let updatedPurchase: any;
-
     try {
-      updatedPurchase = await this.purchaseService.createOrUpdatePurchase({ verified: true }, oldPurchase);
+      await this.purchaseService.createOrUpdatePurchase(
+        { verified: true, status: ALLOWED_PURCHASE_STATUS.verified },
+        oldPurchase,
+      );
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

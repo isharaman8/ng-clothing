@@ -27,20 +27,24 @@ export class UserService {
     private sharedService: SharedService,
   ) {}
 
-  async getAllUsers(query: QueryParams) {
-    const baseQuery = [
+  async getAllUsers(query: QueryParams, projection: any = {}) {
+    const baseQuery: any = [
       {
         $match: {
           $and: [
+            ..._getActiveAggregationFilter(query),
+            ..._getUidAggregationFilter(query),
             ..._getUserNameAggregationFilter(query),
             ..._getEmailAggregationFilter(query),
             ..._getNameAggregationFilter(query),
-            ..._getUidAggregationFilter(query),
-            ..._getActiveAggregationFilter(query),
           ],
         },
       },
     ];
+
+    if (!_.isEmpty(projection)) {
+      baseQuery.push({ $project: projection });
+    }
 
     console.log('BASE QUERY', JSON.stringify(baseQuery));
 

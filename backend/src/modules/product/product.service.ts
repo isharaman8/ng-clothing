@@ -11,37 +11,133 @@ import {
   _getNameAggregationFilter,
   _getPriceAggregationFilter,
   _getActiveAggregationFilter,
+  _getAvailableSizesAggregationFilter,
+  _getGenderAggregationFilter,
 } from 'src/helpers/aggregationFilters';
-import { UploadedImage } from 'src/interfaces';
-import { CreateOrUpdateProductDto } from 'src/dto';
 import { Product } from 'src/schemas/product.schema';
+import { _getParsedQuery } from 'src/helpers/parser';
 import { SharedService } from '../shared/shared.service';
-import { parseArray, parseBoolean, parseNumber } from 'src/utils';
+import { CategoryService } from '../category/category.service';
+import { ALLOWED_PRODUCT_SIZES } from 'src/constants/constants';
+import { CreateOrUpdateProductDto, CreateOrUpdateUserDto } from 'src/dto';
+import { parseArray, parseBoolean, parseNumber, parseObject } from 'src/utils';
+import { ProductResponse, ProductReviewResponse, UploadedImage } from 'src/interfaces';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     private sharedService: SharedService,
+    private categoryService: CategoryService,
   ) {}
+
+  // internal function
+  private populateUserDataAndForward(
+    reviewUserDetails: Array<Partial<CreateOrUpdateUserDto>>,
+    dbImages: Array<any>,
+    obj: any = {},
+  ) {
+    const reqdUserDetail = _.find(reviewUserDetails, (user) => user.uid === obj.user_id);
+
+    if (!_.isEmpty(reqdUserDetail)) {
+      const reqdUserDbImage = _.find(dbImages, (image) => reqdUserDetail.profile_picture === image.uid);
+
+      obj['user_name'] = reqdUserDetail.name;
+      obj['user_profile_picture'] = _.defaultTo(reqdUserDbImage?.url, null);
+    }
+  }
 
   async getAllProducts(query: any = {}) {
     let products = [];
 
-    const baseQuery = [
+    const baseQuery: any = [
       {
         $match: {
           $and: [
             ..._getActiveAggregationFilter(query),
+            ..._getPriceAggregationFilter(query),
             ..._getNameAggregationFilter(query),
             ..._getUidAggregationFilter(query),
-            ..._getPriceAggregationFilter(query),
+            ..._getGenderAggregationFilter(query),
+            ..._getAvailableSizesAggregationFilter(query),
           ],
         },
       },
     ];
 
-    console.log('USER FIND QUERY', JSON.stringify(baseQuery));
+    if (query.reviews) {
+      // lookup query for reviews
+      baseQuery.push(
+        {
+          $lookup: {
+            from: 'reviews',
+            let: { productId: '$uid' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ['$product_id', '$$productId'] }, { $eq: ['$active', true] }],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: '$product_id',
+                  averageRating: { $avg: '$rating' },
+                  reviews: { $push: '$$ROOT' },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  averageRating: 1,
+                  reviews: { $slice: ['$reviews', 10] }, // Adjust the values as needed
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  averageRating: 1,
+                  reviews: 1,
+                },
+              },
+            ],
+            as: 'reviews',
+          },
+        },
+        {
+          $unwind: { path: '$reviews', preserveNullAndEmptyArrays: true },
+        },
+        {
+          $addFields: {
+            average_rating: { $ifNull: ['$reviews.averageRating', 0] },
+            reviews: { $ifNull: ['$reviews.reviews', []] },
+          },
+        },
+        {
+          $project: {
+            'reviews._id': 0,
+            'reviews.__v': 0,
+            'reviews.active': 0,
+            'reviews.created_at': 0,
+            'reviews.updated_at': 0,
+            'reviews.product_id': 0,
+          },
+        },
+      );
+    }
+
+    // add pagination
+    baseQuery.push(
+      {
+        $skip: query.pageSkip,
+      },
+      {
+        $limit: query.pageSize,
+      },
+    );
+
+    console.log('PRODUCT FIND QUERY', JSON.stringify(baseQuery));
 
     try {
       products = await this.productModel.aggregate(baseQuery);
@@ -53,17 +149,44 @@ export class ProductService {
   }
 
   async createOrUpdateProduct(product: any, oldProduct: any, user: any) {
-    const payload = this.getCreateOrUpdateProductPayload(product, oldProduct, user);
+    const resData = [];
+    const bulkUpdateArray = [];
+    const products = parseArray(product, [product]);
+    const oldProducts = parseArray(oldProduct, [oldProduct]);
 
     try {
-      await this.productModel.updateOne({ uid: payload.uid }, payload, {
-        upsert: true,
-      });
+      for (const product of products) {
+        const oldProduct = _.find(oldProducts, (oldProduct) => oldProduct.uid === product.uid);
+        const payload = this.getCreateOrUpdateProductPayload(product, oldProduct, user);
+
+        if (_.isEmpty(oldProduct)) {
+          bulkUpdateArray.push({
+            insertOne: {
+              document: payload,
+            },
+          });
+        } else {
+          bulkUpdateArray.push({
+            updateOne: {
+              filter: { uid: oldProduct.uid },
+              update: {
+                $set: payload,
+              },
+            },
+          });
+        }
+
+        resData.push(payload);
+      }
+
+      if (!_.isEmpty(bulkUpdateArray)) {
+        await this.productModel.bulkWrite(bulkUpdateArray);
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
-    return payload;
+    return resData;
   }
 
   async deleteProduct(productUid: string) {
@@ -76,29 +199,44 @@ export class ProductService {
     return true;
   }
 
+  async bulkUpdateOp(bulkUpdateArray: Array<any>) {
+    if (!_.isEmpty(bulkUpdateArray)) {
+      await this.productModel.bulkWrite(bulkUpdateArray);
+    }
+  }
+
   getParsedProductBody(body: CreateOrUpdateProductDto, user: any = {}) {
-    const { active, images, name, price, uid } = body;
+    const { active, images, name, price, uid, description, category, gender, available_sizes } = body;
 
     const payload: any = {
       uid: _.defaultTo(uid, null),
       name: _.defaultTo(name, null),
       price: parseNumber(price, null),
       images: parseArray(images, null),
+      gender: _.defaultTo(gender, null),
       active: parseBoolean(active, true),
       user_id: _.defaultTo(user.uid, null),
+      category: _.defaultTo(category, null),
+      description: _.defaultTo(description, null),
+      available_sizes: parseObject(available_sizes, null),
     };
 
     return payload;
   }
 
-  getParsedProductResponsePayload(product: any = {}) {
+  getParsedProductResponsePayload(product: any = {}, categories: any = []) {
     product = JSON.parse(JSON.stringify(product));
+
+    const reqdCategory = _.find(categories, (category) => category.uid === product.category) || {};
+
+    product.category = reqdCategory;
 
     // delete unnecessary properties
     delete product.$setOnInsert;
     delete product._id;
     delete product.__v;
 
+    // parse images for object or string
     product.images = _.map(product.images, (image: UploadedImage | string) =>
       typeof image === 'string' ? image : image.url,
     );
@@ -114,31 +252,89 @@ export class ProductService {
       user_id: _.defaultTo(oldProduct.user_id, user.uid),
       price: parseNumber(product.price, oldProduct.price),
       images: parseArray(product.images, oldProduct.images),
+      gender: _.defaultTo(product.gender, oldProduct.gender),
       active: parseBoolean(product.active, oldProduct.active),
+      category: _.defaultTo(product.category, oldProduct.category),
+      description: _.defaultTo(product.description, oldProduct.description),
+      available_sizes: _.defaultTo(product.available_sizes, oldProduct.available_sizes) || ALLOWED_PRODUCT_SIZES,
     };
 
     return payload;
   }
 
-  async getUpdatedImageArray(products: Array<CreateOrUpdateProductDto>) {
-    const imageUids = _.compact(_.flatMap(products, (product) => parseArray(product.images, [])));
+  async getUpdatedImageArrayAndPopulateUserData(
+    products: Array<ProductResponse | ProductReviewResponse>,
+    reviewUserDetails: Array<Partial<CreateOrUpdateUserDto>> = [],
+    type: 'product' | 'review',
+  ) {
+    const imageUids = [
+      ..._.compact(
+        _.flatMapDeep(products, (product) => {
+          const array = [];
+
+          // push product image uids;
+          array.push(...parseArray(product.images, []));
+
+          // push product review image uids;
+          if (_.isArray(product.reviews)) {
+            array.push(_.map(product.reviews, (review) => parseArray(review.images, [])));
+          }
+
+          return array;
+        }),
+      ),
+
+      ..._.compact(_.map(reviewUserDetails, (user) => user.uid)),
+    ];
 
     let dbImages = [];
 
-    try {
-      // fetching uploaded images
-      dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+    // fetching uploaded images
+    dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
 
-      // parsing product.images for response;
-      for (const product of products) {
-        const reqdDBImages = _.filter(dbImages, (image) => product.images.includes(image.uid));
+    // parsing product.images for response;
+    for (const product of products) {
+      // parse main product images
+      const reqdDBImages = _.filter(dbImages, (image) => _.includes(product.images, image.uid));
 
-        product['images'] = reqdDBImages;
+      product['images'] = reqdDBImages;
+
+      // parse product reviews images and populate user data
+      if (type === 'product') {
+        for (const review of parseArray(product.reviews, [])) {
+          const reqDbImageReview = _.filter(dbImages, (image) => _.includes(review.images, image.uid));
+
+          review['images'] = _.map(reqDbImageReview, (image) => image.url);
+
+          this.populateUserDataAndForward(reviewUserDetails, dbImages, review);
+        }
+      } else if (type === 'review') {
+        this.populateUserDataAndForward(reviewUserDetails, dbImages, product);
       }
+    }
+
+    return products;
+  }
+
+  async getProductsCategoriesDetails(products: Array<CreateOrUpdateProductDto>) {
+    // find all categories
+    const categoryUids = _.compact(_.map(products, (pr) => pr.category));
+    const query = _getParsedQuery({ uid: categoryUids });
+
+    let categories = [];
+
+    if (_.isEmpty(categoryUids)) {
+      return categories;
+    }
+
+    try {
+      categories = await this.categoryService.getAllCategories(query);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
-    return products;
+    categories = _.map(categories, (category) => _.pick(category, ['name', 'uid', 'description', 'slug']));
+
+    return categories;
   }
 }

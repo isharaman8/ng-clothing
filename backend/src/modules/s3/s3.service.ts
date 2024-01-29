@@ -1,4 +1,5 @@
 // third party imports
+import * as _ from 'lodash';
 import { nanoid } from 'nanoid';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -10,7 +11,7 @@ import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client } f
 // inner imports
 import { S3GetUrlArray } from 'src/interfaces';
 import { Upload } from 'src/schemas/upload.schema';
-import { ALLOWED_MIMETYPES } from 'src/constants/constants';
+import { ALLOWED_MIMETYPES, MAX_PRESIGNED_URL_DURATION } from 'src/constants/constants';
 
 @Injectable()
 export class S3Service {
@@ -80,7 +81,7 @@ export class S3Service {
           key: String(name),
           bucket,
           url: fileUrl,
-          urlExpiryDate: new Date(new Date().getTime() + 604800000).toISOString(),
+          urlExpiryDate: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
         };
 
         return response;
@@ -112,7 +113,7 @@ export class S3Service {
           bucket,
           service_uid,
           url: newFileUrl,
-          urlExpiryDate: new Date(new Date().getTime() + 604800000).toISOString(),
+          urlExpiryDate: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
         };
 
         responses.push(newFileResponse);
@@ -173,7 +174,7 @@ export class S3Service {
 
   // validators
   validateImageMimetype(mimetype: string) {
-    if (ALLOWED_MIMETYPES.image.includes(mimetype)) {
+    if (_.includes(ALLOWED_MIMETYPES.image, mimetype)) {
       return true;
     }
 

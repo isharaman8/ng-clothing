@@ -7,9 +7,11 @@ import { S3Module } from '../s3/s3.module';
 import { S3Service } from '../s3/s3.service';
 import { SharedService } from './shared.service';
 import { ProductService } from '../product/product.service';
+import { CategoryService } from '../category/category.service';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
-import { SharedValidatorService } from './shared-validator.service';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
+import { SharedValidatorService } from './shared-validator.service';
+import { Category, CategorySchema } from 'src/schemas/category.schema';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { Product, ProductSchema } from 'src/schemas/product.schema';
     MongooseModule.forFeature([
       { name: Upload.name, schema: UploadSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Category.name, schema: CategorySchema },
     ]),
   ],
-  providers: [SharedService, SharedValidatorService, S3Service, ProductService],
+  providers: [SharedService, SharedValidatorService, S3Service, ProductService, CategoryService],
 })
 export class SharedModule {}

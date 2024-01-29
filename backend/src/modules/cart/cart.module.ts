@@ -9,11 +9,13 @@ import { CartController } from './cart.controller';
 import { SharedService } from '../shared/shared.service';
 import { Cart, CartSchema } from 'src/schemas/cart.schema';
 import { ProductService } from '../product/product.service';
+import { CategoryService } from '../category/category.service';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
-import { ValidateCartMiddleware } from 'src/middlewares/validate-cart.middleware';
+import { Category, CategorySchema } from 'src/schemas/category.schema';
 import { SharedValidatorService } from '../shared/shared-validator.service';
+import { ValidateCartMiddleware } from 'src/middlewares/validate-cart.middleware';
 
 @Module({
   imports: [
@@ -21,10 +23,11 @@ import { SharedValidatorService } from '../shared/shared-validator.service';
       { name: Cart.name, schema: CartSchema },
       { name: Upload.name, schema: UploadSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Category.name, schema: CategorySchema },
     ]),
   ],
   controllers: [CartController],
-  providers: [CartService, ProductService, SharedService, SharedValidatorService, S3Service],
+  providers: [CartService, ProductService, SharedService, SharedValidatorService, S3Service, CategoryService],
 })
 export class CartModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -5,6 +5,9 @@ export interface PurchaseProduct {
   images: Array<string>;
   slug: string;
   qty: number;
+  size: number;
+  available_sizes: Object;
+  status?: string;
 }
 
 export interface UploadedImage {
@@ -14,4 +17,15 @@ export interface UploadedImage {
   bucket: string;
   urlExpiryDate: string;
   uid: string;
+}
+
+export interface SizeType {
+  L: number;
+  S: number;
+  XL: number;
+  XXL: number;
+  XXXL: number;
+  M: number;
+  'S/M': number;
+  'M/L': number;
 }

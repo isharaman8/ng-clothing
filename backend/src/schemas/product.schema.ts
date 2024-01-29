@@ -1,8 +1,9 @@
 // inner imports
 import { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 // third party imports
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ALLOWED_PRODUCT_SIZES } from 'src/constants/constants';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -11,8 +12,11 @@ export class Product {
   @Prop({ unique: true, required: true })
   uid: string;
 
-  @Prop({ default: null })
+  @Prop({ required: true })
   name: string;
+
+  @Prop({ default: null })
+  description: string;
 
   @Prop({ default: null })
   price: number;
@@ -28,7 +32,25 @@ export class Product {
 
   @Prop({ required: true, unique: true })
   slug: string;
+
+  @Prop({ required: true })
+  gender: Array<string>;
+
+  @Prop({ default: ALLOWED_PRODUCT_SIZES, type: Object })
+  available_sizes: Object;
+
+  @Prop({ default: null })
+  category: string;
 }
+
+/**
+ * TODO: additional attributes
+
+ * * size
+ * * rating
+ * * gender add filter for gender
+ * * category
+ */
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
 

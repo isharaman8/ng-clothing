@@ -16,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { ProductModule } from './modules/product/product.module';
 import { PurchaseModule } from './modules/purchase/purchase.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -37,15 +38,16 @@ import { PurchaseModule } from './modules/purchase/purchase.module';
       },
       inject: [ConfigService],
     }),
+    S3Module,
+    CartModule,
     UserModule,
     AuthModule,
+    SharedModule,
     ProductModule,
     PurchaseModule,
-    S3Module,
-    SharedModule,
-    CartModule,
+    CategoryModule,
   ],
-  controllers: [AppController],
   providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule {}
