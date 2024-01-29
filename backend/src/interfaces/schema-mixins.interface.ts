@@ -3,6 +3,7 @@ export interface PurchaseProduct {
   price: number;
   name: string;
   images: Array<string>;
+  slug: string;
   qty: number;
 }
 

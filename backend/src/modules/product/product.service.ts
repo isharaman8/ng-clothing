@@ -110,6 +110,7 @@ export class ProductService {
     const payload = {
       uid: _.defaultTo(oldProduct.uid, nanoid()),
       name: _.defaultTo(product.name, oldProduct.name),
+      slug: _.defaultTo(product.slug, oldProduct.slug),
       user_id: _.defaultTo(oldProduct.user_id, user.uid),
       price: parseNumber(product.price, oldProduct.price),
       images: parseArray(product.images, oldProduct.images),

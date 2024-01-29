@@ -25,6 +25,9 @@ export class Product {
 
   @Prop({ default: null })
   user_id: string;
+
+  @Prop({ required: true })
+  slug: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -25,4 +25,8 @@ export class CreateOrUpdateProductDto {
   @IsString()
   @IsOptional()
   user_id: string;
+
+  @IsString()
+  @IsOptional()
+  slug: string;
 }

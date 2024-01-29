@@ -1,7 +1,7 @@
 // third party imports
 import { NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { Injectable, InternalServerErrorException, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NestMiddleware } from '@nestjs/common';
 
 // inner imports
 import { parseArray } from 'src/utils';
