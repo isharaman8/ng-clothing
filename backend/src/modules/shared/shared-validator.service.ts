@@ -43,6 +43,7 @@ export class SharedValidatorService {
       parsedProductArray.push({
         uid: product.uid,
         name: product.name,
+        slug: product.slug,
         price: product.price,
         images: product.images,
         qty: reqdPayloadProduct.qty,

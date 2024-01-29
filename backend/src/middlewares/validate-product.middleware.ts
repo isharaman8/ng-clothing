@@ -1,6 +1,7 @@
 // third party imports
 import * as _ from 'lodash';
 import { Model } from 'mongoose';
+import slugify from 'slugify';
 import { NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import {
@@ -9,6 +10,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 
 // inner imports
@@ -65,6 +67,21 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
   }
 
+  async validateAndParseProductSlug(product: CreateOrUpdateProductDto) {
+    if (product.name) {
+      const slug = slugify(product.name).toLowerCase();
+      const tempProduct = await this.productModel.findOne({ slug });
+
+      if (!_.isEmpty(tempProduct) && tempProduct.uid !== product.uid) {
+        throw new BadRequestException('slug already exists');
+      }
+
+      return slug;
+    }
+
+    return product.slug;
+  }
+
   async validateAndParseProductImages(product: CreateOrUpdateProductDto) {
     const imageUids = parseArray(product.images, []);
 
@@ -107,6 +124,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
     this.validateDeleteRequest(req.method, oldProduct);
 
     try {
+      parsedProduct.slug = await this.validateAndParseProductSlug(parsedProduct);
       parsedProduct.images = await this.validateAndParseProductImages(parsedProduct);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
