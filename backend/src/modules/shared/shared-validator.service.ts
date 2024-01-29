@@ -3,9 +3,11 @@ import * as _ from 'lodash';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 
 // Inner imports
+import { parseObject } from 'src/utils';
 import { BodyProduct } from 'src/interfaces';
 import { _getParsedQuery } from 'src/helpers/parser';
 import { ProductService } from '../product/product.service';
+import { ALLOWED_PRODUCT_SIZES } from 'src/constants/constants';
 
 @Injectable()
 export class SharedValidatorService {
@@ -14,7 +16,7 @@ export class SharedValidatorService {
   // validators
   async validateAndParseProducts(productArray: Array<BodyProduct>) {
     const productUids = _.compact(_.map(productArray, (product) => product.uid));
-    const query = _getParsedQuery({ uid: productUids });
+    const query = _getParsedQuery({ uid: productUids, page_size: productUids.length });
     const parsedProductArray = [];
 
     let products = [];
@@ -28,11 +30,20 @@ export class SharedValidatorService {
     }
 
     // validate if products exist
-    for (const uid of productUids) {
-      const reqdProduct = _.find(products, (product) => product.uid === uid);
+    for (const obj of productArray) {
+      const reqdProduct = _.find(products, (product) => product.uid === obj.uid);
+      const allowedProductKeys = _.keys(ALLOWED_PRODUCT_SIZES);
 
       if (!reqdProduct) {
         throw new BadRequestException('product not found');
+      }
+
+      if (!_.includes(allowedProductKeys, obj.size)) {
+        throw new BadRequestException(`invalid product size ${obj.size}`);
+      }
+
+      if (obj.qty > parseObject(reqdProduct.available_sizes, ALLOWED_PRODUCT_SIZES)[obj.size] || 0) {
+        throw new BadRequestException('product quantity shoudnt be greater than the one available');
       }
     }
 
@@ -47,6 +58,8 @@ export class SharedValidatorService {
         price: product.price,
         images: product.images,
         qty: reqdPayloadProduct.qty,
+        size: reqdPayloadProduct.size,
+        available_sizes: product.available_sizes,
       });
     }
 

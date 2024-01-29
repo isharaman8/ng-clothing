@@ -15,7 +15,7 @@ export class ValidateUploadMiddleware implements NestMiddleware {
     let isValid = false;
 
     for (const role of parseArray(user.roles, [])) {
-      if (ALLOWED_USER_ROLES.upload.includes(role)) {
+      if (_.includes(ALLOWED_USER_ROLES.upload, role)) {
         isValid = true;
       }
     }

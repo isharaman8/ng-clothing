@@ -1,3 +1,6 @@
+// third party imports
+import * as _ from 'lodash';
+
 // inner imports
 import { parseArray } from 'src/utils';
 
@@ -5,7 +8,9 @@ export const _getNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.name?.length) {
-    filter.push({ name: { $in: parseArray(query.name, [query.name]) } });
+    const reqdNameArray = _.map(parseArray(query.name, [query.name]), (name) => new RegExp('^' + name, 'i'));
+
+    filter.push({ name: { $in: reqdNameArray } });
   }
 
   return filter;
@@ -73,6 +78,76 @@ export const _getVerifiedAggregationFilter = (query: any = {}) => {
 
   if (query.verified !== null) {
     filter.push({ verified: Boolean(query.verified) });
+  }
+
+  return filter;
+};
+
+export const _getProductPurchaseFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.productId) {
+    filter.push({ 'products.uid': { $in: parseArray(query.productId, [query.productId]) } });
+  }
+
+  return filter;
+};
+
+export const _getProductReviewFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.productId) {
+    let reqdProductUidArray: any;
+
+    if (_.isArray(query.productId)) {
+      reqdProductUidArray = query.productId;
+    } else {
+      reqdProductUidArray = _.split(query.productId, ',');
+    }
+
+    filter.push({ product_id: { $in: reqdProductUidArray } });
+  }
+
+  return filter;
+};
+
+export const _getAvailableSizesAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.requiredSize) {
+    let reqdSizeArray: any;
+
+    if (_.isArray(query.requiredSize)) {
+      reqdSizeArray = query.requiredSize;
+    } else {
+      reqdSizeArray = _.split(query.requiredSize, ',');
+    }
+
+    for (const size of reqdSizeArray) {
+      filter.push({ [`available_sizes.${size}`]: { $gte: 1 } });
+    }
+  }
+
+  return filter;
+};
+
+export const _getGenderAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.gender) {
+    let reqdGenderArray: any;
+
+    if (_.isArray(query.gender)) {
+      reqdGenderArray = query.gender;
+    } else {
+      reqdGenderArray = _.split(query.gender, ',');
+    }
+
+    for (const gender of reqdGenderArray) {
+      filter.push({
+        gender: { $elemMatch: { $eq: gender } },
+      });
+    }
   }
 
   return filter;

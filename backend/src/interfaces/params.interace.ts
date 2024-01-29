@@ -1,18 +1,26 @@
 export interface Params {
-  product_uid?: string;
   user_id?: string;
-  purchase_uid?: string;
   cart_uid?: string;
+  review_uid?: string;
+  product_uid?: string;
+  purchase_uid?: string;
+  category_uid?: string;
 }
 
 export interface QueryParams {
-  product_uid?: string | string[];
-  name?: string | string[];
-  active?: boolean;
   price?: number;
-  min_price?: number;
-  user_id?: string | string[];
-  max_price?: number;
-  uid?: string | string[];
+  gender?: string;
+  active?: boolean;
+  reviews?: boolean;
   verified?: boolean;
+  max_price?: number;
+  min_price?: number;
+  page_size?: number;
+  page_number?: number;
+  uid?: string | string[];
+  name?: string | string[];
+  user_id?: string | string[];
+  product_uid?: string | string[];
+  purchase_uid?: string | string[];
+  required_size?: string | string[];
 }

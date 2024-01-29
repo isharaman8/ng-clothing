@@ -30,7 +30,9 @@ export class S3Controller {
     let rs = [];
 
     try {
-      rs.push(...(await this.s3Service.uploadFiles(files, request.user)));
+      if (!_.isEmpty(files)) {
+        rs.push(...(await this.s3Service.uploadFiles(files, request.user)));
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

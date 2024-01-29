@@ -6,11 +6,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 // inner imports
+import { PurchaseProduct } from 'src/interfaces';
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
-import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 import { Purchase } from 'src/schemas/purchase.schema';
 import { SharedService } from '../shared/shared.service';
-import { _getUidAggregationFilter, _getVerifiedAggregationFilter } from 'src/helpers/aggregationFilters';
+import { parseArray, parseBoolean, parseNumber } from 'src/utils';
+import { ALLOWED_PRODUCT_SIZES, ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
+import {
+  _getProductPurchaseFilter,
+  _getUidAggregationFilter,
+  _getVerifiedAggregationFilter,
+} from 'src/helpers/aggregationFilters';
 
 @Injectable()
 export class PurchaseService {
@@ -23,6 +29,11 @@ export class PurchaseService {
     const payload = this.getCreateOrUpdatePurchasePayload(purchase, oldPurchase, user);
 
     try {
+      if (!oldPurchase.uid) {
+        purchase['status'] = ALLOWED_PURCHASE_STATUS.pending_verification;
+        purchase['verified'] = false;
+      }
+
       await this.purchaseModel.updateOne({ uid: payload.uid }, payload, { upsert: true });
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -35,7 +46,11 @@ export class PurchaseService {
     const baseQuery = [
       {
         $match: {
-          $and: [..._getUidAggregationFilter(query), ..._getVerifiedAggregationFilter(query)],
+          $and: [
+            ..._getUidAggregationFilter(query),
+            ..._getVerifiedAggregationFilter(query),
+            ..._getProductPurchaseFilter(query),
+          ],
         },
       },
     ];
@@ -51,6 +66,29 @@ export class PurchaseService {
     }
 
     return purchases;
+  }
+
+  getUpdatedProductSizes(products: Array<PurchaseProduct>) {
+    products = parseArray(products, []);
+
+    const productSizeUpdateBulkArray = [];
+
+    for (const product of products) {
+      if (!product.available_sizes) {
+        product.available_sizes = JSON.parse(JSON.stringify(ALLOWED_PRODUCT_SIZES));
+      }
+
+      product['available_sizes'][product.size] -= product.qty;
+
+      productSizeUpdateBulkArray.push({
+        updateOne: {
+          filter: { uid: product.uid },
+          update: { $set: { available_sizes: product.available_sizes } },
+        },
+      });
+    }
+
+    return productSizeUpdateBulkArray;
   }
 
   async getUpatedPurchaseImageUrls(purchases: Array<CreateOrUpdatePurchaseDto>) {
@@ -122,6 +160,7 @@ export class PurchaseService {
       user_id: user.uid,
       uid: _.defaultTo(oldPurchase.uid, nanoid()),
       verified: parseBoolean(purchase.verified, false),
+      status: _.defaultTo(purchase.status, oldPurchase.status),
       products: parseArray(purchase.products, oldPurchase.products),
     };
   }

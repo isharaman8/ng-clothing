@@ -20,4 +20,8 @@ export class CreateOrUpdatePurchaseDto {
   @IsBoolean()
   @IsOptional()
   verified: boolean;
+
+  @IsString()
+  @IsOptional()
+  status: string;
 }

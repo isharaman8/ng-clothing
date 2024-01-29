@@ -1,5 +1,5 @@
 // third pary imports
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrUpdateProductDto {
   @IsString()
@@ -10,12 +10,16 @@ export class CreateOrUpdateProductDto {
   @IsNotEmpty()
   name: string;
 
+  @IsString()
+  @IsOptional()
+  description: string;
+
   @IsNumber()
   @IsNotEmpty()
   price: number;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   active: boolean;
 
   @IsArray()
@@ -29,4 +33,47 @@ export class CreateOrUpdateProductDto {
   @IsString()
   @IsOptional()
   slug: string;
+
+  @IsString()
+  @IsOptional()
+  category: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  @IsIn(['male', 'female'], { each: true, message: 'Invalid gender value' })
+  gender: Array<string>;
+
+  @IsObject()
+  @IsNotEmpty()
+  available_sizes: object;
+}
+
+export class CreateOrUpdateProductReviewDto {
+  @IsString()
+  @IsOptional()
+  uid: string;
+
+  @IsString()
+  @IsOptional()
+  user_id: string;
+
+  @IsString()
+  @IsOptional()
+  product_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  rating: number;
+
+  @IsArray()
+  @IsOptional()
+  images: Array<string>;
+
+  @IsBoolean()
+  @IsOptional()
+  active: boolean;
 }

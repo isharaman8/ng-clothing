@@ -4,6 +4,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 // inner imports
 import { PurchaseProduct } from 'src/interfaces';
+import { ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
 
 export type PurchaseDocument = HydratedDocument<Purchase>;
 
@@ -20,6 +21,9 @@ export class Purchase {
 
   @Prop({ default: false })
   verified: boolean;
+
+  @Prop({ default: ALLOWED_PURCHASE_STATUS.pending_verification })
+  status: string;
 }
 
 export const PurchaseSchema = SchemaFactory.createForClass(Purchase);

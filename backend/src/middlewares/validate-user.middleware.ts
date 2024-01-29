@@ -30,7 +30,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
   getFindUserQuery(originalUrl: string, method: string, parsedUserBody: CreateOrUpdateUserDto, params: any) {
     let query: any;
 
-    if ((originalUrl.includes('/signup') || originalUrl.includes('/login')) && method.toUpperCase() === 'POST') {
+    if ((_.includes(originalUrl, '/signup') || _.includes(originalUrl, '/login')) && method.toUpperCase() === 'POST') {
       query = [];
 
       if (parsedUserBody.email) {
@@ -41,7 +41,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
       }
     }
 
-    if (originalUrl.includes('/user') && method.toUpperCase() === 'PATCH') {
+    if (_.includes(originalUrl, '/user') && method.toUpperCase() === 'PATCH') {
       query = [{ uid: params.userId }];
     }
     ``;
@@ -51,27 +51,27 @@ export class ValidateUserMiddleware implements NestMiddleware {
   validateParsedUserBody(originalUrl: string, parsedUserBody: CreateOrUpdateUserDto) {
     if (
       (!(parsedUserBody.email || parsedUserBody.username) || !parsedUserBody.password) &&
-      originalUrl.includes('/login')
+      _.includes(originalUrl, '/login')
     ) {
       throw new BadRequestException('email/username and password required for login');
     }
 
     if (
       (!parsedUserBody.email || !parsedUserBody.username || !parsedUserBody.password) &&
-      originalUrl.includes('/signup')
+      _.includes(originalUrl, '/signup')
     ) {
       throw new BadRequestException('email, password, and username required for signup');
     }
   }
 
   validateSignupRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto) {
-    if (originalUrl.includes('/signup') && oldUser) {
+    if (_.includes(originalUrl, '/signup') && oldUser) {
       throw new BadRequestException(`user with given email id and/or username already exists`);
     }
   }
 
   validateLoginRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto, parsedUserBody: CreateOrUpdateUserDto) {
-    if (originalUrl.includes('/login')) {
+    if (_.includes(originalUrl, '/login')) {
       if (!oldUser) {
         throw new BadRequestException('incorrect email/password');
       }
@@ -91,14 +91,14 @@ export class ValidateUserMiddleware implements NestMiddleware {
     params: any,
     user: any = {},
   ) {
-    if (originalUrl.includes('user') && method.toUpperCase() === 'PATCH') {
+    if (_.includes(originalUrl, 'user') && method.toUpperCase() === 'PATCH') {
       if (!oldUser) {
         throw new BadRequestException(`user with given uid: ${params.userId} does not exists`);
       }
 
       if (
         !oldUser.uid === user.uid &&
-        !_.some(parseArray(user.roles, []), (role: string) => ALLOWED_USER_ROLES.user.includes(role))
+        !_.some(parseArray(user.roles, []), (role: string) => _.includes(ALLOWED_USER_ROLES.user, role))
       ) {
         throw new UnauthorizedException(`only to be updated user or admin can update a user`);
       }
