@@ -92,14 +92,10 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
       return null;
     }
 
-    try {
-      if (!_.isEmpty(imageUids)) {
-        const uploads = await this.uploadService.getAllUploads(imageUids);
+    if (!_.isEmpty(imageUids)) {
+      const uploads = await this.uploadService.getAllUploads(imageUids);
 
-        newImageUids = _.map(uploads, (upload) => upload.uid);
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      newImageUids = _.map(uploads, (upload) => upload.uid);
     }
 
     return newImageUids;
@@ -114,11 +110,7 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
 
     let reqdPurchase: any;
 
-    try {
-      reqdPurchase = await this.purchaseService.getAllPurchases(query);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    reqdPurchase = await this.purchaseService.getAllPurchases(query);
 
     if (_.isEmpty(reqdPurchase)) {
       throw new NotFoundException('either user has not purchased this product or the product does not exists');
@@ -153,11 +145,7 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
     this.validatePatchRequest(req.method, oldReview);
     this.validateDeleteRequest(req.method, oldReview);
 
-    try {
-      parsedReview.images = await this.validateAndParseProductImages(parsedReview);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    parsedReview.images = await this.validateAndParseProductImages(parsedReview);
 
     if (!oldReview) {
       oldReview = new this.reviewModel();

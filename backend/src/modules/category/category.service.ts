@@ -18,13 +18,12 @@ export class CategoryService {
 
   async getAllCategories(query: QueryParams) {
     const aggregationQuery = [..._getUidAggregationFilter(query), ..._getActiveAggregationFilter(query)];
+    const baseQuery = [{ $match: { $and: aggregationQuery } }];
 
     let categories = [];
 
     try {
       if (!_.isEmpty(aggregationQuery)) {
-        const baseQuery = [{ $match: { $and: aggregationQuery } }];
-
         categories = await this.categoryModel.aggregate(baseQuery);
       }
     } catch (error) {

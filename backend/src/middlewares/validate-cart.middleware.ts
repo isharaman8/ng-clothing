@@ -29,18 +29,19 @@ export class ValidateCartMiddleware implements NestMiddleware {
       body: { cart = {} },
     } = req;
     const parsedCart = this.cartService.getParsedCartPayload(cart);
+    const findQuery = _.filter([{ user_id: user.uid }], _notEmpty);
 
     let oldCart: CreateOrUpdateCartDto = new this.cartModel();
+    let tempCart: any;
 
     try {
-      const findQuery = _.filter([{ user_id: user.uid }], _notEmpty);
-      const tempCart = await this.cartModel.findOne({ $and: findQuery });
-
-      if (!_.isEmpty(tempCart)) {
-        oldCart = tempCart;
-      }
+      tempCart = await this.cartModel.findOne({ $and: findQuery });
     } catch (error) {
       throw new InternalServerErrorException(error.message);
+    }
+
+    if (!_.isEmpty(tempCart)) {
+      oldCart = tempCart;
     }
 
     // attach validated products

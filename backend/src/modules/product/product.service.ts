@@ -47,7 +47,7 @@ export class ProductService {
     }
   }
 
-  async getAllProducts(query: any = {}) {
+  async getAllProducts(query: any = {}, productProjection: any = {}) {
     let products = [];
 
     const baseQuery: any = [
@@ -64,6 +64,10 @@ export class ProductService {
         },
       },
     ];
+
+    if (!_.isEmpty(productProjection)) {
+      baseQuery.push({ $project: productProjection });
+    }
 
     if (query.reviews) {
       // lookup query for reviews
@@ -154,31 +158,31 @@ export class ProductService {
     const products = parseArray(product, [product]);
     const oldProducts = parseArray(oldProduct, [oldProduct]);
 
-    try {
-      for (const product of products) {
-        const oldProduct = _.find(oldProducts, (oldProduct) => oldProduct.uid === product.uid);
-        const payload = this.getCreateOrUpdateProductPayload(product, oldProduct, user);
+    for (const product of products) {
+      const oldProduct = _.find(oldProducts, (oldProduct) => oldProduct.uid === product.uid);
+      const payload = this.getCreateOrUpdateProductPayload(product, oldProduct, user);
 
-        if (_.isEmpty(oldProduct)) {
-          bulkUpdateArray.push({
-            insertOne: {
-              document: payload,
+      if (_.isEmpty(oldProduct)) {
+        bulkUpdateArray.push({
+          insertOne: {
+            document: payload,
+          },
+        });
+      } else {
+        bulkUpdateArray.push({
+          updateOne: {
+            filter: { uid: oldProduct.uid },
+            update: {
+              $set: payload,
             },
-          });
-        } else {
-          bulkUpdateArray.push({
-            updateOne: {
-              filter: { uid: oldProduct.uid },
-              update: {
-                $set: payload,
-              },
-            },
-          });
-        }
-
-        resData.push(payload);
+          },
+        });
       }
 
+      resData.push(payload);
+    }
+
+    try {
       if (!_.isEmpty(bulkUpdateArray)) {
         await this.productModel.bulkWrite(bulkUpdateArray);
       }
@@ -327,12 +331,7 @@ export class ProductService {
       return categories;
     }
 
-    try {
-      categories = await this.categoryService.getAllCategories(query);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-
+    categories = await this.categoryService.getAllCategories(query);
     categories = _.map(categories, (category) => _.pick(category, ['name', 'uid', 'description', 'slug']));
 
     return categories;

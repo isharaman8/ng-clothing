@@ -97,11 +97,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
     if (product.category) {
       const query = _getParsedQuery({ uid: product.category });
 
-      try {
-        reqdCategory = await this.categoryService.getAllCategories(query);
-      } catch (error) {
-        throw new InternalServerErrorException(error.message);
-      }
+      reqdCategory = await this.categoryService.getAllCategories(query);
 
       if (_.isEmpty(reqdCategory)) {
         throw new BadRequestException('no category found');
@@ -121,14 +117,10 @@ export class ValidateProductMiddleware implements NestMiddleware {
       return null;
     }
 
-    try {
-      if (!_.isEmpty(imageUids)) {
-        const uploads = await this.uploadService.getAllUploads(imageUids);
+    if (!_.isEmpty(imageUids)) {
+      const uploads = await this.uploadService.getAllUploads(imageUids);
 
-        newImageUids = _.map(uploads, (upload) => upload.uid);
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      newImageUids = _.map(uploads, (upload) => upload.uid);
     }
 
     return newImageUids;

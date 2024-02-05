@@ -14,17 +14,18 @@ export class AuthMiddleware implements NestMiddleware {
   async use(request: CRequest, response: CResponse, next: NextFunction) {
     const token = this.extractTokenFromHeader(request);
 
+    let payload: any;
+
     if (!token) {
       return response.status(401).send({ message: 'no token provided' });
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
-
-      request['user'] = payload;
+      payload = await this.jwtService.verifyAsync(token);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
+    request['user'] = payload;
 
     return next();
   }

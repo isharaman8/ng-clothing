@@ -46,3 +46,10 @@ export const REVIEW_USER_PROJECTION = Object.freeze({
   uid: 1,
   profile_picture: 1,
 });
+
+export const PRODUCT_GET_PROJECTION = Object.freeze({
+  name: 1,
+  uid: 1,
+  description: 1,
+  images: 1,
+});

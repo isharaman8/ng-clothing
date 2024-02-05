@@ -122,9 +122,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
     }
 
     this.validateSignupRequest(req.originalUrl, oldUser);
-
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);
-
     this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params, user);
 
     if (!oldUser) {
