@@ -29,12 +29,8 @@ export class S3Controller {
   ) {
     let rs = [];
 
-    try {
-      if (!_.isEmpty(files)) {
-        rs.push(...(await this.s3Service.uploadFiles(files, request.user)));
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    if (!_.isEmpty(files)) {
+      rs.push(...(await this.s3Service.uploadFiles(files, request.user)));
     }
 
     return response.status(200).send({ images: rs });
@@ -44,29 +40,25 @@ export class S3Controller {
   async getAllImages(@Req() request: CRequest, @Res() response: CResponse) {
     let images = [];
 
-    try {
-      images = await this.s3Service.getAllUploads([], request.user);
+    images = await this.s3Service.getAllUploads([], request.user);
 
-      // update images
-      const filterExpiredUrlImages = _.filter(images, (image) => new Date(image.urlExpiryDate) <= new Date());
-      const s3UrlArray: Array<S3GetUrlArray> = _.map(filterExpiredUrlImages, (image) => ({
-        key: image.key,
-        bucket: image.bucket,
-        uid: image.uid,
-      }));
-      const updatedUrls = await this.s3Service.getUpdatedFileUrls(s3UrlArray);
+    // update images
+    const filterExpiredUrlImages = _.filter(images, (image) => new Date(image.urlExpiryDate) <= new Date());
+    const s3UrlArray: Array<S3GetUrlArray> = _.map(filterExpiredUrlImages, (image) => ({
+      key: image.key,
+      bucket: image.bucket,
+      uid: image.uid,
+    }));
+    const updatedUrls = await this.s3Service.getUpdatedFileUrls(s3UrlArray);
 
-      // update response
-      for (const image of images) {
-        const reqdImage = _.find(updatedUrls, (url) => url.uid === image.uid);
+    // update response
+    for (const image of images) {
+      const reqdImage = _.find(updatedUrls, (url) => url.uid === image.uid);
 
-        if (reqdImage) {
-          image.url = reqdImage.url;
-          image.urlExpiryDate = reqdImage.urlExpiryDate;
-        }
+      if (reqdImage) {
+        image.url = reqdImage.url;
+        image.urlExpiryDate = reqdImage.urlExpiryDate;
       }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
     }
 
     // parse response

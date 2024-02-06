@@ -32,19 +32,13 @@ export class AuthController {
     let userToken: string;
     let createdUser: CreateOrUpdateUserDto;
 
-    try {
-      createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
-      userToken = await this.authService.getAuthToken(createdUser);
+    createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
+    userToken = await this.authService.getAuthToken(createdUser);
 
-      // get updated profile picture url
-      const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
+    // get updated profile picture url
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
 
-      createdUser = tempUser[0];
-    } catch (error) {
-      console.log('UPDATE USER ERROR', error);
-
-      throw new InternalServerErrorException(error.message);
-    }
+    createdUser = tempUser[0];
 
     // parse response
     createdUser = this.userService.getParsedUserResponsePayload(createdUser);
@@ -57,16 +51,12 @@ export class AuthController {
     let userToken: string;
     let { oldUser } = response.locals;
 
-    try {
-      userToken = await this.authService.getAuthToken(oldUser);
+    userToken = await this.authService.getAuthToken(oldUser);
 
-      // get updated profile picture url
-      const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser]);
+    // get updated profile picture url
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser]);
 
-      oldUser = tempUser[0];
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    oldUser = tempUser[0];
 
     // parse response
     oldUser = this.userService.getParsedUserResponsePayload(oldUser);
@@ -83,16 +73,12 @@ export class AuthController {
     // add props in query
     parsedQuery.uid = request.user.uid;
 
-    try {
-      user = await this.userService.getAllUsers(parsedQuery);
+    user = await this.userService.getAllUsers(parsedQuery);
 
-      // get updated profile picture url
-      const tempUser = await this.userService.getUpdatedProfilePictureUrl(user);
+    // get updated profile picture url
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl(user);
 
-      user = tempUser;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    user = tempUser;
 
     if (!user.length) {
       throw new UnauthorizedException('user not found');

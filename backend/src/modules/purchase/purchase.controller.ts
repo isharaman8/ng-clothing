@@ -41,21 +41,17 @@ export class PurchaseController {
 
     let createdPurchase: any;
 
-    try {
-      createdPurchase = await this.purchaseService.createOrUpdatePurchase(payload, oldPurchase, user);
+    createdPurchase = await this.purchaseService.createOrUpdatePurchase(payload, oldPurchase, user);
 
-      // get updated image urls
-      let tempPurchase = await this.purchaseService.getUpatedPurchaseImageUrls([createdPurchase]);
+    // get updated image urls
+    let tempPurchase = await this.purchaseService.getUpatedPurchaseImageUrls([createdPurchase]);
 
-      createdPurchase = tempPurchase[0];
+    createdPurchase = tempPurchase[0];
 
-      // update sizes in products
-      const productSizeBulkUpdateArray = this.purchaseService.getUpdatedProductSizes(createdPurchase.products);
+    // update sizes in products
+    const productSizeBulkUpdateArray = this.purchaseService.getUpdatedProductSizes(createdPurchase.products);
 
-      await this.productService.bulkUpdateOp(productSizeBulkUpdateArray);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    await this.productService.bulkUpdateOp(productSizeBulkUpdateArray);
 
     return response
       .status(201)
@@ -73,14 +69,10 @@ export class PurchaseController {
 
     let purchases: any = [];
 
-    try {
-      purchases = await this.purchaseService.getAllPurchases(parsedQuery);
+    purchases = await this.purchaseService.getAllPurchases(parsedQuery);
 
-      // get updated image urls
-      purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    // get updated image urls
+    purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
 
     // parsing response payload
     purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
@@ -92,14 +84,10 @@ export class PurchaseController {
   async verifyPurchase(@Param() _params: any, @Res() response: CResponse) {
     const { oldPurchase = {} } = response.locals;
 
-    try {
-      await this.purchaseService.createOrUpdatePurchase(
-        { verified: true, status: ALLOWED_PURCHASE_STATUS.verified },
-        oldPurchase,
-      );
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    await this.purchaseService.createOrUpdatePurchase(
+      { verified: true, status: ALLOWED_PURCHASE_STATUS.verified },
+      oldPurchase,
+    );
 
     return response.status(204).send();
   }
@@ -121,14 +109,10 @@ export class PurchaseController {
     parsedQuery.userId = user.uid;
     parsedQuery.uid = parsedParams.purchaseId;
 
-    try {
-      purchases = await this.purchaseService.getAllPurchases(parsedQuery);
+    purchases = await this.purchaseService.getAllPurchases(parsedQuery);
 
-      // get updated image urls
-      purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    // get updated image urls
+    purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
 
     // parse response payload
     purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);

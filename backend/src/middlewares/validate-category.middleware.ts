@@ -68,7 +68,14 @@ export class ValidateCategoryMiddleware implements NestMiddleware {
   async validateAndParseCategorySlug(category: CreateOrUpdateCategoryDto) {
     if (category.name) {
       const slug = slugify(category.name).toLowerCase();
-      const tempCategory = await this.categoryModel.findOne({ slug });
+
+      let tempCategory: any;
+
+      try {
+        tempCategory = await this.categoryModel.findOne({ slug });
+      } catch (error) {
+        throw new InternalServerErrorException(error.message);
+      }
 
       if (!_.isEmpty(tempCategory) && tempCategory.uid !== category.uid) {
         throw new BadRequestException('slug already exists');
@@ -104,11 +111,7 @@ export class ValidateCategoryMiddleware implements NestMiddleware {
     this.validatePatchRequest(req.method, oldCategory);
     this.validateDeleteRequest(req.method, oldCategory);
 
-    try {
-      parsedCategory.slug = await this.validateAndParseCategorySlug(parsedCategory);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    parsedCategory.slug = await this.validateAndParseCategorySlug(parsedCategory);
 
     if (!oldCategory) {
       oldCategory = new this.categoryModel();

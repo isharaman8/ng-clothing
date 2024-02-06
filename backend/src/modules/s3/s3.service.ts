@@ -31,22 +31,22 @@ export class S3Service {
     const responses = [];
     const bulkWriteArray = [];
 
-    try {
-      for (const file of files) {
-        const { originalname, mimetype, buffer, size } = file;
+    for (const file of files) {
+      const { originalname, mimetype, buffer, size } = file;
 
-        if (this.validateImageMimetype(mimetype)) {
-          const response = await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype);
+      if (this.validateImageMimetype(mimetype)) {
+        const response = await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype);
 
-          if (response && user.uid) {
-            const newResponse = { ...response, size, mimetype, user_id: user.uid, uid: nanoid() };
+        if (response && user.uid) {
+          const newResponse = { ...response, size, mimetype, user_id: user.uid, uid: nanoid() };
 
-            responses.push(newResponse);
-            bulkWriteArray.push({ insertOne: { document: newResponse } });
-          }
+          responses.push(newResponse);
+          bulkWriteArray.push({ insertOne: { document: newResponse } });
         }
       }
+    }
 
+    try {
       if (bulkWriteArray.length) {
         await this.uploadSchema.bulkWrite(bulkWriteArray);
       }
@@ -103,30 +103,30 @@ export class S3Service {
     const responses = [];
     const bulkWriteArray = [];
 
-    try {
-      for (const obj of s3Array) {
-        const { bucket, key, service_uid, uid } = obj;
-        const newFileUrl = await this.getFileUrl(bucket, key);
-        const newFileResponse = {
-          uid,
-          key,
-          bucket,
-          service_uid,
-          url: newFileUrl,
-          urlExpiryDate: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
-        };
+    for (const obj of s3Array) {
+      const { bucket, key, service_uid, uid } = obj;
+      const newFileUrl = await this.getFileUrl(bucket, key);
+      const newFileResponse = {
+        uid,
+        key,
+        bucket,
+        service_uid,
+        url: newFileUrl,
+        urlExpiryDate: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
+      };
 
-        responses.push(newFileResponse);
-        bulkWriteArray.push({
-          updateOne: {
-            filter: { uid },
-            update: {
-              $set: { url: newFileResponse.url, urlExpiryDate: new Date(newFileResponse.urlExpiryDate) },
-            },
+      responses.push(newFileResponse);
+      bulkWriteArray.push({
+        updateOne: {
+          filter: { uid },
+          update: {
+            $set: { url: newFileResponse.url, urlExpiryDate: new Date(newFileResponse.urlExpiryDate) },
           },
-        });
-      }
+        },
+      });
+    }
 
+    try {
       if (bulkWriteArray.length) {
         await this.uploadSchema.bulkWrite(bulkWriteArray);
       }
