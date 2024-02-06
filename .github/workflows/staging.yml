@@ -3,7 +3,7 @@ name: Node.js Docker AWS Deployment
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
