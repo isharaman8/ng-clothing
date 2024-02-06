@@ -42,11 +42,7 @@ export class ProductController {
 
     const userQuery = _getParsedQuery({ uid: reviewUserUids, active: true });
 
-    try {
-      reviewUserDetails = await this.userService.getAllUsers(userQuery, REVIEW_USER_PROJECTION);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    reviewUserDetails = await this.userService.getAllUsers(userQuery, REVIEW_USER_PROJECTION);
 
     return reviewUserDetails;
   }
@@ -59,26 +55,22 @@ export class ProductController {
     let categories = [];
     let reviewUserDetails = [];
 
-    try {
-      products = await this.productService.getAllProducts(parsedQuery);
+    products = await this.productService.getAllProducts(parsedQuery);
 
-      // get review user details
-      if (parsedQuery.reviews) {
-        reviewUserDetails = await this.getReviewUserDetails(products);
-      }
-
-      // get updated product images
-      products = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-        products,
-        reviewUserDetails,
-        'product',
-      );
-
-      // get categories
-      categories = await this.productService.getProductsCategoriesDetails(products);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    // get review user details
+    if (parsedQuery.reviews) {
+      reviewUserDetails = await this.getReviewUserDetails(products);
     }
+
+    // get updated product images
+    products = await this.productService.getUpdatedImageArrayAndPopulateUserData(
+      products,
+      reviewUserDetails,
+      'product',
+    );
+
+    // get categories
+    categories = await this.productService.getProductsCategoriesDetails(products);
 
     // parse response payload
     products = _.map(products, (product) => {
@@ -106,26 +98,18 @@ export class ProductController {
 
     parsedQuery.uid = parsedParams.productId;
 
-    try {
-      product = await this.productService.getAllProducts(parsedQuery);
+    product = await this.productService.getAllProducts(parsedQuery);
 
-      // get review user details
-      if (parsedQuery.reviews) {
-        reviewUserDetails = await this.getReviewUserDetails(product);
-      }
-
-      // get updated product images
-      product = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-        product,
-        reviewUserDetails,
-        'product',
-      );
-
-      // get categories
-      categories = await this.productService.getProductsCategoriesDetails(product);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    // get review user details
+    if (parsedQuery.reviews) {
+      reviewUserDetails = await this.getReviewUserDetails(product);
     }
+
+    // get updated product images
+    product = await this.productService.getUpdatedImageArrayAndPopulateUserData(product, reviewUserDetails, 'product');
+
+    // get categories
+    categories = await this.productService.getProductsCategoriesDetails(product);
 
     // parse response payload
     product = _.map(product, (pr) => {
@@ -156,20 +140,16 @@ export class ProductController {
     // remove unwanted attributes
     delete payload.active;
 
-    try {
-      createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
+    createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
 
-      // get updated product images
-      const tempProduct = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-        createdProduct,
-        [],
-        'product',
-      );
+    // get updated product images
+    const tempProduct = await this.productService.getUpdatedImageArrayAndPopulateUserData(
+      createdProduct,
+      [],
+      'product',
+    );
 
-      createdProduct = tempProduct[0];
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdProduct = tempProduct[0];
 
     return response
       .status(201)
@@ -188,20 +168,16 @@ export class ProductController {
 
     let createdProduct: any;
 
-    try {
-      createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
+    createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
 
-      // get updated images
-      const tempProduct = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-        createdProduct,
-        [],
-        'product',
-      );
+    // get updated images
+    const tempProduct = await this.productService.getUpdatedImageArrayAndPopulateUserData(
+      createdProduct,
+      [],
+      'product',
+    );
 
-      createdProduct = tempProduct[0];
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdProduct = tempProduct[0];
 
     return response
       .status(200)
@@ -212,11 +188,7 @@ export class ProductController {
   async deleteProduct(@Param() params: any, @Res() response: CResponse) {
     const parsedParams = _getParsedParams(params);
 
-    try {
-      await this.productService.deleteProduct(parsedParams.productId);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    await this.productService.deleteProduct(parsedParams.productId);
 
     return response.status(204).send();
   }
@@ -247,20 +219,12 @@ export class ProductController {
 
     let createdReview: any;
 
-    try {
-      createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
+    createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
 
-      // parse review images
-      const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-        [createdReview],
-        [],
-        'review',
-      );
+    // parse review images
+    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData([createdReview], [], 'review');
 
-      createdReview = tempReview[0];
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdReview = tempReview[0];
 
     createdReview = this.reviewService.getParsedReviewResponsePayload(createdReview);
 
@@ -276,20 +240,12 @@ export class ProductController {
 
     let createdReview: any;
 
-    try {
-      createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
+    createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
 
-      // parse review images
-      const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-        [createdReview],
-        [],
-        'review',
-      );
+    // parse review images
+    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData([createdReview], [], 'review');
 
-      createdReview = tempReview[0];
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdReview = tempReview[0];
 
     createdReview = this.reviewService.getParsedReviewResponsePayload(createdReview);
 
@@ -300,11 +256,7 @@ export class ProductController {
   async deleteProductReview(@Req() request: CRequest, @Res() response: CResponse) {
     const { oldReview } = response.locals;
 
-    try {
-      await this.reviewService.deleteReview(oldReview, request.user);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    await this.reviewService.deleteReview(oldReview, request.user);
 
     return response.status(204).send();
   }

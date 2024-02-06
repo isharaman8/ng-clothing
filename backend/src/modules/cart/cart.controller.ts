@@ -14,12 +14,8 @@ export class CartController {
   async getUserCart(@Req() request: CRequest) {
     let cart: any = { products: [] };
 
-    try {
-      cart = await this.cartSerivce.getUserCart(request.user);
-      cart = await this.cartSerivce.getUpatedCartImageUrls(cart);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    cart = await this.cartSerivce.getUserCart(request.user);
+    cart = await this.cartSerivce.getUpatedCartImageUrls(cart);
 
     return { cart: this.cartSerivce.getParsedCartResponsePayload(cart) };
   }
@@ -34,12 +30,8 @@ export class CartController {
 
     let createdOrUpdatedCart: any = { products: [] };
 
-    try {
-      createdOrUpdatedCart = await this.cartSerivce.createOrUpdateUserCart(payload, oldCart, request.user);
-      createdOrUpdatedCart = await this.cartSerivce.getUpatedCartImageUrls(createdOrUpdatedCart);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdOrUpdatedCart = await this.cartSerivce.createOrUpdateUserCart(payload, oldCart, request.user);
+    createdOrUpdatedCart = await this.cartSerivce.getUpatedCartImageUrls(createdOrUpdatedCart);
 
     return response.status(200).send({ cart: this.cartSerivce.getParsedCartResponsePayload(createdOrUpdatedCart) });
   }

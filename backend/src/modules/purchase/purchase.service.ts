@@ -28,12 +28,12 @@ export class PurchaseService {
   async createOrUpdatePurchase(purchase: any, oldPurchase: CreateOrUpdatePurchaseDto, user: any = {}) {
     const payload = this.getCreateOrUpdatePurchasePayload(purchase, oldPurchase, user);
 
-    try {
-      if (!oldPurchase.uid) {
-        purchase['status'] = ALLOWED_PURCHASE_STATUS.pending_verification;
-        purchase['verified'] = false;
-      }
+    if (!oldPurchase.uid) {
+      purchase['status'] = ALLOWED_PURCHASE_STATUS.pending_verification;
+      purchase['verified'] = false;
+    }
 
+    try {
       await this.purchaseModel.updateOne({ uid: payload.uid }, payload, { upsert: true });
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -98,22 +98,18 @@ export class PurchaseService {
 
     let dbImages = [];
 
-    try {
-      // fetching uids
-      if (!_.isEmpty(imageUids)) {
-        dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
-      }
+    // fetching uids
+    if (!_.isEmpty(imageUids)) {
+      dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+    }
 
-      // parsing purchases for responses
-      for (const purchase of purchases) {
-        for (const product of purchase.products) {
-          const reqdImages = _.filter(dbImages, (image) => _.includes(product.images, image.uid));
+    // parsing purchases for responses
+    for (const purchase of purchases) {
+      for (const product of purchase.products) {
+        const reqdImages = _.filter(dbImages, (image) => _.includes(product.images, image.uid));
 
-          product['images'] = _.map(reqdImages, (img) => img.url);
-        }
+        product['images'] = _.map(reqdImages, (img) => img.url);
       }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
     }
 
     return purchases;

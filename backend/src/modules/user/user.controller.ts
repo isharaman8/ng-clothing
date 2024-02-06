@@ -1,6 +1,6 @@
 // third party imports
 import { Response } from 'express';
-import { Body, Controller, InternalServerErrorException, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Patch, Post, Res } from '@nestjs/common';
 
 // inner imports
 import { UserService } from './user.service';
@@ -15,15 +15,7 @@ export class UserController {
     const { oldUser } = response.locals;
     const payload = this.userService.getParsedUserBody(user);
 
-    let createdUser: any;
-
-    try {
-      createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
-    } catch (error) {
-      console.log('CREATE USER ERROR', error);
-
-      throw new InternalServerErrorException(error.message);
-    }
+    let createdUser: any = await this.userService.createOrUpdateUser(payload, oldUser);
 
     return response.status(201).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }
@@ -33,15 +25,7 @@ export class UserController {
     const { oldUser } = response.locals;
     const payload = this.userService.getParsedUserBody(user);
 
-    let createdUser: any;
-
-    try {
-      createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
-    } catch (error) {
-      console.log('UPDATE USER ERROR', error);
-
-      throw new InternalServerErrorException(error.message);
-    }
+    let createdUser: any = await this.userService.createOrUpdateUser(payload, oldUser);
 
     return response.status(200).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }

@@ -21,12 +21,8 @@ export class SharedValidatorService {
 
     let products = [];
 
-    try {
-      if (productUids.length) {
-        products = await this.productService.getAllProducts(query);
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    if (productUids.length) {
+      products = await this.productService.getAllProducts(query);
     }
 
     // validate if products exist

@@ -30,12 +30,7 @@ export class CategoryController {
 
     let category = [];
 
-    try {
-      category = await this.categoryService.getAllCategories(query);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-
+    category = await this.categoryService.getAllCategories(query);
     category = _.map(category, this.categoryService.getParsedCategoryResponsePayload);
 
     return { categories: category };
@@ -55,11 +50,7 @@ export class CategoryController {
 
     let createdCategory: any;
 
-    try {
-      createdCategory = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdCategory = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
 
     return response
       .status(201)
@@ -78,11 +69,7 @@ export class CategoryController {
 
     let createdProduct: any;
 
-    try {
-      createdProduct = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    createdProduct = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
 
     return response
       .status(200)
@@ -93,11 +80,7 @@ export class CategoryController {
   async deleteCategory(@Param() params: any, @Res() response: CResponse) {
     const parsedParams = _getParsedParams(params);
 
-    try {
-      await this.categoryService.deleteCategory(parsedParams.categoryId);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    await this.categoryService.deleteCategory(parsedParams.categoryId);
 
     return response.status(204).send();
   }

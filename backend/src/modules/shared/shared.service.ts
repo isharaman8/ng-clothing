@@ -54,19 +54,15 @@ export class SharedService {
     let dbImages = [];
     let updatedFileUrls = [];
 
-    try {
-      // fetching uids
-      dbImages = await this.s3Service.getAllUploads(imageUids);
-      dbImages = JSON.parse(JSON.stringify(dbImages));
+    // fetching uids
+    dbImages = await this.s3Service.getAllUploads(imageUids);
+    dbImages = JSON.parse(JSON.stringify(dbImages));
 
-      // filter and get updated file urls
-      updatedFileUrls = await this.getUpdatedFileUrlsArray(dbImages);
+    // filter and get updated file urls
+    updatedFileUrls = await this.getUpdatedFileUrlsArray(dbImages);
 
-      // updating dbimage array
-      dbImages = this.updateDbImageArray(dbImages, updatedFileUrls);
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    // updating dbimage array
+    dbImages = this.updateDbImageArray(dbImages, updatedFileUrls);
 
     return dbImages;
   }

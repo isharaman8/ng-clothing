@@ -78,21 +78,17 @@ export class UserService {
 
     let dbProfilePictures = [];
 
-    try {
-      dbProfilePictures = await this.sharedService.getUpdatedDbImageArray(profilePictureUids);
+    dbProfilePictures = await this.sharedService.getUpdatedDbImageArray(profilePictureUids);
 
-      // parsing user response;
-      for (const user of users) {
-        if (user.profile_picture) {
-          const reqdImage = _.find(dbProfilePictures, (image) => image.uid === user.profile_picture);
+    // parsing user response;
+    for (const user of users) {
+      if (user.profile_picture) {
+        const reqdImage = _.find(dbProfilePictures, (image) => image.uid === user.profile_picture);
 
-          if (reqdImage) {
-            user['profile_picture'] = reqdImage.url;
-          }
+        if (reqdImage) {
+          user['profile_picture'] = reqdImage.url;
         }
       }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
     }
 
     return users;

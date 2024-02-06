@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 // inner imports
 import { AppModule } from './app.module';
+import { CustomExceptionFilter } from './filters/custom-error-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,9 @@ async function bootstrap() {
 
   // pipes
   app.useGlobalPipes(new ValidationPipe());
+
+  // filters
+  app.useGlobalFilters(new CustomExceptionFilter());
 
   // cors
   app.enableCors();

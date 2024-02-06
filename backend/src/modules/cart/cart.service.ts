@@ -95,21 +95,17 @@ export class CartService {
 
     let dbImages = [];
 
-    try {
-      // fetching uids
-      if (!_.isEmpty(imageUids)) {
-        dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
-      }
+    // fetching uids
+    if (!_.isEmpty(imageUids)) {
+      dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+    }
 
-      // parsing carts for responses
+    // parsing carts for responses
 
-      for (const product of cart.products) {
-        const reqdImages = _.filter(dbImages, (image) => _.includes(product.images, image.uid));
+    for (const product of cart.products) {
+      const reqdImages = _.filter(dbImages, (image) => _.includes(product.images, image.uid));
 
-        product['images'] = _.map(reqdImages, (img) => img.url);
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      product['images'] = _.map(reqdImages, (img) => img.url);
     }
 
     return cart;
