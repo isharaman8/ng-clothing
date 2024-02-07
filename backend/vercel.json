@@ -1,17 +1,5 @@
 {
   "version": 2,
-  "env": {
-    "MONGODB_USERNAME": "@ng_clothing_mongodb_username",
-    "MONGODB_PASSWORD": "@ng_clothing_mongodb_password",
-    "MONGODB_DBNAME": "@ng_clothing_mongodb_dbname",
-    "MONGODB_URI": "@ng_clothing_mongodb_uri",
-    "JWT_EXPIRES_IN": "@ng_clothing_jwt_expires_in",
-    "JWT_SECRET": "@ng_clothing_jwt_secret",
-    "S3_REGION": "@ng_clothing_s3_region",
-    "S3_BUCKET_NAME": "@ng_clothing_bucket_name",
-    "S3_ACCESS_KEY_ID": "@ng_clothing_access_key_id",
-    "S3_SECRET_ACCESS_KEY": "@ng_clothing_secret_access_key"
-  },
   "builds": [
     {
       "src": "src/main.ts",
