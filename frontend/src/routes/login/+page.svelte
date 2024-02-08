@@ -4,7 +4,9 @@
 
 	import { login } from '../../helpers/auth';
 	import { authUserData } from '../../stores';
+	import { defaultToastMessages } from '../../constants';
 	import Loader from '../../components/misc/Loader.svelte';
+	import { showToast } from '../../components/misc/Toasts/toasts';
 
 	// third party imports
 	import _ from 'lodash';
@@ -34,10 +36,10 @@
 
 			authUserData.set(returnValue);
 
-			alert('login successful');
+			showToast('Login Successful', 'successfully logged in', 'success');
 			goto('/');
 		} catch (error: any) {
-			return alert(error.message);
+			showToast(defaultToastMessages.login.failure.title, error.message, 'error');
 		} finally {
 			loading = false;
 		}
