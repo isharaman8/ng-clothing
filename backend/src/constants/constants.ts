@@ -5,9 +5,9 @@ export const USER_ROLES = Object.freeze({
 
 export const ALLOWED_USER_ROLES = Object.freeze({
   user: ['admin'],
-  upload: ['admin'],
   product: ['admin'],
   category: ['admin'],
+  upload: ['user', 'admin'],
   review: ['user', 'admin'],
 });
 

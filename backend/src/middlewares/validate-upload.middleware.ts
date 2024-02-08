@@ -21,7 +21,7 @@ export class ValidateUploadMiddleware implements NestMiddleware {
     }
 
     if (!isValid) {
-      throw new UnauthorizedException('only admins can upload files');
+      throw new UnauthorizedException(`only ${_.join(ALLOWED_USER_ROLES.upload, ', ')}  can upload files`);
     }
   }
 
