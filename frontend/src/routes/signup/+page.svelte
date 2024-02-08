@@ -4,11 +4,15 @@
 
 	import { signup } from '../../helpers/auth';
 	import { authUserData } from '../../stores';
+	import { defaultToastMessages } from '../../constants';
 	import Loader from '../../components/misc/Loader.svelte';
+	import { showToast } from '../../components/misc/Toasts/toasts';
 
 	// third party imports
 	import _ from 'lodash';
 	import { goto } from '$app/navigation';
+	import ImageUploader from '../../components/ImageUploader/ImageUploader.svelte';
+	import { handleImageUpload } from '../../helpers/upload';
 
 	// variables
 	let name = '';
@@ -16,10 +20,17 @@
 	let password = '';
 	let username = '';
 	let loading = false;
+	let file: File;
+
+	$: {
+		console.log('myFileWVariable changed:', file);
+	}
 
 	// functions
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
+
+		const { failure, success } = defaultToastMessages.signup;
 
 		let returnValue: any;
 
@@ -35,12 +46,20 @@
 
 			returnValue = tempValue.data;
 
+			if (!_.isEmpty(file)) {
+				const returnData = await handleImageUpload(file, returnValue.auth_token);
+
+				if (returnData.error) {
+					throw new Error(returnData.message);
+				}
+			}
+
 			authUserData.set(returnValue);
 
-			alert('signup successful');
+			showToast(success.title, success.description, 'success');
 			goto('/');
 		} catch (error: any) {
-			return alert(error.message);
+			showToast(failure.title, error.message, 'success');
 		} finally {
 			loading = false;
 		}
@@ -53,6 +72,7 @@
 		on:submit={handleSubmit}
 	>
 		<h1 class="text-start w-full text-2xl font-semibold">Signup</h1>
+		<ImageUploader {file} />
 		<label class="form_label">
 			Email
 			<input type="email" placeholder="email" class="form_input" bind:value={email} />
