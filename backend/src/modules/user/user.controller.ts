@@ -17,15 +17,25 @@ export class UserController {
 
     let createdUser: any = await this.userService.createOrUpdateUser(payload, oldUser);
 
+    // get updated profile picture url
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
+
+    createdUser = tempUser[0];
+
     return response.status(201).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }
 
   @Patch(':user_id')
-  async updateUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
+  async updateUser(@Body('user') user: Partial<CreateOrUpdateUserDto>, @Res() response: Response) {
     const { oldUser } = response.locals;
     const payload = this.userService.getParsedUserBody(user);
 
     let createdUser: any = await this.userService.createOrUpdateUser(payload, oldUser);
+
+    // get updated profile picture url
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
+
+    createdUser = tempUser[0];
 
     return response.status(200).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }

@@ -94,7 +94,7 @@ export class UserService {
     return users;
   }
 
-  getParsedUserBody(body: CreateOrUpdateUserDto) {
+  getParsedUserBody(body: any) {
     const { uid, name, email, roles, password, active, username, profile_picture } = body;
 
     const payload: any = {
