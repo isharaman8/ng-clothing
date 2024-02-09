@@ -1,9 +1,14 @@
 <script lang="ts">
+	// third party imports
+	import _ from 'lodash';
+
+	// inner imports
 	import { onMount } from 'svelte';
 	import { parseObject } from '../../utils';
 
-	export let props: any = {};
 	export let file: File;
+	export let onLoad: any;
+	export let props: any = {};
 
 	let imageSrc: string = '';
 	let fileInput: HTMLInputElement | null = null;
@@ -18,17 +23,13 @@
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			imageSrc = e.target ? (e.target.result as string) : '';
-			// props.onUpload(file); // Call onUpload prop with the uploaded file
+			onLoad(file);
 		};
 		reader.readAsDataURL(file);
 	}
 
-	$: {
-		console.log('myFileWVariable changed:', file);
-	}
-
 	onMount(() => {
-		imageSrc = props.initialSrc || 'https://via.placeholder.com/150'; // Set default image (modify as needed)
+		imageSrc = _.defaultTo(props.initialSrc, 'https://via.placeholder.com/150');
 	});
 </script>
 
