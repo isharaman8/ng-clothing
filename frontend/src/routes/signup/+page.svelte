@@ -2,31 +2,34 @@
 	// inner imports
 	import '../../styles/login_signup.css';
 
-	import { signup } from '../../helpers/auth';
+	import { parseArray } from '../../utils';
 	import { authUserData } from '../../stores';
 	import { defaultToastMessages } from '../../constants';
+	import { handleImageUpload } from '../../helpers/upload';
 	import Loader from '../../components/misc/Loader.svelte';
+	import { signup, updateProfile } from '../../helpers/auth';
 	import { showToast } from '../../components/misc/Toasts/toasts';
+	import ImageUploader from '../../components/ImageUploader/ImageUploader.svelte';
 
 	// third party imports
 	import _ from 'lodash';
 	import { goto } from '$app/navigation';
-	import ImageUploader from '../../components/ImageUploader/ImageUploader.svelte';
-	import { handleImageUpload } from '../../helpers/upload';
 
 	// variables
 	let name = '';
 	let email = '';
+	let file: File;
 	let password = '';
 	let username = '';
 	let loading = false;
-	let file: File;
-
-	$: {
-		console.log('myFileWVariable changed:', file);
-	}
 
 	// functions
+	function setFile(_file: File) {
+		if (_file) {
+			file = _file;
+		}
+	}
+
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 
@@ -46,12 +49,23 @@
 
 			returnValue = tempValue.data;
 
-			if (!_.isEmpty(file)) {
+			if (file) {
 				const returnData = await handleImageUpload(file, returnValue.auth_token);
 
 				if (returnData.error) {
 					throw new Error(returnData.message);
 				}
+
+				// update profile_picture
+				const profilePictureUid = _.defaultTo(parseArray(returnData.data.images, [])[0]?.uid, null);
+				const updateProfilePayload = { profile_picture: profilePictureUid };
+				const updatedProfileData = await updateProfile(returnValue, updateProfilePayload);
+
+				if (updatedProfileData.error) {
+					throw new Error(updatedProfileData.message);
+				}
+
+				returnValue['user'] = updatedProfileData.data.user;
 			}
 
 			authUserData.set(returnValue);
@@ -59,7 +73,7 @@
 			showToast(success.title, success.description, 'success');
 			goto('/');
 		} catch (error: any) {
-			showToast(failure.title, error.message, 'success');
+			showToast(failure.title, error.message, 'error');
 		} finally {
 			loading = false;
 		}
@@ -72,7 +86,7 @@
 		on:submit={handleSubmit}
 	>
 		<h1 class="text-start w-full text-2xl font-semibold">Signup</h1>
-		<ImageUploader {file} />
+		<ImageUploader {file} onLoad={setFile} />
 		<label class="form_label">
 			Email
 			<input type="email" placeholder="email" class="form_input" bind:value={email} />

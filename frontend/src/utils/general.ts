@@ -1,11 +1,11 @@
 import * as _ from 'lodash';
 
 export const parseObject = (obj: object, defaultValue: any) => {
-	return obj && typeof obj === 'object' ? obj : defaultValue;
+	return _.isObject(obj) ? obj : defaultValue;
 };
 
 export const parseArray = (arr: Array<any>, defaultValue: any) => {
-	return Array.isArray(arr) ? arr : defaultValue;
+	return _.isArray(arr) ? arr : defaultValue;
 };
 
 export const parseNumber = (number: any, defaultValue: any) => {

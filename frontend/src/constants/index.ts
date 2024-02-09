@@ -2,7 +2,8 @@ export const ROUTES = Object.freeze({
 	products: 'product',
 	purchases: 'purchase',
 	auth: 'auth',
-	uploads: 's3'
+	uploads: 's3',
+	user: 'user'
 });
 
 export const defaultToastMessages = Object.freeze({
@@ -25,3 +26,5 @@ export const defaultToastMessages = Object.freeze({
 		}
 	}
 });
+
+export const DEFAULT_PROFILE_PICTURE = 'https://via.placeholder.com/150';

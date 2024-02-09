@@ -53,14 +53,9 @@
 					type="search"
 					id="default-search"
 					class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-					placeholder="Search Mockups, Logos..."
+					placeholder="Search for clothes, brands, or styles..."
 					required
 				/>
-				<button
-					type="submit"
-					class="text-white absolute end-2.5 bottom-2.5 bg-gray-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2"
-					>Search</button
-				>
 			</div>
 		</form>
 
@@ -80,8 +75,12 @@
 							id="dropdownNavbarLink"
 							on:click={toggleDropdownVisibility}
 							class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto"
-							>Hi, {userData.user.name} <AngleDownOutline class="size-3 ml-2" /></button
 						>
+							<img src={userData.user.profile_picture} alt="user profile" class="rounded-full w-10 h-10 mr-2" /> Hi, {userData
+								.user.name}
+							<AngleDownOutline class="size-3 ml-2" /></button
+						>
+
 						<!-- Dropdown menu -->
 						<div
 							bind:this={dropdownvar}
