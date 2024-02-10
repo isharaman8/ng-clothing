@@ -38,7 +38,7 @@ export class ReviewService {
       throw new BadRequestException('product id is required for reviews');
     }
 
-    console.log('ALL PRODUCT REVEIWS', JSON.stringify(baseQuery));
+    console.log('PRODUCT REVEIWS AGGREGATION QUERY', JSON.stringify(baseQuery));
 
     try {
       reviews = await this.reviewModel.aggregate(baseQuery);

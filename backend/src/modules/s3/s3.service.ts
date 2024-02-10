@@ -11,7 +11,9 @@ import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client } f
 // inner imports
 import { S3GetUrlArray } from 'src/interfaces';
 import { Upload } from 'src/schemas/upload.schema';
+import { _getParsedQuery } from 'src/helpers/parser';
 import { ALLOWED_MIMETYPES, MAX_PRESIGNED_URL_DURATION } from 'src/constants/constants';
+import { _getMimeTypeAggregationFilter, _getUidAggregationFilter } from 'src/helpers/aggregationFilters';
 
 @Injectable()
 export class S3Service {
@@ -137,23 +139,21 @@ export class S3Service {
     return responses;
   }
 
-  async getAllUploads(uids: Array<string> = [], user: any = {}) {
-    const baseQuery = {};
+  async getAllUploads(query: any = {}) {
+    const andQuery = [..._getUidAggregationFilter(query), ..._getMimeTypeAggregationFilter(query)];
 
     let images = [];
 
-    if (user.uid) {
-      baseQuery['user_id'] = user.uid;
+    if (_.isEmpty(andQuery)) {
+      return images;
     }
-
-    if (uids.length) {
-      baseQuery['uid'] = { $in: uids };
-    }
-
-    console.log('ALL UPLOADS BASE QUERY', JSON.stringify(baseQuery));
 
     try {
-      images = await this.uploadSchema.find(baseQuery);
+      const baseQuery = [{ $match: { $and: andQuery } }];
+
+      console.log('UPLOAD AGGREGATION QUERY', JSON.stringify(baseQuery));
+
+      images = await this.uploadSchema.aggregate(baseQuery);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

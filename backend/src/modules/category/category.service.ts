@@ -11,9 +11,9 @@ import { QueryParams } from 'src/interfaces';
 import { Category } from 'src/schemas/category.schema';
 import { CreateOrUpdateCategoryDto } from 'src/dto/category.dto';
 import {
-  _getActiveAggregationFilter,
-  _getSlugAggregationFilter,
   _getUidAggregationFilter,
+  _getSlugAggregationFilter,
+  _getActiveAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 
 @Injectable()
@@ -29,14 +29,16 @@ export class CategoryService {
 
     let categories = [];
 
+    if (_.isEmpty(aggregationQuery)) {
+      return categories;
+    }
+
     try {
-      if (!_.isEmpty(aggregationQuery)) {
-        const baseQuery = [{ $match: { $and: aggregationQuery } }];
+      const baseQuery = [{ $match: { $and: aggregationQuery } }];
 
-        console.log('CATEGORY AGGREGATION QUERY', JSON.stringify(baseQuery));
+      console.log('CATEGORY AGGREGATION QUERY', JSON.stringify(baseQuery));
 
-        categories = await this.categoryModel.aggregate(baseQuery);
-      }
+      categories = await this.categoryModel.aggregate(baseQuery);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

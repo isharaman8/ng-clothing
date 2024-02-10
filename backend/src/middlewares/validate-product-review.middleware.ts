@@ -83,22 +83,19 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
     }
   }
 
-  async validateAndParseProductImages(review: Partial<CreateOrUpdateProductReviewDto>) {
+  async validateAndParseProductReviewImages(review: Partial<CreateOrUpdateProductReviewDto>) {
     const imageUids = parseArray(review.images, []);
+    const uploadQuery = _getParsedQuery({ uid: imageUids });
 
-    let newImageUids = [];
+    let uploads = [];
 
-    if (!review.images) {
-      return null;
+    if (_.isEmpty(imageUids)) {
+      return uploads;
     }
 
-    if (!_.isEmpty(imageUids)) {
-      const uploads = await this.uploadService.getAllUploads(imageUids);
+    uploads = await this.uploadService.getAllUploads(uploadQuery);
 
-      newImageUids = _.map(uploads, (upload) => upload.uid);
-    }
-
-    return newImageUids;
+    return uploads;
   }
 
   async validateProductUidInUserPurchase(productUid: string, user: any) {
@@ -128,6 +125,7 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
     );
 
     let oldReview: any;
+    let uploadedImages: any = [];
 
     this.validateUserRole(user);
 
@@ -143,7 +141,9 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
     this.validatePatchRequest(req.method, oldReview);
     this.validateDeleteRequest(req.method, oldReview);
 
-    parsedReview.images = await this.validateAndParseProductImages(parsedReview);
+    uploadedImages = await this.validateAndParseProductReviewImages(parsedReview);
+
+    parsedReview.images = _.map(uploadedImages, (image) => image.uid);
 
     if (!oldReview) {
       oldReview = new this.reviewModel();
@@ -152,6 +152,7 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
     // attach to response
     res.locals.oldReview = oldReview;
     res.locals.review = parsedReview;
+    res.locals.uploadedImages = uploadedImages;
 
     next();
   }

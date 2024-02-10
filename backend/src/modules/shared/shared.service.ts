@@ -1,9 +1,10 @@
 // Third party imports
 import * as _ from 'lodash';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 // Inner imports
 import { S3Service } from '../s3/s3.service';
+import { _getParsedQuery } from 'src/helpers/parser';
 import { S3GetUrlArray, UploadedImage } from 'src/interfaces';
 
 @Injectable()
@@ -51,11 +52,13 @@ export class SharedService {
   }
 
   async getUpdatedDbImageArray(imageUids: Array<string>) {
+    const uploadQuery = _getParsedQuery({ uid: imageUids });
+
     let dbImages = [];
     let updatedFileUrls = [];
 
     // fetching uids
-    dbImages = await this.s3Service.getAllUploads(imageUids);
+    dbImages = await this.s3Service.getAllUploads(uploadQuery);
     dbImages = JSON.parse(JSON.stringify(dbImages));
 
     // filter and get updated file urls

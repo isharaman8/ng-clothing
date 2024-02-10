@@ -46,7 +46,7 @@ export class UserService {
       baseQuery.push({ $project: projection });
     }
 
-    console.log('BASE QUERY', JSON.stringify(baseQuery));
+    console.log('USER AGGREGATION QUERY', JSON.stringify(baseQuery));
 
     let users = [];
 

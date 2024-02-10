@@ -5,6 +5,7 @@ import { Req, Res, Post, Controller, UploadedFiles, UseInterceptors, Get } from 
 
 // inner imports
 import { S3Service } from './s3.service';
+import { _getParsedQuery } from 'src/helpers/parser';
 import { CRequest, CResponse, S3GetUrlArray } from 'src/interfaces';
 
 @Controller('s3')
@@ -29,9 +30,11 @@ export class S3Controller {
 
   @Get('image')
   async getAllImages(@Req() request: CRequest, @Res() response: CResponse) {
+    const uploadQuery = _getParsedQuery({ user_id: request.user?.uid });
+
     let images = [];
 
-    images = await this.s3Service.getAllUploads([], request.user);
+    images = await this.s3Service.getAllUploads(uploadQuery);
 
     // update images
     const filterExpiredUrlImages = _.filter(images, (image) => new Date(image.urlExpiryDate) <= new Date());

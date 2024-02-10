@@ -171,12 +171,15 @@ export class ValidateProductMiddleware implements NestMiddleware {
 
   private async validateAndParseProductImages(products: Array<Partial<CreateOrUpdateProductDto>>) {
     const imageUids = _.flatMap(products, (product) => parseArray(product.images, []));
+    const uploadQuery = _getParsedQuery({ uid: imageUids });
+
+    let uploads = [];
 
     if (_.isEmpty(imageUids)) {
-      return products;
+      return { products, uploadedImages: uploads };
     }
 
-    const uploads = await this.uploadService.getAllUploads(imageUids);
+    uploads = await this.uploadService.getAllUploads(uploadQuery);
 
     for (const product of products) {
       if (_.isEmpty(product.images)) {
@@ -190,7 +193,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
       product['images'] = updateImageUids;
     }
 
-    return products;
+    return { products, uploadedImages: uploads };
   }
 
   private validateProductSizes(products: Array<Partial<CreateOrUpdateProductDto>>) {
@@ -223,6 +226,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
 
     let oldProducts: any = [];
     let reqdCategories: any = [];
+    let uploadedImages: any = [];
     let parsedProducts = _.map(products, (product) => this.productService.getParsedProductBody(product, user));
 
     this.validateUserRole(user);
@@ -246,14 +250,17 @@ export class ValidateProductMiddleware implements NestMiddleware {
 
     reqdCategories = await this.validateProductCategory(parsedProducts, oldProducts);
     parsedProducts = await this.validateAndParseProductSlug(parsedProducts);
-    parsedProducts = await this.validateAndParseProductImages(parsedProducts);
+
+    const { products: tempImageProducts, uploadedImages: tempUploadedImages } =
+      await this.validateAndParseProductImages(parsedProducts);
+    parsedProducts = tempImageProducts;
+    uploadedImages = tempUploadedImages;
 
     // attach to response
     res.locals.oldProducts = oldProducts;
     res.locals.products = parsedProducts;
+    res.locals.uploadedImages = uploadedImages;
     res.locals.productCategories = reqdCategories;
-
-    console.log('res.locals', JSON.stringify(res.locals));
 
     next();
   }

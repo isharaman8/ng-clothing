@@ -35,7 +35,7 @@ export class ProductController {
   }
 
   private async createOrUpdateProductHandler(request: CRequest, response: CResponse, statusCode: number) {
-    const { oldProducts, products: payload, productCategories } = response.locals;
+    const { oldProducts, products: payload, productCategories, uploadedImages } = response.locals;
     const { user = {} } = request;
 
     let createdProducts: any;
@@ -50,6 +50,7 @@ export class ProductController {
       createdProducts,
       [],
       'product',
+      uploadedImages,
     );
 
     createdProducts = tempProducts;
@@ -105,14 +106,19 @@ export class ProductController {
   }
 
   private async createOrUpdateReviewHandler(response: CResponse, statusCode: number) {
-    const { review, oldReview } = response.locals;
+    const { review, oldReview, uploadedImages } = response.locals;
 
     let createdReview: any;
 
     createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
 
     // parse review images
-    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData([createdReview], [], 'review');
+    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData(
+      [createdReview],
+      [],
+      'review',
+      uploadedImages,
+    );
 
     createdReview = tempReview[0];
     createdReview = this.reviewService.getParsedReviewResponsePayload(createdReview);
@@ -134,7 +140,7 @@ export class ProductController {
 
   @Post('')
   async createProduct(
-    @Body('products') _products: BulkCreateOrUpdateProductDto,
+    @Body() _products: BulkCreateOrUpdateProductDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
