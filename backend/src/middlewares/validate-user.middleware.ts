@@ -28,12 +28,14 @@ export class ValidateUserMiddleware implements NestMiddleware {
     private userService: UserService,
   ) {}
 
-  private validateUserRole(user: any = {}, method: string) {
+  private validateUserRole(user: any = {}, method: string, originalUrl: string) {
     let validUserRole = false;
+
+    const allowedOriginsWithoutCheck = ['/auth/login', '/auth/signup'];
 
     const roles = parseArray(user.roles, []);
 
-    if (method.toUpperCase() === 'PATCH') {
+    if (method.toUpperCase() === 'PATCH' || _.includes(allowedOriginsWithoutCheck, originalUrl)) {
       validUserRole = true;
     }
 
@@ -136,6 +138,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
     const parsedUserBody = this.userService.getParsedUserBody(user);
     const query = this.getFindUserQuery(req.originalUrl, req.method, parsedUserBody, params);
 
+    this.validateUserRole(req.user, req.method, req.originalUrl);
     this.validateParsedUserBody(req.originalUrl, parsedUserBody);
 
     let oldUser: any;
@@ -146,7 +149,6 @@ export class ValidateUserMiddleware implements NestMiddleware {
       throw new InternalServerErrorException(error.message);
     }
 
-    this.validateUserRole(req.user, req.method);
     this.validateSignupRequest(req.originalUrl, oldUser);
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);
     this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params, user);

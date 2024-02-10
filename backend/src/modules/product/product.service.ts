@@ -139,7 +139,7 @@ export class ProductService {
       },
     );
 
-    console.log('PRODUCT FIND QUERY', JSON.stringify(baseQuery));
+    console.log('PRODUCT AGGREGATION QUERY', JSON.stringify(baseQuery));
 
     try {
       products = await this.productModel.aggregate(baseQuery);
@@ -272,6 +272,7 @@ export class ProductService {
     products: Array<ProductResponse | ProductReviewResponse>,
     reviewUserDetails: Array<Partial<CreateOrUpdateUserDto>> = [],
     type: 'product' | 'review',
+    uploadedImages: any = [],
   ) {
     const imageUids = [
       ..._.compact(
@@ -296,7 +297,11 @@ export class ProductService {
     let dbImages = [];
 
     // fetching uploaded images
-    dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+    if (!_.isEmpty(uploadedImages)) {
+      dbImages = uploadedImages;
+    } else {
+      dbImages = await this.sharedService.getUpdatedDbImageArray(imageUids);
+    }
 
     // parsing product.images for response;
     for (const product of products) {

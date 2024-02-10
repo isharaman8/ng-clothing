@@ -164,3 +164,15 @@ export const _getSlugAggregationFilter = (query: any = {}) => {
 
   return filter;
 };
+
+export const _getMimeTypeAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.mimeType) {
+    const reqdMimeTypeArray = parseArray(query.mimeType, [query.mimeType]);
+
+    filter.push({ mimetype: { $in: reqdMimeTypeArray } });
+  }
+
+  return filter;
+};
