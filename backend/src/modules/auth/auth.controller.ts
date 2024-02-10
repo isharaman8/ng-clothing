@@ -1,14 +1,5 @@
 // third party imports
-import {
-  Get,
-  Req,
-  Res,
-  Body,
-  Post,
-  Controller,
-  UnauthorizedException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Get, Req, Res, Body, Post, Controller, UnauthorizedException } from '@nestjs/common';
 
 // inner imports
 import { AuthService } from './auth.service';

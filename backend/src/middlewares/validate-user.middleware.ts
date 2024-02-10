@@ -2,20 +2,21 @@
 import * as _ from 'lodash';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
+import { NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
-import { Request, Response, NextFunction } from 'express';
 import {
   Injectable,
   NestMiddleware,
   BadRequestException,
-  InternalServerErrorException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 // inner imports
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { _notEmpty, parseArray } from 'src/utils';
+import { CRequest, CResponse } from 'src/interfaces';
 import { _getParsedParams } from 'src/helpers/parser';
 import { UserService } from 'src/modules/user/user.service';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
@@ -27,7 +28,27 @@ export class ValidateUserMiddleware implements NestMiddleware {
     private userService: UserService,
   ) {}
 
-  getFindUserQuery(originalUrl: string, method: string, parsedUserBody: CreateOrUpdateUserDto, params: any) {
+  private validateUserRole(user: any = {}, method: string) {
+    let validUserRole = false;
+
+    const roles = parseArray(user.roles, []);
+
+    if (method.toUpperCase() === 'PATCH') {
+      validUserRole = true;
+    }
+
+    for (const role of roles) {
+      if (_.includes(ALLOWED_USER_ROLES.user, role) && method.toUpperCase() === 'POST') {
+        validUserRole = true;
+      }
+    }
+
+    if (!validUserRole) {
+      throw new UnauthorizedException('not authorized for creating users');
+    }
+  }
+
+  private getFindUserQuery(originalUrl: string, method: string, parsedUserBody: CreateOrUpdateUserDto, params: any) {
     let query: any;
 
     if ((_.includes(originalUrl, '/signup') || _.includes(originalUrl, '/login')) && method.toUpperCase() === 'POST') {
@@ -44,11 +65,11 @@ export class ValidateUserMiddleware implements NestMiddleware {
     if (_.includes(originalUrl, '/user') && method.toUpperCase() === 'PATCH') {
       query = [{ uid: params.userId }];
     }
-    ``;
+
     return _.filter(query, _notEmpty);
   }
 
-  validateParsedUserBody(originalUrl: string, parsedUserBody: CreateOrUpdateUserDto) {
+  private validateParsedUserBody(originalUrl: string, parsedUserBody: CreateOrUpdateUserDto) {
     if (
       (!(parsedUserBody.email || parsedUserBody.username) || !parsedUserBody.password) &&
       _.includes(originalUrl, '/login')
@@ -64,13 +85,17 @@ export class ValidateUserMiddleware implements NestMiddleware {
     }
   }
 
-  validateSignupRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto) {
+  private validateSignupRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto) {
     if (_.includes(originalUrl, '/signup') && oldUser) {
       throw new BadRequestException(`user with given email id and/or username already exists`);
     }
   }
 
-  validateLoginRequest(originalUrl: string, oldUser: CreateOrUpdateUserDto, parsedUserBody: CreateOrUpdateUserDto) {
+  private validateLoginRequest(
+    originalUrl: string,
+    oldUser: CreateOrUpdateUserDto,
+    parsedUserBody: CreateOrUpdateUserDto,
+  ) {
     if (_.includes(originalUrl, '/login')) {
       if (!oldUser) {
         throw new BadRequestException('incorrect email/password');
@@ -84,7 +109,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
     }
   }
 
-  validateUserUpdateRequest(
+  private validateUserUpdateRequest(
     originalUrl: string,
     method: string,
     oldUser: CreateOrUpdateUserDto | undefined,
@@ -105,7 +130,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
     }
   }
 
-  async use(req: Request, res: Response, next: NextFunction) {
+  async use(req: CRequest, res: CResponse, next: NextFunction) {
     const { user = {} } = req.body;
     const params = _getParsedParams(req.params);
     const parsedUserBody = this.userService.getParsedUserBody(user);
@@ -121,10 +146,9 @@ export class ValidateUserMiddleware implements NestMiddleware {
       throw new InternalServerErrorException(error.message);
     }
 
+    this.validateUserRole(req.user, req.method);
     this.validateSignupRequest(req.originalUrl, oldUser);
-
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);
-
     this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params, user);
 
     if (!oldUser) {

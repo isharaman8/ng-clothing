@@ -1,16 +1,7 @@
 // third party imports
 import * as _ from 'lodash';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import {
-  Req,
-  Res,
-  Post,
-  Controller,
-  UploadedFiles,
-  UseInterceptors,
-  InternalServerErrorException,
-  Get,
-} from '@nestjs/common';
+import { Req, Res, Post, Controller, UploadedFiles, UseInterceptors, Get } from '@nestjs/common';
 
 // inner imports
 import { S3Service } from './s3.service';

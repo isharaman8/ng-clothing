@@ -1,5 +1,5 @@
 // third party imports
-import { Body, Controller, Get, InternalServerErrorException, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 
 // inner imports
 import { CartService } from './cart.service';

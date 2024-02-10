@@ -1,17 +1,6 @@
 // third party imports
 import * as _ from 'lodash';
-import {
-  Res,
-  Req,
-  Get,
-  Body,
-  Post,
-  Patch,
-  Param,
-  Query,
-  Controller,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Res, Req, Get, Body, Post, Patch, Param, Query, Controller } from '@nestjs/common';
 
 // inner imports
 import { parseArray } from 'src/utils';
@@ -28,6 +17,30 @@ export class PurchaseController {
     private purchaseService: PurchaseService,
     private productService: ProductService,
   ) {}
+
+  // inner helpers
+  private async getPurchasesHandler(query: any, params: any, request: CRequest, response: CResponse) {
+    const parsedQuery = _getParsedQuery(query);
+    const parsedParams = _getParsedParams(params);
+    const { user = {} } = request;
+
+    let purchases: any;
+
+    // adding props to parsedQuery
+    if (!_.includes(parseArray(user.roles, []), 'admin')) {
+      parsedQuery.userId = user.uid;
+    }
+
+    if (parsedParams.purchaseId) {
+      parsedQuery.uid = parsedParams.purchaseId;
+    }
+
+    purchases = await this.purchaseService.getAllPurchases(parsedQuery);
+    purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
+    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
+
+    return response.status(200).send({ purchases });
+  }
 
   @Post('')
   async createPurchase(
@@ -60,24 +73,17 @@ export class PurchaseController {
 
   @Get('')
   async getPurchases(@Query() query: any, @Req() request: CRequest, @Res() response: CResponse) {
-    const parsedQuery = _getParsedQuery(query);
-    const { user = {} } = request;
+    await this.getPurchasesHandler(query, {}, request, response);
+  }
 
-    if (!_.includes(parseArray(user.roles, []), 'admin')) {
-      parsedQuery.userId = user.uid;
-    }
-
-    let purchases: any = [];
-
-    purchases = await this.purchaseService.getAllPurchases(parsedQuery);
-
-    // get updated image urls
-    purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
-
-    // parsing response payload
-    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
-
-    return response.status(200).send({ purchases });
+  @Get(':purchase_uid')
+  async getPurchaseByUid(
+    @Query() query: any,
+    @Param() params: any,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
+    await this.getPurchasesHandler(query, params, request, response);
   }
 
   @Patch(':purchase_uid/verify')
@@ -90,33 +96,5 @@ export class PurchaseController {
     );
 
     return response.status(204).send();
-  }
-
-  @Get(':purchase_uid')
-  async getPurchaseByUid(
-    @Query() query: any,
-    @Param() params: any,
-    @Req() request: CRequest,
-    @Res() response: CResponse,
-  ) {
-    const parsedQuery = _getParsedQuery(query);
-    const parsedParams = _getParsedParams(params);
-    const { user = {} } = request;
-
-    let purchases: any;
-
-    // adding props to parsedQuery
-    parsedQuery.userId = user.uid;
-    parsedQuery.uid = parsedParams.purchaseId;
-
-    purchases = await this.purchaseService.getAllPurchases(parsedQuery);
-
-    // get updated image urls
-    purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
-
-    // parse response payload
-    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
-
-    return response.status(200).send({ purchases });
   }
 }

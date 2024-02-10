@@ -10,6 +10,7 @@ import { SharedService } from '../shared/shared.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
+import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -23,7 +24,14 @@ import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    const allowdRoutes = [
+      { path: 'user', method: RequestMethod.POST },
+      { path: 'user/:user_id', method: RequestMethod.PATCH },
+    ];
+
     consumer
+      .apply(AuthMiddleware)
+      .forRoutes(...allowdRoutes)
       .apply(ValidateUserMiddleware)
       .forRoutes({ path: 'user', method: RequestMethod.POST }, { path: 'user/:user_id', method: RequestMethod.PATCH });
   }
