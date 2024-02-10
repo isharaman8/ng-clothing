@@ -54,9 +54,7 @@ export const _getActiveAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.active !== null) {
-    const reqdActiveArray = _.map(parseArray(query.active, [query.active]), (active) => Boolean(active));
-
-    filter.push({ active: { $in: reqdActiveArray } });
+    filter.push({ active: Boolean(query.active) });
   }
 
   return filter;
@@ -150,6 +148,18 @@ export const _getGenderAggregationFilter = (query: any = {}) => {
         gender: { $elemMatch: { $eq: gender } },
       });
     }
+  }
+
+  return filter;
+};
+
+export const _getSlugAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.slug) {
+    const reqdSlugArray = parseArray(query.slug, [query.slug]);
+
+    filter.push({ slug: { $in: reqdSlugArray } });
   }
 
   return filter;

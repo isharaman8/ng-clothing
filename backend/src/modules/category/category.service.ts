@@ -10,20 +10,30 @@ import { parseBoolean } from 'src/utils';
 import { QueryParams } from 'src/interfaces';
 import { Category } from 'src/schemas/category.schema';
 import { CreateOrUpdateCategoryDto } from 'src/dto/category.dto';
-import { _getActiveAggregationFilter, _getUidAggregationFilter } from 'src/helpers/aggregationFilters';
+import {
+  _getActiveAggregationFilter,
+  _getSlugAggregationFilter,
+  _getUidAggregationFilter,
+} from 'src/helpers/aggregationFilters';
 
 @Injectable()
 export class CategoryService {
   constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) {}
 
   async getAllCategories(query: QueryParams) {
-    const aggregationQuery = [..._getUidAggregationFilter(query), ..._getActiveAggregationFilter(query)];
+    const aggregationQuery = [
+      ..._getActiveAggregationFilter(query),
+      ..._getSlugAggregationFilter(query),
+      ..._getUidAggregationFilter(query),
+    ];
 
     let categories = [];
 
     try {
       if (!_.isEmpty(aggregationQuery)) {
         const baseQuery = [{ $match: { $and: aggregationQuery } }];
+
+        console.log('CATEGORY AGGREGATION QUERY', JSON.stringify(baseQuery));
 
         categories = await this.categoryModel.aggregate(baseQuery);
       }

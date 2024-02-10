@@ -18,6 +18,7 @@ export interface QueryParams {
   page_size?: number;
   page_number?: number;
   uid?: string | string[];
+  slug?: string | string[];
   name?: string | string[];
   user_id?: string | string[];
   product_uid?: string | string[];
