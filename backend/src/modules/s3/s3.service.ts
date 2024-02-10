@@ -86,8 +86,8 @@ export class S3Service {
 
         return response;
       }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
 
     return null;

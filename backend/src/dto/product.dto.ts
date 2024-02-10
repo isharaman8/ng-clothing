@@ -1,5 +1,16 @@
 // third pary imports
-import { IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateOrUpdateProductDto {
   @IsString()
@@ -76,4 +87,11 @@ export class CreateOrUpdateProductReviewDto {
   @IsBoolean()
   @IsOptional()
   active: boolean;
+}
+
+export class BulkCreateOrUpdateProductDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrUpdateProductDto)
+  products: Array<CreateOrUpdateProductDto>;
 }

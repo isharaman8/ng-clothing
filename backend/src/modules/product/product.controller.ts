@@ -1,18 +1,6 @@
 // third party imports
 import * as _ from 'lodash';
-import {
-  Res,
-  Req,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Query,
-  Delete,
-  Controller,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Res, Req, Get, Post, Body, Patch, Param, Query, Delete, Controller } from '@nestjs/common';
 
 // inner imports
 import { ProductService } from './product.service';
@@ -21,7 +9,7 @@ import { CRequest, CResponse } from 'src/interfaces';
 import { ReviewService } from './product-review.service';
 import { REVIEW_USER_PROJECTION } from 'src/constants/constants';
 import { _getParsedQuery, _getParsedParams } from 'src/helpers/parser';
-import { CreateOrUpdateProductDto, CreateOrUpdateProductReviewDto } from 'src/dto';
+import { BulkCreateOrUpdateProductDto, CreateOrUpdateProductDto, CreateOrUpdateProductReviewDto } from 'src/dto';
 
 @Controller('product')
 export class ProductController {
@@ -45,6 +33,32 @@ export class ProductController {
     reviewUserDetails = await this.userService.getAllUsers(userQuery, REVIEW_USER_PROJECTION);
 
     return reviewUserDetails;
+  }
+
+  private async createOrUpdateProductHandler(request: CRequest, response: CResponse, statusCode: number) {
+    const { oldProducts, products: payload, productCategories } = response.locals;
+    const { user = {} } = request;
+
+    let createdProducts: any;
+
+    // remove unwanted attributes
+    delete payload.active;
+
+    createdProducts = await this.productService.createOrUpdateProduct(payload, oldProducts, user);
+
+    // get updated product images
+    const tempProducts = await this.productService.getUpdatedImageArrayAndPopulateUserData(
+      createdProducts,
+      [],
+      'product',
+    );
+
+    createdProducts = tempProducts;
+    createdProducts = _.map(createdProducts, (createdProduct) =>
+      this.productService.getParsedProductResponsePayload(createdProduct, productCategories),
+    );
+
+    return response.status(statusCode).send({ products: createdProducts });
   }
 
   @Get()
@@ -128,60 +142,41 @@ export class ProductController {
 
   @Post('')
   async createProduct(
-    @Body('product') _product: CreateOrUpdateProductDto,
+    @Body() _products: BulkCreateOrUpdateProductDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldProduct, product: payload, productCategory } = response.locals;
-    const { user = {} } = request;
-
-    let createdProduct: any;
-
-    // remove unwanted attributes
-    delete payload.active;
-
-    createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
-
-    // get updated product images
-    const tempProduct = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-      createdProduct,
-      [],
-      'product',
-    );
-
-    createdProduct = tempProduct[0];
-
-    return response
-      .status(201)
-      .send({ product: this.productService.getParsedProductResponsePayload(createdProduct, [productCategory]) });
+    try {
+      this.createOrUpdateProductHandler(request, response, 201);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Patch(':product_uid')
   async updateProduct(
-    @Body('product') _product: Partial<CreateOrUpdateProductDto>,
+    @Body() _products: Partial<BulkCreateOrUpdateProductDto>,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldProduct, product: payload, productCategory } = response.locals;
+    try {
+      await this.createOrUpdateProductHandler(request, response, 200);
+    } catch (error) {
+      throw error;
+    }
+  }
 
-    const { user = {} } = request;
-
-    let createdProduct: any;
-
-    createdProduct = await this.productService.createOrUpdateProduct(payload, oldProduct, user);
-
-    // get updated images
-    const tempProduct = await this.productService.getUpdatedImageArrayAndPopulateUserData(
-      createdProduct,
-      [],
-      'product',
-    );
-
-    createdProduct = tempProduct[0];
-
-    return response
-      .status(200)
-      .send({ product: this.productService.getParsedProductResponsePayload(createdProduct, [productCategory]) });
+  @Patch('')
+  async updateProducts(
+    @Body() _product: Partial<BulkCreateOrUpdateProductDto>,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
+    try {
+      await this.createOrUpdateProductHandler(request, response, 200);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Delete(':product_uid')
