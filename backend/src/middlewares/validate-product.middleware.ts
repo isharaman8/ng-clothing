@@ -33,7 +33,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
     private categoryService: CategoryService,
   ) {}
 
-  validateUserRole(user: any) {
+  private validateUserRole(user: any) {
     let validUserRole = false;
 
     const roles = parseArray(user.roles, []);
@@ -49,134 +49,211 @@ export class ValidateProductMiddleware implements NestMiddleware {
     }
   }
 
-  validatePatchRequest(method: string, oldProduct: CreateOrUpdateProductDto) {
-    if (method.toUpperCase() === 'PATCH' && !oldProduct) {
-      throw new NotFoundException('product not found');
-    }
-  }
+  private validateDeleteAndPatchRequest(
+    method: string,
+    oldProducts: Array<CreateOrUpdateProductDto>,
+    productUid: string,
+    products: Array<Partial<CreateOrUpdateProductDto>>,
+  ) {
+    if (method.toUpperCase() === 'PATCH' || method.toUpperCase() === 'DELETE') {
+      if (productUid) {
+        if (!_.some(oldProducts, (oldProduct) => oldProduct.uid === productUid)) {
+          throw new BadRequestException(`Products with given uids ${productUid} not found`);
+        }
 
-  validateDeleteRequest(method: string, oldProduct?: CreateOrUpdateProductDto) {
-    if (method.toUpperCase() === 'DELETE') {
-      if (!oldProduct) {
-        throw new NotFoundException('product not found');
+        if (products.length > 1 && method.toUpperCase() === 'PATCH') {
+          throw new BadRequestException('please provide one object to update');
+        }
       }
+
+      if (!productUid && _.some(products, (product) => !product.uid)) {
+        throw new BadRequestException('please provide product uid');
+      }
+
+      const allProductUids = _.compact(_.map(products, (product) => product.uid));
+      const allOldProductUids = _.map(oldProducts, (oldProduct) => oldProduct.uid);
+      const productNotFoundUids = _.filter(allProductUids, (uid) => !_.includes(allOldProductUids, uid));
+
+      if (!_.isEmpty(productNotFoundUids)) {
+        throw new NotFoundException(`Products with given uids ${_.join(productNotFoundUids, ', ')} not found`);
+      }
+
+      return true;
     }
   }
 
-  validatePostRequest(method: string, product: CreateOrUpdateProductDto) {
-    if (method.toUpperCase() === 'POST' && !product.user_id) {
+  private validatePostRequest(method: string, products: Array<CreateOrUpdateProductDto>) {
+    if (method.toUpperCase() === 'POST' && _.some(products, (product) => !product.user_id)) {
       throw new UnauthorizedException('user_id required to create product');
     }
   }
 
-  async validateAndParseProductSlug(product: CreateOrUpdateProductDto) {
-    if (product.name) {
-      const slug = slugify(product.name).toLowerCase();
+  private async validateAndParseProductSlug(products: Array<Partial<CreateOrUpdateProductDto>>) {
+    const updatedProducts = [];
+    const slugUidsToCheck = [];
 
-      let tempProduct: any;
+    let existingSlugs = [];
 
-      try {
-        tempProduct = await this.productModel.findOne({ slug });
-      } catch (error) {
-        throw new InternalServerErrorException(error.message);
+    for (const product of products) {
+      if (product.name) {
+        const slug = slugify(product.name).toLowerCase();
+
+        slugUidsToCheck.push(slug);
+        updatedProducts.push({ ...product, slug });
+      } else {
+        updatedProducts.push(product);
       }
-
-      if (!_.isEmpty(tempProduct) && tempProduct.uid !== product.uid) {
-        throw new BadRequestException('slug already exists');
-      }
-
-      return slug;
     }
 
-    return product.slug;
+    const duplicateSlugObj = _.groupBy(slugUidsToCheck);
+    const filteredDuplicateSlugs = _.uniq(_.flatten(_.filter(duplicateSlugObj, (element) => element.length > 1)));
+
+    if (!_.isEmpty(filteredDuplicateSlugs)) {
+      throw new BadRequestException(`duplicate slugs not allowed ${_.join(filteredDuplicateSlugs, ', ')}`);
+    }
+
+    // Query the database for existing slugs
+    if (!_.isEmpty(slugUidsToCheck)) {
+      // todo: change it to use product service
+      existingSlugs = await this.productModel.find({ slug: { $in: slugUidsToCheck } });
+    }
+
+    for (const product of updatedProducts) {
+      if (product.name) {
+        const slug = slugify(product.name).toLowerCase();
+        const existingSlug = _.find(existingSlugs, (existing) => existing.slug === slug);
+
+        if (existingSlug && existingSlug.uid !== product.uid) {
+          throw new BadRequestException(`Slug for product '${product.name}' already exists`);
+        }
+      }
+    }
+
+    return updatedProducts;
   }
 
-  async validateProductCategory(product: CreateOrUpdateProductDto) {
-    let reqdCategory = {};
+  private async validateProductCategory(
+    products: Array<Partial<CreateOrUpdateProductDto>>,
+    oldProducts: Array<CreateOrUpdateProductDto>,
+  ) {
+    let reqdCategories = [];
 
-    if (product.category) {
-      const query = _getParsedQuery({ uid: product.category });
+    const categoryUids = _.uniq(
+      _.compact([
+        ..._.map(products, (product) => product.category),
+        ..._.map(oldProducts, (oldProduct) => oldProduct.category),
+      ]),
+    );
 
-      reqdCategory = await this.categoryService.getAllCategories(query);
+    if (_.isEmpty(categoryUids)) {
+      return reqdCategories;
+    }
 
-      if (_.isEmpty(reqdCategory)) {
-        throw new BadRequestException('no category found');
+    const query = _getParsedQuery({ uid: categoryUids });
+
+    reqdCategories = await this.categoryService.getAllCategories(query);
+
+    const notFoundCategoryUids = _.filter(
+      categoryUids,
+      (uid) => !_.some(reqdCategories, (category) => category.uid === uid),
+    );
+
+    if (!_.isEmpty(notFoundCategoryUids)) {
+      throw new NotFoundException(`categories with given uids ${_.join(notFoundCategoryUids, ', ')} does not exists`);
+    }
+
+    reqdCategories = _.map(reqdCategories, (category) =>
+      _.pick(parseObject(category, {}), ['uid', 'name', 'description', 'slug']),
+    );
+
+    return reqdCategories;
+  }
+
+  private async validateAndParseProductImages(products: Array<Partial<CreateOrUpdateProductDto>>) {
+    const imageUids = _.flatMap(products, (product) => parseArray(product.images, []));
+
+    if (_.isEmpty(imageUids)) {
+      return products;
+    }
+
+    const uploads = await this.uploadService.getAllUploads(imageUids);
+
+    for (const product of products) {
+      if (_.isEmpty(product.images)) {
+        continue;
       }
 
-      reqdCategory = _.pick(parseObject(reqdCategory[0], {}), ['uid', 'name', 'description', 'slug']);
+      const updateImageUids = _.filter(product.images, (imageUid) =>
+        _.some(uploads, (upload) => upload.uid === imageUid),
+      );
+
+      product['images'] = updateImageUids;
     }
-    return reqdCategory;
+
+    return products;
   }
 
-  async validateAndParseProductImages(product: CreateOrUpdateProductDto) {
-    const imageUids = parseArray(product.images, []);
-
-    let newImageUids = [];
-
-    if (!product.images) {
-      return null;
-    }
-
-    if (!_.isEmpty(imageUids)) {
-      const uploads = await this.uploadService.getAllUploads(imageUids);
-
-      newImageUids = _.map(uploads, (upload) => upload.uid);
-    }
-
-    return newImageUids;
-  }
-
-  validateProductSizes(product: Partial<CreateOrUpdateProductDto>) {
-    if (_.isEmpty(product.available_sizes)) {
+  private validateProductSizes(products: Array<Partial<CreateOrUpdateProductDto>>) {
+    if (_.every(products, (product) => _.isEmpty(product.available_sizes))) {
       return true;
     }
 
-    const providedSizes = _.keys(product.available_sizes);
     const validSizes = _.keys(ALLOWED_PRODUCT_SIZES);
-    const invalidSizes = _.filter(providedSizes, (size) => !_.includes(validSizes, size));
 
-    if (!_.isEmpty(invalidSizes)) {
-      throw new BadRequestException(`invalid sizes provided: ${_.join(invalidSizes, ', ')}`);
+    for (const product of products) {
+      const providedSizes = _.keys(product.available_sizes);
+      const invalidSizes = _.filter(providedSizes, (size) => !_.includes(validSizes, size));
+
+      if (!_.isEmpty(invalidSizes)) {
+        throw new BadRequestException(`invalid sizes provided: ${_.join(invalidSizes, ', ')}`);
+      }
     }
   }
 
   async use(req: CRequest, res: CResponse, next: NextFunction) {
     const {
       user = {},
-      body: { product = {} },
+      body: { products: _products = [] },
     } = req;
-    const params = _getParsedParams(req.params);
-    const parsedProduct = this.productService.getParsedProductBody(product, user);
-    const findQuery = _.filter([{ uid: params.productId }, { user_id: user.uid }], _notEmpty);
 
-    let oldProduct: any;
-    let reqdCategory: any;
+    const params = _getParsedParams(req.params);
+    const products = parseArray(_products, [_products]);
+    const findProductUids = _.compact([params.productId, ..._.map(products, (product) => product.uid)]);
+    const findQuery = _.filter([{ uid: { $in: findProductUids } }, { user_id: user.uid }], _notEmpty);
+
+    let oldProducts: any = [];
+    let reqdCategories: any = [];
+    let parsedProducts = _.map(products, (product) => this.productService.getParsedProductBody(product, user));
 
     this.validateUserRole(user);
-    this.validatePostRequest(req.method, parsedProduct);
-    this.validateProductSizes(parsedProduct);
+    this.validatePostRequest(req.method, parsedProducts);
+    this.validateProductSizes(parsedProducts);
 
     try {
-      oldProduct = await this.productModel.findOne({ $and: findQuery });
+      if (!_.isEmpty(findProductUids)) {
+        oldProducts = await this.productModel.find({ $and: findQuery });
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
 
-    this.validatePatchRequest(req.method, oldProduct);
-    this.validateDeleteRequest(req.method, oldProduct);
+    this.validateDeleteAndPatchRequest(req.method, oldProducts, params.productId, parsedProducts);
 
-    reqdCategory = await this.validateProductCategory(parsedProduct);
-    parsedProduct.slug = await this.validateAndParseProductSlug(parsedProduct);
-    parsedProduct.images = await this.validateAndParseProductImages(parsedProduct);
-
-    if (!oldProduct) {
-      oldProduct = new this.productModel();
+    // populate uid in product
+    if (params.productId) {
+      parsedProducts = _.map(parsedProducts, (product) => ({ ...product, uid: params.productId }));
     }
 
+    reqdCategories = await this.validateProductCategory(parsedProducts, oldProducts);
+    parsedProducts = await this.validateAndParseProductSlug(parsedProducts);
+    parsedProducts = await this.validateAndParseProductImages(parsedProducts);
+
     // attach to response
-    res.locals.oldProduct = oldProduct;
-    res.locals.product = parsedProduct;
-    res.locals.productCategory = reqdCategory;
+    res.locals.oldProducts = oldProducts;
+    res.locals.products = parsedProducts;
+    res.locals.productCategories = reqdCategories;
+
+    console.log('res.locals', JSON.stringify(res.locals));
 
     next();
   }

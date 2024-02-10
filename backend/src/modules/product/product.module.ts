@@ -39,6 +39,7 @@ export class ProductModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     const allowedRoutes = [
       { path: 'product', method: RequestMethod.POST },
+      { path: 'product', method: RequestMethod.PATCH },
       { path: 'product/:product_uid', method: RequestMethod.PATCH },
       { path: 'product/:product_uid', method: RequestMethod.DELETE },
     ];

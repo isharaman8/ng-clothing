@@ -54,7 +54,9 @@ export const _getActiveAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.active !== null) {
-    filter.push({ active: Boolean(query.active) });
+    const reqdActiveArray = _.map(parseArray(query.active, [query.active]), (active) => Boolean(active));
+
+    filter.push({ active: { $in: reqdActiveArray } });
   }
 
   return filter;
