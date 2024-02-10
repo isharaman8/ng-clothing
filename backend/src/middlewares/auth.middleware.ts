@@ -1,7 +1,7 @@
 // third party imports
 import { NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { Injectable, InternalServerErrorException, NestMiddleware } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 
 // inner imports
 import { parseArray } from 'src/utils';
@@ -15,7 +15,7 @@ export class AuthMiddleware implements NestMiddleware {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      return response.status(401).send({ message: 'no token provided' });
+      throw new UnauthorizedException('no token provided');
     }
 
     try {

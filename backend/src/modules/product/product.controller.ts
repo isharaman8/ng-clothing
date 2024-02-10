@@ -9,7 +9,7 @@ import { CRequest, CResponse } from 'src/interfaces';
 import { ReviewService } from './product-review.service';
 import { REVIEW_USER_PROJECTION } from 'src/constants/constants';
 import { _getParsedQuery, _getParsedParams } from 'src/helpers/parser';
-import { BulkCreateOrUpdateProductDto, CreateOrUpdateProductDto, CreateOrUpdateProductReviewDto } from 'src/dto';
+import { BulkCreateOrUpdateProductDto, CreateOrUpdateProductReviewDto } from 'src/dto';
 
 @Controller('product')
 export class ProductController {
@@ -21,7 +21,6 @@ export class ProductController {
 
   // internal helper functions
 
-  // get review user details
   private async getReviewUserDetails(products: Partial<any>) {
     let reviewUserDetails = [];
     let reviewUserUids = _.compact(
@@ -61,13 +60,17 @@ export class ProductController {
     return response.status(statusCode).send({ products: createdProducts });
   }
 
-  @Get()
-  async getProducts(@Query() query: any, @Res() response: CResponse) {
-    const parsedQuery = _getParsedQuery(query);
-
+  private async getProductsHandler(query: any, params: any, response: CResponse) {
     let products = [];
     let categories = [];
     let reviewUserDetails = [];
+
+    const parsedQuery = _getParsedQuery(query);
+    const parsedParams = _getParsedParams(params);
+
+    if (parsedParams.productId) {
+      parsedQuery.uid = parsedParams.productId;
+    }
 
     products = await this.productService.getAllProducts(parsedQuery);
 
@@ -101,56 +104,41 @@ export class ProductController {
     return response.status(200).send({ products });
   }
 
+  private async createOrUpdateReviewHandler(response: CResponse, statusCode: number) {
+    const { review, oldReview } = response.locals;
+
+    let createdReview: any;
+
+    createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
+
+    // parse review images
+    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData([createdReview], [], 'review');
+
+    createdReview = tempReview[0];
+    createdReview = this.reviewService.getParsedReviewResponsePayload(createdReview);
+
+    return response.status(statusCode).send({ review: createdReview });
+  }
+
+  // main controllers
+
+  @Get()
+  async getProducts(@Query() query: any, @Res() response: CResponse) {
+    await this.getProductsHandler(query, {}, response);
+  }
+
   @Get(':product_uid')
   async getProductByUid(@Query() query: any, @Param() params: any, @Res() response: CResponse) {
-    let product: any;
-    let categories = [];
-    let reviewUserDetails = [];
-
-    const parsedQuery = _getParsedQuery(query);
-    const parsedParams = _getParsedParams(params);
-
-    parsedQuery.uid = parsedParams.productId;
-
-    product = await this.productService.getAllProducts(parsedQuery);
-
-    // get review user details
-    if (parsedQuery.reviews) {
-      reviewUserDetails = await this.getReviewUserDetails(product);
-    }
-
-    // get updated product images
-    product = await this.productService.getUpdatedImageArrayAndPopulateUserData(product, reviewUserDetails, 'product');
-
-    // get categories
-    categories = await this.productService.getProductsCategoriesDetails(product);
-
-    // parse response payload
-    product = _.map(product, (pr) => {
-      const retProduct = this.productService.getParsedProductResponsePayload(pr, categories);
-
-      // parse review;
-      if (parsedQuery.reviews) {
-        retProduct['reviews'] = _.map(retProduct.reviews, this.reviewService.getParsedReviewResponsePayload);
-      }
-
-      return retProduct;
-    });
-
-    return response.status(200).send({ products: product });
+    await this.getProductsHandler(query, params, response);
   }
 
   @Post('')
   async createProduct(
-    @Body() _products: BulkCreateOrUpdateProductDto,
+    @Body('products') _products: BulkCreateOrUpdateProductDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    try {
-      this.createOrUpdateProductHandler(request, response, 201);
-    } catch (error) {
-      throw error;
-    }
+    await this.createOrUpdateProductHandler(request, response, 201);
   }
 
   @Patch(':product_uid')
@@ -159,11 +147,7 @@ export class ProductController {
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    try {
-      await this.createOrUpdateProductHandler(request, response, 200);
-    } catch (error) {
-      throw error;
-    }
+    await this.createOrUpdateProductHandler(request, response, 200);
   }
 
   @Patch('')
@@ -210,20 +194,7 @@ export class ProductController {
 
   @Post(':product_uid/review')
   async createProductReview(@Body('review') _review: CreateOrUpdateProductReviewDto, @Res() response: CResponse) {
-    const { review, oldReview } = response.locals;
-
-    let createdReview: any;
-
-    createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
-
-    // parse review images
-    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData([createdReview], [], 'review');
-
-    createdReview = tempReview[0];
-
-    createdReview = this.reviewService.getParsedReviewResponsePayload(createdReview);
-
-    return response.status(201).send({ review: createdReview });
+    await this.createOrUpdateReviewHandler(response, 201);
   }
 
   @Patch(':product_uid/review/:review_uid')
@@ -231,20 +202,7 @@ export class ProductController {
     @Body('review') _review: Partial<CreateOrUpdateProductReviewDto>,
     @Res() response: CResponse,
   ) {
-    const { review, oldReview } = response.locals;
-
-    let createdReview: any;
-
-    createdReview = await this.reviewService.createOrUpdateReview(review, oldReview);
-
-    // parse review images
-    const tempReview = await this.productService.getUpdatedImageArrayAndPopulateUserData([createdReview], [], 'review');
-
-    createdReview = tempReview[0];
-
-    createdReview = this.reviewService.getParsedReviewResponsePayload(createdReview);
-
-    return response.status(201).send({ review: createdReview });
+    await this.createOrUpdateReviewHandler(response, 200);
   }
 
   @Delete(':product_uid/review/:review_uid')

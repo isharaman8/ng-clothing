@@ -1,18 +1,6 @@
 // third party imports
 import * as _ from 'lodash';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
 
 // inner imports
 import { CreateOrUpdateCategoryDto } from 'src/dto';
@@ -23,6 +11,30 @@ import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 @Controller('category')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}
+
+  // internal helpers
+  private async createOrUpdateCategory(
+    request: CRequest,
+    response: CResponse,
+    statusCode: number,
+    type: 'create' | 'update',
+  ) {
+    const { oldCategory, category: payload } = response.locals;
+    const { user = {} } = request;
+
+    // remove unwanted attributes in create request
+    if (type === 'create') {
+      delete payload.active;
+    }
+
+    let createdCategory: any;
+
+    createdCategory = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
+
+    return response
+      .status(statusCode)
+      .send({ category: this.categoryService.getParsedCategoryResponsePayload(createdCategory) });
+  }
 
   @Get()
   async getAllCategories(@Query() _query: any) {
@@ -37,43 +49,21 @@ export class CategoryController {
   }
 
   @Post()
-  async createProduct(
+  async createCategory(
     @Body('category') _product: CreateOrUpdateCategoryDto,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldCategory, category: payload } = response.locals;
-    const { user = {} } = request;
-
-    // remove unwanted attributes
-    delete payload.active;
-
-    let createdCategory: any;
-
-    createdCategory = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
-
-    return response
-      .status(201)
-      .send({ category: this.categoryService.getParsedCategoryResponsePayload(createdCategory) });
+    await this.createOrUpdateCategory(request, response, 201, 'create');
   }
 
   @Patch(':category_uid')
-  async updateProduct(
-    @Body('category') _product: Partial<CreateOrUpdateCategoryDto>,
+  async updateCategory(
+    @Body('category') _category: Partial<CreateOrUpdateCategoryDto>,
     @Req() request: CRequest,
     @Res() response: CResponse,
   ) {
-    const { oldCategory, category: payload } = response.locals;
-
-    const { user = {} } = request;
-
-    let createdProduct: any;
-
-    createdProduct = await this.categoryService.createOrUpdateCategories(payload, oldCategory, user);
-
-    return response
-      .status(200)
-      .send({ category: this.categoryService.getParsedCategoryResponsePayload(createdProduct) });
+    await this.createOrUpdateCategory(request, response, 200, 'update');
   }
 
   @Delete(':category_uid')
