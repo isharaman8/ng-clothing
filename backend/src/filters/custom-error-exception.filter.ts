@@ -27,8 +27,6 @@ export class CustomExceptionFilter implements ExceptionFilter {
       message = _.defaultTo(tempException?.response?.message, 'Unauthorized');
     }
 
-    console.log('[EXCEPTION]', exception);
-
     response.status(status).json({
       statusCode: status,
       message,

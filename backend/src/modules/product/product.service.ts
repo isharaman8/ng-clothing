@@ -13,6 +13,7 @@ import {
   _getActiveAggregationFilter,
   _getAvailableSizesAggregationFilter,
   _getGenderAggregationFilter,
+  _getSlugAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 import { Product } from 'src/schemas/product.schema';
 import { _getParsedQuery } from 'src/helpers/parser';
@@ -55,11 +56,12 @@ export class ProductService {
         $match: {
           $and: [
             ..._getActiveAggregationFilter(query),
-            ..._getPriceAggregationFilter(query),
             ..._getNameAggregationFilter(query),
+            ..._getSlugAggregationFilter(query),
+            ..._getPriceAggregationFilter(query),
+            ..._getAvailableSizesAggregationFilter(query),
             ..._getUidAggregationFilter(query),
             ..._getGenderAggregationFilter(query),
-            ..._getAvailableSizesAggregationFilter(query),
           ],
         },
       },

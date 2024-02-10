@@ -8,11 +8,11 @@ import { parseBoolean, parseNumber } from 'src/utils';
 export const _getParsedParams = (params: Params = {}) => {
   return {
     userId: params.user_id,
-    productId: params.product_uid,
-    purchaseId: params.purchase_uid,
     cartId: params.cart_uid,
-    categoryId: params.category_uid,
     reviewId: params.review_uid,
+    productId: params.product_uid,
+    categoryId: params.category_uid,
+    purchaseId: params.purchase_uid,
   };
 };
 
@@ -20,6 +20,7 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
   const queryPayload = {
     uid: _.defaultTo(query.uid, null),
     name: _.defaultTo(query.name, null),
+    slug: _.defaultTo(query.slug, null),
     price: parseNumber(query.price, null),
     gender: _.defaultTo(query.gender, null),
     active: parseBoolean(query.active, true),
