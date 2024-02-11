@@ -17,9 +17,9 @@ import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { _notEmpty, parseArray } from 'src/utils';
 import { CRequest, CResponse } from 'src/interfaces';
-import { _getParsedParams } from 'src/helpers/parser';
 import { UserService } from 'src/modules/user/user.service';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
+import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
@@ -48,27 +48,6 @@ export class ValidateUserMiddleware implements NestMiddleware {
     if (!validUserRole) {
       throw new UnauthorizedException('not authorized for creating users');
     }
-  }
-
-  private getFindUserQuery(originalUrl: string, method: string, parsedUserBody: CreateOrUpdateUserDto, params: any) {
-    let query: any;
-
-    if ((_.includes(originalUrl, '/signup') || _.includes(originalUrl, '/login')) && method.toUpperCase() === 'POST') {
-      query = [];
-
-      if (parsedUserBody.email) {
-        query.push({ email: parsedUserBody.email });
-      }
-      if (parsedUserBody.username) {
-        query.push({ username: parsedUserBody.username });
-      }
-    }
-
-    if (_.includes(originalUrl, '/user') && method.toUpperCase() === 'PATCH') {
-      query = [{ uid: params.userId }];
-    }
-
-    return _.filter(query, _notEmpty);
   }
 
   private validateParsedUserBody(originalUrl: string, parsedUserBody: CreateOrUpdateUserDto) {
@@ -136,18 +115,22 @@ export class ValidateUserMiddleware implements NestMiddleware {
     const { user = {} } = req.body;
     const params = _getParsedParams(req.params);
     const parsedUserBody = this.userService.getParsedUserBody(user);
-    const query = this.getFindUserQuery(req.originalUrl, req.method, parsedUserBody, params);
+    const findQuery = _getParsedQuery({
+      email: parsedUserBody.email,
+      username: parsedUserBody.username,
+      uid: params.userId,
+    });
+
+    let oldUser: any;
+
+    findQuery['active'] = null;
 
     this.validateUserRole(req.user, req.method, req.originalUrl);
     this.validateParsedUserBody(req.originalUrl, parsedUserBody);
 
-    let oldUser: any;
+    const tempUser = await this.userService.getAllUsers(findQuery);
 
-    try {
-      oldUser = await this.userModel.findOne({ $or: query });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    oldUser = _.last(tempUser);
 
     this.validateSignupRequest(req.originalUrl, oldUser);
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);

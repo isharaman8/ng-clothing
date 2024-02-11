@@ -22,12 +22,14 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
     name: _.defaultTo(query.name, null),
     slug: _.defaultTo(query.slug, null),
     price: parseNumber(query.price, null),
+    email: _.defaultTo(query.email, null),
     gender: _.defaultTo(query.gender, null),
     active: parseBoolean(query.active, true),
     userId: _.defaultTo(query.user_id, null),
     minPrice: parseNumber(query.min_price, 0),
     pageSize: parseNumber(query.page_size, 10),
     reviews: parseBoolean(query.reviews, false),
+    username: _.defaultTo(query.username, null),
     verified: parseBoolean(query.verified, null),
     pageNumber: parseNumber(query.page_number, 1),
     productId: _.defaultTo(query.product_uid, null),
@@ -44,6 +46,19 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
   const skipDocs = (queryPayload.pageNumber - 1) * queryPayload.pageSize;
 
   queryPayload['pageSkip'] = skipDocs;
+
+  // trim strings
+  _.forEach(queryPayload, (value, key) => {
+    if (_.isString(value)) {
+      value = _.trim(value);
+
+      if (_.isEmpty(value)) {
+        value = null;
+      }
+
+      queryPayload[key] = value;
+    }
+  });
 
   return queryPayload;
 };

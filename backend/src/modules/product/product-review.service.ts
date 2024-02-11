@@ -11,7 +11,11 @@ import { Review } from 'src/schemas/review.schema';
 import { _getParsedQuery } from 'src/helpers/parser';
 import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 import { CreateOrUpdateProductReviewDto, CreateOrUpdateUserDto } from 'src/dto';
-import { _getUidAggregationFilter, _getProductReviewFilter } from '../../helpers/aggregationFilters';
+import {
+  _getProductReviewFilter,
+  _getUidAggregationFilter,
+  _getActiveAggregationFilter,
+} from '../../helpers/aggregationFilters';
 
 @Injectable()
 export class ReviewService {
@@ -21,7 +25,11 @@ export class ReviewService {
     const baseQuery = [
       {
         $match: {
-          $and: [..._getUidAggregationFilter(query), ..._getProductReviewFilter(query)],
+          $and: [
+            ..._getActiveAggregationFilter(query),
+            ..._getUidAggregationFilter(query),
+            ..._getProductReviewFilter(query),
+          ],
         },
       },
       {
@@ -38,10 +46,10 @@ export class ReviewService {
       throw new BadRequestException('product id is required for reviews');
     }
 
-    console.log('PRODUCT REVEIWS AGGREGATION QUERY', JSON.stringify(baseQuery));
-
     try {
       reviews = await this.reviewModel.aggregate(baseQuery);
+
+      console.log('PRODUCT REVEIWS AGGREGATION QUERY', JSON.stringify(baseQuery));
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

@@ -20,7 +20,9 @@ export interface QueryParams {
   uid?: string | string[];
   slug?: string | string[];
   name?: string | string[];
+  email?: string | string[];
   user_id?: string | string[];
+  username?: string | string[];
   product_uid?: string | string[];
   purchase_uid?: string | string[];
   required_size?: string | string[];

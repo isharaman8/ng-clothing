@@ -2,13 +2,15 @@
 import * as _ from 'lodash';
 
 // inner imports
-import { parseArray } from 'src/utils';
+import { _arrayOrSplit, parseArray } from 'src/utils';
 
 export const _getNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.name?.length) {
-    const reqdNameArray = _.map(parseArray(query.name, [query.name]), (name) => new RegExp('^' + name, 'i'));
+  if (query.name) {
+    let reqdNameArray = _arrayOrSplit(query.name, ',');
+
+    reqdNameArray = _.map(reqdNameArray, (name) => new RegExp('^' + name, 'i'));
 
     filter.push({ name: { $in: reqdNameArray } });
   }
@@ -19,8 +21,10 @@ export const _getNameAggregationFilter = (query: any = {}) => {
 export const _getEmailAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.email?.length) {
-    filter.push({ email: { $in: parseArray(query.email, [query.email]) } });
+  if (query.email) {
+    let reqdEmailArray = _arrayOrSplit(query.email, ',');
+
+    filter.push({ email: { $in: reqdEmailArray } });
   }
 
   return filter;
@@ -29,8 +33,10 @@ export const _getEmailAggregationFilter = (query: any = {}) => {
 export const _getUserNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.username?.length) {
-    filter.push({ username: { $in: parseArray(query.username, [query.username]) } });
+  if (query.username) {
+    let reqdUsernameArray = _arrayOrSplit(query.username, ',');
+
+    filter.push({ username: { $in: reqdUsernameArray } });
   }
 
   return filter;
@@ -39,8 +45,10 @@ export const _getUserNameAggregationFilter = (query: any = {}) => {
 export const _getUidAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.uid?.length) {
-    filter.push({ uid: { $in: parseArray(query.uid, [query.uid]) } });
+  if (query.uid) {
+    let reqdUidArray = _arrayOrSplit(query.uid, ',');
+
+    filter.push({ uid: { $in: reqdUidArray } });
   }
 
   if (query.userId) {
@@ -87,7 +95,9 @@ export const _getProductPurchaseFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.productId) {
-    filter.push({ 'products.uid': { $in: parseArray(query.productId, [query.productId]) } });
+    let reqdPurchasedProductsArray = _arrayOrSplit(query.productId, ',');
+
+    filter.push({ 'products.uid': { $in: reqdPurchasedProductsArray } });
   }
 
   return filter;
@@ -97,13 +107,7 @@ export const _getProductReviewFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.productId) {
-    let reqdProductUidArray: any;
-
-    if (_.isArray(query.productId)) {
-      reqdProductUidArray = query.productId;
-    } else {
-      reqdProductUidArray = _.split(query.productId, ',');
-    }
+    let reqdProductUidArray = _arrayOrSplit(query.productId, ',');
 
     filter.push({ product_id: { $in: reqdProductUidArray } });
   }
@@ -115,13 +119,7 @@ export const _getAvailableSizesAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.requiredSize) {
-    let reqdSizeArray: any;
-
-    if (_.isArray(query.requiredSize)) {
-      reqdSizeArray = query.requiredSize;
-    } else {
-      reqdSizeArray = _.split(query.requiredSize, ',');
-    }
+    let reqdSizeArray = _arrayOrSplit(query.requiredSize, ',');
 
     for (const size of reqdSizeArray) {
       filter.push({ [`available_sizes.${size}`]: { $gte: 1 } });
@@ -135,13 +133,7 @@ export const _getGenderAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.gender) {
-    let reqdGenderArray: any;
-
-    if (_.isArray(query.gender)) {
-      reqdGenderArray = query.gender;
-    } else {
-      reqdGenderArray = _.split(query.gender, ',');
-    }
+    let reqdGenderArray = _arrayOrSplit(query.gender, ',');
 
     for (const gender of reqdGenderArray) {
       filter.push({
@@ -157,7 +149,7 @@ export const _getSlugAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.slug) {
-    const reqdSlugArray = parseArray(query.slug, [query.slug]);
+    let reqdSlugArray = _arrayOrSplit(query.slug, ',');
 
     filter.push({ slug: { $in: reqdSlugArray } });
   }
@@ -169,7 +161,7 @@ export const _getMimeTypeAggregationFilter = (query: any = {}) => {
   const filter = [];
 
   if (query.mimeType) {
-    const reqdMimeTypeArray = parseArray(query.mimeType, [query.mimeType]);
+    let reqdMimeTypeArray = _arrayOrSplit(query.mimeType, ',');
 
     filter.push({ mimetype: { $in: reqdMimeTypeArray } });
   }

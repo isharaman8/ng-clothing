@@ -19,7 +19,7 @@ export class CartService {
   ) {}
 
   async getUserCart(user: CreateOrUpdateUserDto) {
-    let cart = { products: [] };
+    let cart: any = { products: [] };
 
     try {
       const tempCart = await this.cartModel.findOne({ user_id: user.uid });
