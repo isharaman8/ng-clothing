@@ -114,8 +114,11 @@ export class ValidateProductMiddleware implements NestMiddleware {
 
     // Query the database for existing slugs
     if (!_.isEmpty(slugUidsToCheck)) {
-      // todo: change it to use product service
-      existingSlugs = await this.productModel.find({ slug: { $in: slugUidsToCheck } });
+      // ? changed it to use product service - test
+      const reqdSlugQuery = _getParsedQuery({ slug: slugUidsToCheck });
+      reqdSlugQuery['active'] = null;
+
+      existingSlugs = await this.productService.getAllProducts(reqdSlugQuery);
     }
 
     for (const product of updatedProducts) {

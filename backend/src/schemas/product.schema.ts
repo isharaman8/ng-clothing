@@ -43,15 +43,6 @@ export class Product {
   category: string;
 }
 
-/**
- * TODO: additional attributes
-
- * * size
- * * rating
- * * gender add filter for gender
- * * category
- */
-
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.index({ slug: 1 });

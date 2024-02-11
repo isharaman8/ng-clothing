@@ -17,7 +17,7 @@ export class S3Controller {
   async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() request: CRequest,
-    @Res() response: CResponse,
+    @Res() response: CResponse, 
   ) {
     let rs = [];
 
