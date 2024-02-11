@@ -17,7 +17,7 @@ import {
 import { _notEmpty, parseArray } from 'src/utils';
 import { CreateOrUpdateCategoryDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
-import { _getParsedParams } from 'src/helpers/parser';
+import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 import { Category } from 'src/schemas/category.schema';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 import { CategoryService } from 'src/modules/category/category.service';
@@ -72,7 +72,10 @@ export class ValidateCategoryMiddleware implements NestMiddleware {
       let tempCategory: any;
 
       try {
-        tempCategory = await this.categoryModel.findOne({ slug });
+        const reqdSlugQuery = _getParsedQuery({ slug });
+        reqdSlugQuery['active'] = null;
+
+        tempCategory = await this.categoryService.getAllCategories(reqdSlugQuery);
       } catch (error) {
         throw new InternalServerErrorException(error.message);
       }

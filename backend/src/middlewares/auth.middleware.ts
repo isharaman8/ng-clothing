@@ -11,7 +11,7 @@ import { CRequest, CResponse } from 'src/interfaces';
 export class AuthMiddleware implements NestMiddleware {
   constructor(private jwtService: JwtService) {}
 
-  async use(request: CRequest, response: CResponse, next: NextFunction) {
+  async use(request: CRequest, _response: CResponse, next: NextFunction) {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {

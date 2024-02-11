@@ -23,10 +23,3 @@ export const CartSchema = SchemaFactory.createForClass(Cart);
 
 // Indexes
 CartSchema.index({ uid: 1, user_id: 1 }, { unique: true });
-
-// TODO
-/**
- * fix PurchaseProduct -> add qty as well, change in controllers accordingly
- * return total_price in purchase and cart request
- * * add cart controller and services
- */
