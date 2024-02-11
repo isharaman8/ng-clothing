@@ -119,23 +119,19 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
     } = req;
     const params = _getParsedParams(req.params);
     const parsedReview = this.reviewService.getParsedReviewPayload(params.productId, review, user);
-    const findQuery = _.filter(
-      [{ uid: params.reviewId }, { product_id: params.productId }, { user_id: user.uid }],
-      _notEmpty,
-    );
+    const findQuery = _getParsedQuery({ uid: params.reviewId, product_uid: params.productId, user_id: user.uid });
 
     let oldReview: any;
     let uploadedImages: any = [];
 
-    this.validateUserRole(user);
+    findQuery['active'] = null;
 
+    this.validateUserRole(user);
     await this.validateProductUidInUserPurchase(params.productId, user);
 
-    try {
-      oldReview = await this.reviewModel.findOne({ $and: findQuery });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const tempOldReview = await this.reviewService.getAllProductReviews(findQuery);
+
+    oldReview = _.last(tempOldReview);
 
     this.validatePostRequest(req.method, parsedReview, oldReview, params);
     this.validatePatchRequest(req.method, oldReview);

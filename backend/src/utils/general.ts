@@ -25,3 +25,15 @@ export const _notEmpty = (obj: any = {}): boolean => {
 
   return !_.isEmpty(obj);
 };
+
+export const _arrayOrSplit = (word: string | Array<string>, char: string = ',') => {
+  let reqdArray: any = [];
+
+  if (_.isArray(word)) {
+    reqdArray = word;
+  } else {
+    reqdArray = _.split(word, char);
+  }
+
+  return reqdArray;
+};

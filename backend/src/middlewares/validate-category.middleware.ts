@@ -60,8 +60,10 @@ export class ValidateCategoryMiddleware implements NestMiddleware {
   }
 
   validatePostRequest(method: string, category: CreateOrUpdateCategoryDto) {
-    if (method.toUpperCase() === 'POST' && !category.user_id) {
-      throw new UnauthorizedException('user_id required to create category');
+    if (method.toUpperCase() === 'POST') {
+      if (!category.user_id) {
+        throw new UnauthorizedException('user_id required to create category');
+      }
     }
   }
 
@@ -98,25 +100,25 @@ export class ValidateCategoryMiddleware implements NestMiddleware {
 
     const params = _getParsedParams(req.params);
     const parsedCategory = this.categoryService.getParsedCategoryPayload(category, user);
-    const findQuery = _.filter([{ uid: params.categoryId }, { user_id: user.uid }], _notEmpty);
+    const findQuery = _getParsedQuery({ uid: params.categoryId, user_id: user.uid });
+
+    findQuery['active'] = null;
 
     this.validateUserRole(user);
-    this.validatePostRequest(req.method, parsedCategory);
 
     let oldCategory: any;
 
-    try {
-      oldCategory = await this.categoryModel.findOne({ $and: findQuery });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const tempOldCategory = await this.categoryService.getAllCategories(findQuery);
 
+    oldCategory = _.last(tempOldCategory);
+
+    this.validatePostRequest(req.method, parsedCategory);
     this.validatePatchRequest(req.method, oldCategory);
     this.validateDeleteRequest(req.method, oldCategory);
 
     parsedCategory.slug = await this.validateAndParseCategorySlug(parsedCategory);
 
-    if (!oldCategory) {
+    if (!oldCategory || req.method.toUpperCase() === 'POST') {
       oldCategory = new this.categoryModel();
     }
 

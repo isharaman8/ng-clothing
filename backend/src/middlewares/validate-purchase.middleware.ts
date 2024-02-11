@@ -37,16 +37,14 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
     } = req;
     const params = _getParsedParams(req.params);
     const parsedPurchase = this.purchaseService.getParsedPurchaseBody(purchase, user);
-    const findQuery = _.filter([{ uid: params.purchaseId }, { user_id: user.uid }], _notEmpty);
+    const findQuery = _getParsedQuery({ uid: params.purchaseId, user_id: user.uid });
 
     let oldPurchase: any;
 
-    try {
-      if (params.purchaseId) {
-        oldPurchase = await this.purchaseModel.findOne({ $and: findQuery });
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    if (params.purchaseId) {
+      const tempOldPurchase = await this.purchaseService.getAllPurchases(findQuery);
+
+      oldPurchase = _.last(tempOldPurchase);
     }
 
     this.validateVerifyRequest(req.method, req.originalUrl, oldPurchase);
@@ -57,7 +55,7 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
     );
 
     // for post request
-    if (!oldPurchase) {
+    if (!oldPurchase || req.method.toUpperCase() === 'POST') {
       oldPurchase = new this.purchaseModel();
     }
 

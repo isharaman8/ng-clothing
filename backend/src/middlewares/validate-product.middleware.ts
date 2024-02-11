@@ -1,22 +1,18 @@
 // third party imports
 import * as _ from 'lodash';
 import slugify from 'slugify';
-import { Model } from 'mongoose';
 import { NextFunction } from 'express';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   Injectable,
   NestMiddleware,
   NotFoundException,
   BadRequestException,
   UnauthorizedException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 
 // inner imports
 import { CreateOrUpdateProductDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
-import { Product } from 'src/schemas/product.schema';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { _notEmpty, parseArray, parseObject } from 'src/utils';
 import { ProductService } from 'src/modules/product/product.service';
@@ -27,7 +23,6 @@ import { ALLOWED_PRODUCT_SIZES, ALLOWED_USER_ROLES } from 'src/constants/constan
 @Injectable()
 export class ValidateProductMiddleware implements NestMiddleware {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<Product>,
     private productService: ProductService,
     private uploadService: S3Service,
     private categoryService: CategoryService,
@@ -225,23 +220,21 @@ export class ValidateProductMiddleware implements NestMiddleware {
     const params = _getParsedParams(req.params);
     const products = parseArray(_products, [_products]);
     const findProductUids = _.compact([params.productId, ..._.map(products, (product) => product.uid)]);
-    const findQuery = _.filter([{ uid: { $in: findProductUids } }, { user_id: user.uid }], _notEmpty);
+    const findQuery = _getParsedQuery({ uid: findProductUids, user_id: user.uid });
 
     let oldProducts: any = [];
     let reqdCategories: any = [];
     let uploadedImages: any = [];
     let parsedProducts = _.map(products, (product) => this.productService.getParsedProductBody(product, user));
 
+    findQuery['active'] = null;
+
     this.validateUserRole(user);
     this.validatePostRequest(req.method, parsedProducts);
     this.validateProductSizes(parsedProducts);
 
-    try {
-      if (!_.isEmpty(findProductUids)) {
-        oldProducts = await this.productModel.find({ $and: findQuery });
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    if (!_.isEmpty(findProductUids)) {
+      oldProducts = await this.productService.getAllProducts(findQuery);
     }
 
     this.validateDeleteAndPatchRequest(req.method, oldProducts, params.productId, parsedProducts);
