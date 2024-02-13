@@ -22,4 +22,4 @@ export class Cart {
 export const CartSchema = SchemaFactory.createForClass(Cart);
 
 // Indexes
-CartSchema.index({ uid: 1, user_id: 1 }, { unique: true });
+CartSchema.index({ user_id: 1 }, { unique: true });

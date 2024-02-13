@@ -32,3 +32,6 @@ export class Review {
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);
+
+ReviewSchema.index({ product_id: 1 });
+ReviewSchema.index({ active: 1 });

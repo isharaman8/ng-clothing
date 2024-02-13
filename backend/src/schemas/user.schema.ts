@@ -39,3 +39,25 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// todo: optimize indices further
+UserSchema.index({ email: 1 });
+UserSchema.index({ username: 1 });
+UserSchema.index({ active: 1 });
+
+// Two-field indices:
+UserSchema.index({ email: 1, username: 1 });
+UserSchema.index({ email: 1, active: 1 });
+UserSchema.index({ email: 1, uid: 1 });
+UserSchema.index({ username: 1, active: 1 });
+UserSchema.index({ username: 1, uid: 1 });
+UserSchema.index({ active: 1, uid: 1 });
+
+// Three-field indices:
+UserSchema.index({ email: 1, username: 1, active: 1 });
+UserSchema.index({ email: 1, username: 1, uid: 1 });
+UserSchema.index({ email: 1, active: 1, uid: 1 });
+UserSchema.index({ username: 1, active: 1, uid: 1 });
+
+// Four-field index:
+UserSchema.index({ email: 1, username: 1, active: 1, uid: 1 });
