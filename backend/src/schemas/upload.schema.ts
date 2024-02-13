@@ -36,3 +36,7 @@ export class Upload {
 }
 
 export const UploadSchema = SchemaFactory.createForClass(Upload);
+
+UploadSchema.index({ user_id: 1 });
+UploadSchema.index({ mimetype: 1 });
+UploadSchema.index({ mimetype: 1, user_id: 1 });

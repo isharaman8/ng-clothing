@@ -46,3 +46,12 @@ export class Product {
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.index({ slug: 1 });
+ProductSchema.index({ name: 1 });
+ProductSchema.index({ gender: 1 });
+ProductSchema.index({ available_sizes: 1 });
+
+ProductSchema.index({ name: 1, gender: 1 });
+ProductSchema.index({ name: 1, available_sizes: 1 });
+ProductSchema.index({ gender: 1, available_sizes: 1 });
+
+ProductSchema.index({ name: 1, gender: 1, available_sizes: 1 });
