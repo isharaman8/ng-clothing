@@ -28,19 +28,18 @@ export class UserService {
   ) {}
 
   async getAllUsers(query: QueryParams, projection: any = {}) {
-    const baseQuery: any = [
-      {
-        $match: {
-          $and: [
-            ..._getActiveAggregationFilter(query),
-            ..._getUidAggregationFilter(query),
-            ..._getUserNameAggregationFilter(query),
-            ..._getEmailAggregationFilter(query),
-            ..._getNameAggregationFilter(query),
-          ],
-        },
-      },
+    const orBlock = [..._getUserNameAggregationFilter(query), ..._getEmailAggregationFilter(query)];
+    const andBlock = [
+      ..._getActiveAggregationFilter(query),
+      ..._getUidAggregationFilter(query),
+      ..._getNameAggregationFilter(query),
     ];
+
+    if (!_.isEmpty(orBlock)) {
+      andBlock.push({ $or: orBlock });
+    }
+
+    const baseQuery: any = [{ $match: { $and: andBlock } }];
 
     if (!_.isEmpty(projection)) {
       baseQuery.push({ $project: projection });
@@ -73,12 +72,14 @@ export class UserService {
     return payload;
   }
 
-  async getUpdatedProfilePictureUrl(users: Array<CreateOrUpdateUserDto>) {
+  async getUpdatedProfilePictureUrl(users: Array<CreateOrUpdateUserDto>, uploads: any = []) {
     const profilePictureUids = _.compact(_.map(users, (user) => user.profile_picture));
 
-    let dbProfilePictures = [];
+    let dbProfilePictures = uploads;
 
-    dbProfilePictures = await this.sharedService.getUpdatedDbImageArray(profilePictureUids);
+    if (_.isEmpty(dbProfilePictures)) {
+      dbProfilePictures = await this.sharedService.getUpdatedDbImageArray(profilePictureUids);
+    }
 
     // parsing user response;
     for (const user of users) {
@@ -144,9 +145,9 @@ export class UserService {
       active: parseBoolean(user.active, true),
       uid: _.defaultTo(oldUser.uid, nanoid()),
       name: _.defaultTo(user.name, oldUser.name),
-      email: _.defaultTo(user.email, oldUser.email),
+      email: _.defaultTo(oldUser.email, user.email),
       roles: parseArray(user.roles, oldUser.roles),
-      username: _.defaultTo(user.username, oldUser.username),
+      username: _.defaultTo(oldUser.username, user.username),
       password: _.defaultTo(user.hashed_password, oldUser.password),
       profile_picture: _.defaultTo(user.profile_picture, oldUser.profile_picture),
     };

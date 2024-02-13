@@ -13,13 +13,13 @@ export class UserController {
 
   // internal helpers
   private async createOrUpdateUserHandler(user: any, response: CResponse, statusCode: number) {
-    const { oldUser } = response.locals;
+    const { oldUser, uploads } = response.locals;
     const payload = this.userService.getParsedUserBody(user);
 
     let createdUser: any = await this.userService.createOrUpdateUser(payload, oldUser);
 
     // get updated profile picture url
-    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser], uploads);
 
     createdUser = tempUser[0];
 

@@ -1,9 +1,6 @@
 // third party imports
 import { IsEmail, IsNotEmpty, IsString, IsArray, IsBoolean, IsOptional, IsObject } from 'class-validator';
 
-// inner imports
-import { UploadedImage } from 'src/interfaces';
-
 export class CreateOrUpdateUserDto {
   @IsEmail()
   @IsNotEmpty()
