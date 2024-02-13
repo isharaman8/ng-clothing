@@ -20,12 +20,14 @@ import { CRequest, CResponse } from 'src/interfaces';
 import { UserService } from 'src/modules/user/user.service';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
+import { S3Service } from 'src/modules/s3/s3.service';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private userService: UserService,
+    private uploadService: S3Service,
   ) {}
 
   private validateUserRole(user: any = {}, method: string, originalUrl: string) {
@@ -97,18 +99,60 @@ export class ValidateUserMiddleware implements NestMiddleware {
     params: any,
     user: any = {},
   ) {
-    if (_.includes(originalUrl, 'user') && method.toUpperCase() === 'PATCH') {
-      if (!oldUser) {
-        throw new BadRequestException(`user with given uid: ${params.userId} does not exists`);
-      }
-
-      if (
-        !oldUser.uid === user.uid &&
-        !_.some(parseArray(user.roles, []), (role: string) => _.includes(ALLOWED_USER_ROLES.user, role))
-      ) {
-        throw new UnauthorizedException(`only to be updated user or admin can update a user`);
-      }
+    if (!_.includes(originalUrl, 'user') || method.toUpperCase() !== 'PATCH') {
+      return true;
     }
+
+    if (!oldUser) {
+      throw new BadRequestException(`user with given uid: ${params.userId} does not exists`);
+    }
+
+    if (
+      !oldUser.uid === user.uid &&
+      !_.some(parseArray(user.roles, []), (role: string) => _.includes(ALLOWED_USER_ROLES.user, role))
+    ) {
+      throw new UnauthorizedException(`only to be updated user or admin can update a user`);
+    }
+  }
+
+  private validateAndPopulateDataForUpdateProfileAndForward(
+    method: string,
+    originalUrl: string,
+    reqUser: any,
+    parsedUserBody: Partial<CreateOrUpdateUserDto>,
+    findQuery: any,
+  ) {
+    if (method.toUpperCase() !== 'PATCH' || originalUrl !== '/auth/profile/update') {
+      return true;
+    }
+
+    if (_.isEmpty(reqUser) || !_.has(reqUser, 'email') || !_.has(reqUser, 'username')) {
+      console.log('REQ.USER', reqUser);
+
+      throw new InternalServerErrorException('user not found');
+    }
+
+    parsedUserBody['email'] = reqUser.email;
+    parsedUserBody['username'] = reqUser.username;
+
+    findQuery['email'] = parsedUserBody['email'];
+    findQuery['username'] = parsedUserBody['username'];
+  }
+
+  private async validateAndPopulateUserProfilePictureAndForward(
+    parsedUser: Partial<CreateOrUpdateUserDto>,
+    oldUser: CreateOrUpdateUserDto,
+  ) {
+    const imageUids = _.uniq(_.compact([parsedUser.profile_picture, oldUser.profile_picture]));
+    const uploadQuery = _getParsedQuery({ uid: imageUids });
+
+    let uploads = await this.uploadService.getAllUploads(uploadQuery);
+
+    if (!_.some(uploads, (upload) => upload.uid === parsedUser.profile_picture)) {
+      parsedUser['profile_picture'] = null;
+    }
+
+    return { uploadedImages: uploads };
   }
 
   async use(req: CRequest, res: CResponse, next: NextFunction) {
@@ -122,19 +166,31 @@ export class ValidateUserMiddleware implements NestMiddleware {
     });
 
     let oldUser: any;
+    let uploads: any = [];
 
     findQuery['active'] = null;
+
+    // * validates userRequest modifies findQuery and parsedUserBody
+    this.validateAndPopulateDataForUpdateProfileAndForward(
+      req.method,
+      req.originalUrl,
+      req.user,
+      parsedUserBody,
+      findQuery,
+    );
 
     this.validateUserRole(req.user, req.method, req.originalUrl);
     this.validateParsedUserBody(req.originalUrl, parsedUserBody);
 
     const tempUser = await this.userService.getAllUsers(findQuery);
-
     oldUser = _.last(tempUser);
 
     this.validateSignupRequest(req.originalUrl, oldUser);
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);
     this.validateUserUpdateRequest(req.originalUrl, req.method, oldUser, params, user);
+
+    const tempUploadData = await this.validateAndPopulateUserProfilePictureAndForward(parsedUserBody, oldUser);
+    uploads = tempUploadData.uploadedImages;
 
     if (!oldUser) {
       oldUser = new this.userModel();
@@ -142,6 +198,8 @@ export class ValidateUserMiddleware implements NestMiddleware {
 
     // attach to response
     res.locals.oldUser = oldUser;
+    res.locals.user = parsedUserBody;
+    res.locals.uploads = uploads;
 
     next();
   }

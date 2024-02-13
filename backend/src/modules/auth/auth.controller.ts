@@ -1,5 +1,5 @@
 // third party imports
-import { Get, Req, Res, Body, Post, Controller, UnauthorizedException } from '@nestjs/common';
+import { Get, Req, Res, Body, Post, Controller, UnauthorizedException, Patch } from '@nestjs/common';
 
 // inner imports
 import { AuthService } from './auth.service';
@@ -15,37 +15,47 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
-  @Post('signup')
-  async signUpUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: CResponse) {
-    const { oldUser } = response.locals;
+  // internal helpers
+  private async signUpOrUpdateUser(response: CResponse, statusCode: number) {
+    const { oldUser, user, uploads } = response.locals;
     const payload = this.userService.getParsedUserBody(user);
 
     let userToken: string;
-    let createdUser: CreateOrUpdateUserDto;
+    let createdOrUpdatedUser: CreateOrUpdateUserDto;
 
-    createdUser = await this.userService.createOrUpdateUser(payload, oldUser);
-    userToken = await this.authService.getAuthToken(createdUser);
+    createdOrUpdatedUser = await this.userService.createOrUpdateUser(payload, oldUser);
+    userToken = await this.authService.getAuthToken(createdOrUpdatedUser);
 
     // get updated profile picture url
-    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdUser]);
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([createdOrUpdatedUser], uploads);
 
-    createdUser = tempUser[0];
+    createdOrUpdatedUser = tempUser[0];
 
     // parse response
-    createdUser = this.userService.getParsedUserResponsePayload(createdUser);
+    createdOrUpdatedUser = this.userService.getParsedUserResponsePayload(createdOrUpdatedUser);
 
-    return response.status(200).send({ user: createdUser, auth_token: userToken });
+    return response.status(statusCode).send({ user: createdOrUpdatedUser, auth_token: userToken });
+  }
+
+  @Post('signup')
+  async signUpUser(@Body('user') _user: CreateOrUpdateUserDto, @Res() response: CResponse) {
+    await this.signUpOrUpdateUser(response, 200);
+  }
+
+  @Patch('/profile/update')
+  async updateProfile(@Body('user') _user: Partial<CreateOrUpdateUserDto>, @Res() response: CResponse) {
+    await this.signUpOrUpdateUser(response, 200);
   }
 
   @Post('login')
   async loginUser(@Body('user') _user: LoginUserDto, @Res() response: CResponse) {
     let userToken: string;
-    let { oldUser } = response.locals;
+    let { oldUser, uploads } = response.locals;
 
     userToken = await this.authService.getAuthToken(oldUser);
 
     // get updated profile picture url
-    const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser]);
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser], uploads);
 
     oldUser = tempUser[0];
 
