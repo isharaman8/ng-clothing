@@ -7,7 +7,7 @@ import { _arrayOrSplit, parseArray } from 'src/utils';
 export const _getNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.name) {
+  if (!_.isEmpty(query.name)) {
     let reqdNameArray = _arrayOrSplit(query.name, ',');
 
     reqdNameArray = _.map(reqdNameArray, (name) => new RegExp('^' + name, 'i'));
@@ -21,7 +21,7 @@ export const _getNameAggregationFilter = (query: any = {}) => {
 export const _getEmailAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.email) {
+  if (!_.isEmpty(query.email)) {
     let reqdEmailArray = _arrayOrSplit(query.email, ',');
 
     filter.push({ email: { $in: reqdEmailArray } });
@@ -33,7 +33,7 @@ export const _getEmailAggregationFilter = (query: any = {}) => {
 export const _getUserNameAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.username) {
+  if (!_.isEmpty(query.username)) {
     let reqdUsernameArray = _arrayOrSplit(query.username, ',');
 
     filter.push({ username: { $in: reqdUsernameArray } });
@@ -45,14 +45,16 @@ export const _getUserNameAggregationFilter = (query: any = {}) => {
 export const _getUidAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.uid) {
+  if (!_.isEmpty(query.uid)) {
     let reqdUidArray = _arrayOrSplit(query.uid, ',');
 
     filter.push({ uid: { $in: reqdUidArray } });
   }
 
-  if (query.userId) {
-    filter.push({ user_id: { $in: parseArray(query.userId, [query.userId]) } });
+  if (!_.isEmpty(query.userId)) {
+    let reqdUserUidArray = _arrayOrSplit(query.userId, ',');
+
+    filter.push({ user_id: { $in: reqdUserUidArray } });
   }
 
   return filter;
@@ -94,7 +96,7 @@ export const _getVerifiedAggregationFilter = (query: any = {}) => {
 export const _getProductPurchaseFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.productId) {
+  if (!_.isEmpty(query.productId)) {
     let reqdPurchasedProductsArray = _arrayOrSplit(query.productId, ',');
 
     filter.push({ 'products.uid': { $in: reqdPurchasedProductsArray } });
@@ -106,7 +108,7 @@ export const _getProductPurchaseFilter = (query: any = {}) => {
 export const _getProductReviewFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.productId) {
+  if (!_.isEmpty(query.productId)) {
     let reqdProductUidArray = _arrayOrSplit(query.productId, ',');
 
     filter.push({ product_id: { $in: reqdProductUidArray } });
@@ -118,7 +120,7 @@ export const _getProductReviewFilter = (query: any = {}) => {
 export const _getAvailableSizesAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.requiredSize) {
+  if (!_.isEmpty(query.requiredSize)) {
     let reqdSizeArray = _arrayOrSplit(query.requiredSize, ',');
 
     for (const size of reqdSizeArray) {
@@ -132,7 +134,7 @@ export const _getAvailableSizesAggregationFilter = (query: any = {}) => {
 export const _getGenderAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.gender) {
+  if (!_.isEmpty(query.gender)) {
     let reqdGenderArray = _arrayOrSplit(query.gender, ',');
 
     for (const gender of reqdGenderArray) {
@@ -148,7 +150,7 @@ export const _getGenderAggregationFilter = (query: any = {}) => {
 export const _getSlugAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.slug) {
+  if (!_.isEmpty(query.slug)) {
     let reqdSlugArray = _arrayOrSplit(query.slug, ',');
 
     filter.push({ slug: { $in: reqdSlugArray } });
@@ -160,7 +162,7 @@ export const _getSlugAggregationFilter = (query: any = {}) => {
 export const _getMimeTypeAggregationFilter = (query: any = {}) => {
   const filter = [];
 
-  if (query.mimeType) {
+  if (!_.isEmpty(query.mimeType)) {
     let reqdMimeTypeArray = _arrayOrSplit(query.mimeType, ',');
 
     filter.push({ mimetype: { $in: reqdMimeTypeArray } });

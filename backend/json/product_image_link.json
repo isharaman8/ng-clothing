@@ -1,0 +1,124 @@
+{
+  "images": [
+    {
+      "key": "kashmiri_dress_1.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kashmiri_dress_1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164842Z&X-Amz-Expires=604800&X-Amz-Signature=0f45ee12cc76da08674c0fe7def6f7c9452bed9b85558f85078313459a09d8b6&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:42.005Z",
+      "size": 1385907,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "qI4xFvlGgTZfN5S_s2f3d"
+    },
+    {
+      "key": "kashmiri_dress_2.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kashmiri_dress_2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164842Z&X-Amz-Expires=604800&X-Amz-Signature=e14f7e163f910ffae1115becafa911632a4f0c55870d688736daef8963c2b10d&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:42.219Z",
+      "size": 1180091,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "C29agvvTNOL8MqNPhEZ3Y"
+    },
+    {
+      "key": "kashmiri_dress_3.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kashmiri_dress_3.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164842Z&X-Amz-Expires=604800&X-Amz-Signature=992741a89f3e046a11ff0ec30d517f373eab6710537ba0ad185da530619ea665&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:42.467Z",
+      "size": 1120413,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "Fm1kLvnEyq8jVRnFEuRNf"
+    },
+    {
+      "key": "kashmiri_dress_4.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kashmiri_dress_4.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164842Z&X-Amz-Expires=604800&X-Amz-Signature=bfda4eb7574d1c8c090bff0e5b590110756417e748af2b8aa34b5e8cc67b2508&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:42.709Z",
+      "size": 1245094,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "OQ28YnISePXPxeelhpHml"
+    },
+    {
+      "key": "kashmiri_dress_5.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kashmiri_dress_5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164843Z&X-Amz-Expires=604800&X-Amz-Signature=f5c8c024c4a4327b88e59e42c5c10a63d7536ce37c23b1baef5af53d0bc95867&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:43.029Z",
+      "size": 1120413,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "KOYwUgalMvGfH1Jxci3-K"
+    },
+    {
+      "key": "kashmiri_dress_6.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kashmiri_dress_6.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164843Z&X-Amz-Expires=604800&X-Amz-Signature=d18eb97ce2a16abf06ce8b7cad538005ec9fd5e53fab226e37edcfbd9a75f479&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:43.284Z",
+      "size": 1173803,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "709N0_5bAbaJDHrQodL0k"
+    },
+    {
+      "key": "kurta_1.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kurta_1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164843Z&X-Amz-Expires=604800&X-Amz-Signature=b2cfde4054a51f35c0bf09dfaf2523473d35a11b68f9fa9d343667830ee701e9&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:43.490Z",
+      "size": 941657,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "UzdT1PVPlh6rWfq6V72D2"
+    },
+    {
+      "key": "kurta_2.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kurta_2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164843Z&X-Amz-Expires=604800&X-Amz-Signature=a2c0688f8d2de975e22b7d026092929b48670605d9df1a8f246a79129818ffc7&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:43.725Z",
+      "size": 1061373,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "aRhsIYskgSAXVyIQ1kbGB"
+    },
+    {
+      "key": "kurta_3.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kurta_3.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164843Z&X-Amz-Expires=604800&X-Amz-Signature=a6cdb67029fba3fbbcb300d114efa32f287fbc05563777522dfee9849358d5e2&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:43.990Z",
+      "size": 1078511,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "ztS4j5mjqq4heuQzDmB9B"
+    },
+    {
+      "key": "kurta_4.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kurta_4.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164844Z&X-Amz-Expires=604800&X-Amz-Signature=dbbbaa19b49f2ce68d220b99d3cab5957cc51d169694fd31401a456883f52c6b&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:44.207Z",
+      "size": 938382,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "55Q4ZTGjEqmFRSa-gNriJ"
+    },
+    {
+      "key": "kurta_5.png",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kurta_5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164844Z&X-Amz-Expires=604800&X-Amz-Signature=5508bbd7b1ee89a7899abce995e3118d0dd9e5d444cecfe8a67762b33fe0eb6b&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:44.464Z",
+      "size": 1002086,
+      "mimetype": "image/png",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "sfF0MfmFe0qqgtQGf2OdN"
+    },
+    {
+      "key": "kurta_6.jpg",
+      "bucket": "clothingdevbucket",
+      "url": "https://clothingdevbucket.s3.us-east-1.amazonaws.com/kurta_6.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASNVAI64GI2PZALOH%2F20240212%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240212T164844Z&X-Amz-Expires=604800&X-Amz-Signature=06de948f72d1d1d401397423685fa8d2e715475c5eb81d9fc4eb26524d53b6b2&X-Amz-SignedHeaders=host&x-id=GetObject",
+      "urlExpiryDate": "2024-02-19T16:48:44.694Z",
+      "size": 137305,
+      "mimetype": "image/jpeg",
+      "user_id": "z4qmyo7ndpp_h6wfcGjwA",
+      "uid": "EeVUWiC9BIlg41od-TwmG"
+    }
+  ]
+}

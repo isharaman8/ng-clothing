@@ -25,13 +25,19 @@ import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    const jwtRoutes = [
+      { path: 'auth/profile', method: RequestMethod.GET },
+      { path: 'auth/profile/update', method: RequestMethod.PATCH },
+    ];
+
     consumer
       .apply(AuthMiddleware)
-      .forRoutes({ path: 'auth/profile', method: RequestMethod.GET })
+      .forRoutes(...jwtRoutes)
       .apply(ValidateUserMiddleware)
       .forRoutes(
         { path: 'auth/login', method: RequestMethod.POST },
         { path: 'auth/signup', method: RequestMethod.POST },
+        { path: 'auth/profile/update', method: RequestMethod.PATCH },
       );
   }
 }
