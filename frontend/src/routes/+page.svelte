@@ -1,6 +1,21 @@
 <script>
+	// third party imports
+	import * as store from 'svelte/store';
+
 	// inner imports
+	import { authUserData } from '../stores';
+	import { getProfile } from '../helpers/auth';
+	import { getProducts } from '../helpers/products';
+	import { _getParsedProductsQuery } from '../helpers/parser';
 	import ListProducts from '../components/ListProducts/ListProducts.svelte';
+
+	// variables
+	const params = _getParsedProductsQuery({});
+	const userData = store.get(authUserData);
+
+	// init invokes
+	getProducts(params);
+	getProfile(userData);
 </script>
 
 <svelte:head>

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 export const parseObject = (obj: object, defaultValue: any) => {
 	return _.isObject(obj) ? obj : defaultValue;

@@ -9,11 +9,15 @@
 	// third party imports
 	import _ from 'lodash';
 	import * as store from 'svelte/store';
+	import { getProducts } from '../../helpers/products';
+	import { DEFAULT_PROFILE_PICTURE } from '../../constants';
+	import { _getParsedProductsQuery } from '../../helpers/parser';
 	import { CartOutline, SearchOutline, AngleDownOutline } from 'flowbite-svelte-icons';
 
 	// variables
 	let userData: any;
 	let dropdownvar: any;
+	let searchQuery: any = '';
 
 	$: userData = store.get(authUserData);
 
@@ -28,6 +32,21 @@
 		authUserData.set({});
 
 		toggleDropdownVisibility();
+	}
+
+	const updateAndSearchProducts = _.debounce((event: any) => {
+		if (!event.target) {
+			return;
+		}
+
+		searchQuery = event.target.value;
+		const queryParams = _getParsedProductsQuery({ name: searchQuery });
+
+		getProducts(queryParams);
+	}, 1000);
+
+	function debouncedUpdate(event: any) {
+		updateAndSearchProducts(event);
 	}
 
 	// store subscribe
@@ -52,6 +71,8 @@
 				<input
 					type="search"
 					id="default-search"
+					value={searchQuery}
+					on:input={debouncedUpdate}
 					class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
 					placeholder="Search for clothes, brands, or styles..."
 					required
@@ -76,8 +97,12 @@
 							on:click={toggleDropdownVisibility}
 							class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto"
 						>
-							<img src={userData.user.profile_picture} alt="user profile" class="rounded-full w-10 h-10 mr-2" /> Hi, {userData
-								.user.name}
+							<img
+								src={userData.user.profile_picture || DEFAULT_PROFILE_PICTURE}
+								alt="user profile"
+								class="rounded-full w-10 h-10 mr-2"
+							/>
+							Hi, {userData.user.name}
 							<AngleDownOutline class="size-3 ml-2" /></button
 						>
 

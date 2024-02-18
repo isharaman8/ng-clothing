@@ -9,6 +9,7 @@ import { parseBoolean, parseString, validateEmail } from '../utils';
 
 // third party imports
 import axios from 'axios';
+import { authUserData } from '../stores';
 
 // inner helpers
 const getParsedSignupPayload = (obj: any): SignupData => {
@@ -20,6 +21,10 @@ const getParsedSignupPayload = (obj: any): SignupData => {
 		username: parseString(obj.username, null),
 		profile_picture: parseString(obj.profile_picture, null)
 	};
+};
+
+const getBearerToken = (obj: any) => {
+	return `Bearer ${obj.auth_token}`;
 };
 
 // exported functions
@@ -104,7 +109,7 @@ export const updateProfile = async (userData: any, updatePayload: any): Promise<
 		}
 
 		const tempData = await axios.patch(url, payload, {
-			headers: { Authorization: `Bearer ${userData.auth_token}` }
+			headers: { Authorization: getBearerToken(userData) }
 		});
 
 		if (tempData.status !== 200) {
@@ -112,6 +117,43 @@ export const updateProfile = async (userData: any, updatePayload: any): Promise<
 		}
 
 		returnData['data'] = tempData.data;
+	} catch (error: any) {
+		returnData['error'] = true;
+		returnData['message'] = error?.response?.data?.message || error.message;
+	}
+
+	return returnData;
+};
+
+export const getProfile = async (userData: any = {}) => {
+	const returnData: any = { error: false, message: null, data: undefined };
+	const url = `${settings.config.baseApiUrl}/${ROUTES.auth}/profile`;
+
+	try {
+		if (!userData.auth_token) {
+			throw new Error('please provide auth token');
+		}
+
+		const tempData = await axios.get(url, {
+			headers: {
+				Authorization: getBearerToken(userData)
+			}
+		});
+
+		if (tempData.status !== 200) {
+			throw new Error(tempData.data.message);
+		}
+
+		if (_.isEmpty(tempData.data?.user)) {
+			console.log(`[error] ${JSON.stringify(tempData.data)}`);
+
+			throw new Error(tempData.data.message || 'no user found');
+		}
+
+		returnData['data'] = tempData.data;
+		const newUserData = { user: tempData.data?.user, auth_token: userData.auth_token };
+
+		authUserData.set(newUserData);
 	} catch (error: any) {
 		returnData['error'] = true;
 		returnData['message'] = error?.response?.data?.message || error.message;
