@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 
 // inner imports
 import { Params, QueryParams } from 'src/interfaces';
-import { parseBoolean, parseNumber } from 'src/utils';
+import { _isValidQueryParam, parseBoolean, parseNumber } from 'src/utils';
 
 export const _getParsedParams = (params: Params = {}) => {
   return {
@@ -53,6 +53,10 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
       value = _.trim(value);
 
       if (_.isEmpty(value)) {
+        value = null;
+      }
+
+      if (_isValidQueryParam(value)) {
         value = null;
       }
 
