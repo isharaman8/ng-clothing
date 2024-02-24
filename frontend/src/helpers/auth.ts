@@ -95,7 +95,7 @@ export const signup = async (userData: SignupData): Promise<ReturnData> => {
 
 export const updateProfile = async (userData: any, updatePayload: any): Promise<ReturnData> => {
 	const returnData: any = { error: false, message: null, data: undefined };
-	const url = `${settings.config.baseApiUrl}/${ROUTES.user}/${userData.user.uid}`;
+	const url = `${settings.config.baseApiUrl}/${ROUTES.auth}/profile/update`;
 	const payload = {
 		user: {
 			name: _.defaultTo(updatePayload.name, null),
@@ -117,6 +117,8 @@ export const updateProfile = async (userData: any, updatePayload: any): Promise<
 		}
 
 		returnData['data'] = tempData.data;
+
+		authUserData.set(tempData.data);
 	} catch (error: any) {
 		returnData['error'] = true;
 		returnData['message'] = error?.response?.data?.message || error.message;
