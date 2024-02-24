@@ -6,9 +6,9 @@
 	import { onMount } from 'svelte';
 	import { parseObject } from '../../utils';
 
-	export let file: File;
-	export let onLoad: any;
 	export let props: any = {};
+	export let file: any = null;
+	export let onLoad: any = () => {};
 
 	let imageSrc: string = '';
 	let fileInput: HTMLInputElement | null = null;

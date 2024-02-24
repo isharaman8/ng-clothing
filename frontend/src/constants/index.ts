@@ -24,6 +24,15 @@ export const defaultToastMessages = Object.freeze({
 		failure: {
 			title: 'Sigup Failed'
 		}
+	},
+	updateProfile: {
+		success: {
+			title: 'Profile Updated Successfully',
+			description: 'Profile Updated Successfully'
+		},
+		failure: {
+			title: 'Profile Update Failed'
+		}
 	}
 });
 

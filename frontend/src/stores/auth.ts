@@ -1,3 +1,5 @@
 import { persisted } from 'svelte-persisted-store';
 
-export const authUserData = persisted('user', {});
+const initialData: any = {};
+
+export const authUserData = persisted('user', initialData);
