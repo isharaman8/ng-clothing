@@ -33,22 +33,21 @@ export class ValidateUserMiddleware implements NestMiddleware {
   private validateUserRole(user: any = {}, method: string, originalUrl: string) {
     let validUserRole = false;
 
+    const roles = parseArray(user.roles, []);
     const allowedOriginsWithoutCheck = ['/auth/login', '/auth/signup'];
 
-    const roles = parseArray(user.roles, []);
-
-    if (method.toUpperCase() === 'PATCH' || _.includes(allowedOriginsWithoutCheck, originalUrl)) {
+    if (_.includes(allowedOriginsWithoutCheck, originalUrl)) {
       validUserRole = true;
     }
 
     for (const role of roles) {
-      if (_.includes(ALLOWED_USER_ROLES.user, role) && method.toUpperCase() === 'POST') {
+      if (_.includes(ALLOWED_USER_ROLES.user, role)) {
         validUserRole = true;
       }
     }
 
     if (!validUserRole) {
-      throw new UnauthorizedException('not authorized for creating users');
+      throw new UnauthorizedException('not authorized for creating/updating users');
     }
   }
 
@@ -141,7 +140,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
 
   private async validateAndPopulateUserProfilePictureAndForward(
     parsedUser: Partial<CreateOrUpdateUserDto>,
-    oldUser: CreateOrUpdateUserDto,
+    oldUser: Partial<CreateOrUpdateUserDto> = {},
   ) {
     const imageUids = _.uniq(_.compact([parsedUser.profile_picture, oldUser.profile_picture]));
     const uploadQuery = _getParsedQuery({ uid: imageUids });

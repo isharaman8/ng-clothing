@@ -1,9 +1,7 @@
 // third party imports
-import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
-
-// innter imports
 import * as _ from 'lodash';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -14,17 +12,17 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = _.defaultTo(tempException?.response?.message, 'Internal Server Error');
+    let message = _.defaultTo(tempException?.response?.message || exception.message, 'Internal Server Error');
 
     if (exception instanceof BadRequestException) {
       status = HttpStatus.BAD_REQUEST;
-      message = _.defaultTo(tempException?.response?.message, 'Bad Request');
+      message = _.defaultTo(tempException?.response?.message || exception.message, 'Bad Request');
     } else if (exception instanceof UnauthorizedException) {
       status = HttpStatus.UNAUTHORIZED;
-      message = _.defaultTo(tempException?.response?.message, 'Unauthorized');
+      message = _.defaultTo(tempException?.response?.message || exception.message, 'Unauthorized');
     } else if (exception instanceof NotFoundException) {
       status = HttpStatus.NOT_FOUND;
-      message = _.defaultTo(tempException?.response?.message, 'Unauthorized');
+      message = _.defaultTo(tempException?.response?.message || exception.message, 'Unauthorized');
     }
 
     response.status(status).json({
