@@ -27,12 +27,13 @@ export class PurchaseController {
     let purchases: any;
 
     // adding props to parsedQuery
-    if (!_.includes(parseArray(user.roles, []), 'admin')) {
-      parsedQuery.userId = user.uid;
+
+    if (!_.includes(parseArray(user.roles, []), 'admin') || !parsedQuery.userId) {
+      parsedQuery['userId'] = user.uid;
     }
 
     if (parsedParams.purchaseId) {
-      parsedQuery.uid = parsedParams.purchaseId;
+      parsedQuery['uid'] = parsedParams.purchaseId;
     }
 
     purchases = await this.purchaseService.getAllPurchases(parsedQuery);
