@@ -3,9 +3,9 @@ import { Response } from 'express';
 import { Body, Controller, Patch, Post, Res } from '@nestjs/common';
 
 // inner imports
+import { CResponse } from 'src/interfaces';
 import { UserService } from './user.service';
 import { CreateOrUpdateUserDto } from 'src/dto';
-import { CResponse } from 'src/interfaces';
 
 @Controller('user')
 export class UserController {
@@ -23,7 +23,7 @@ export class UserController {
 
     createdUser = tempUser[0];
 
-    return response.status(201).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
+    return response.status(statusCode).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }
 
   @Post('')

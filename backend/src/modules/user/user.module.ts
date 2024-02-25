@@ -8,9 +8,9 @@ import { S3Service } from '../s3/s3.service';
 import { UserController } from './user.controller';
 import { SharedService } from '../shared/shared.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
+import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
-import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 
 @Module({
   imports: [
