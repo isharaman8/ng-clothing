@@ -1,0 +1,9 @@
+.user-order-active-button {
+	background-color: #ebf4ff;
+	color: #1e3a8a;
+}
+
+.purchase-table > thead {
+	font-weight: 500;
+	color: rgb(55, 65, 81);
+}

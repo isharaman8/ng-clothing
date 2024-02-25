@@ -13,24 +13,23 @@
 		let currentlySelectedButton = String(event.target.textContent);
 
 		buttons = _.map(buttons, (button) => ({ ...button, active: currentlySelectedButton.includes(button.text) }));
+		setCurrentlySelectedPage();
 	}
 
-	function getCurrentlySelectedPage() {
+	function setCurrentlySelectedPage() {
 		const currentlySelectedButton = _.find(buttons, (btn) => btn.active)?.text;
 
 		if (!currentlySelectedButton) {
-			return UserDetails;
+			currentlySelectedPage = 'My Details';
+
+			return true;
 		}
 
-		// console.log("currentlySelectedButton.includes('My Details')", currentlySelectedButton.includes('My Details'));
-		// console.log("currentlySelectedButton.includes('My Orders')", currentlySelectedButton.includes('My Orders'));
-
 		// update currently selected page
-
 		if (currentlySelectedButton.includes('My Orders')) {
-			return UserOrders;
+			currentlySelectedPage = 'My Orders';
 		} else {
-			return UserDetails;
+			currentlySelectedPage = 'My Details';
 		}
 	}
 
@@ -48,10 +47,10 @@
 		}
 	];
 
-	let CurrentlySelectedPage = UserDetails;
+	let currentlySelectedPage = 'My Details';
 </script>
 
-<section class="mt-24 w-[100vw] min-h-[88vh] flex flex-col justify-start items-center">
+<section class="mt-24 max-w-[100vw] min-h-[88vh] flex flex-col justify-start items-center">
 	<div class="w-[80%] mt-6">
 		<h1 class="text-4xl font text-gray-800 w-full">My Account</h1>
 		<div class="w-full min-h-[650px] mt-8">
@@ -69,8 +68,12 @@
 				</div>
 
 				<!-- right panel -->
-				<div class="flex-grow">
-					<CurrentlySelectedPage />
+				<div class="flex-grow min-h-[600px]">
+					{#if currentlySelectedPage === 'My Details'}
+						<UserDetails />
+					{:else if currentlySelectedPage === 'My Orders'}
+						<UserOrders />
+					{/if}
 				</div>
 			</div>
 		</div>

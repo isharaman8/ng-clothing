@@ -37,3 +37,30 @@ export const defaultToastMessages = Object.freeze({
 });
 
 export const DEFAULT_PROFILE_PICTURE = 'https://via.placeholder.com/150';
+
+export const STATUS_COLOR: any = Object.freeze({
+	pending_verification: {
+		text: 'text-gray-700',
+		background: 'bg-gray-100'
+	},
+	verified: {
+		text: 'text-blue-700',
+		background: 'bg-blue-100'
+	},
+	cancelled: {
+		text: 'text-red-700',
+		background: 'bg-red-100'
+	},
+	fulfilled: {
+		text: 'text-green-700',
+		background: 'bg-green-100'
+	},
+	in_transit: {
+		text: 'text-yellow-700',
+		background: 'bg-yellow-100'
+	},
+	delivered: {
+		text: 'text-green-700',
+		background: 'bg-green-100'
+	}
+});
