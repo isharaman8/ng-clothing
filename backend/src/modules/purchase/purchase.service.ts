@@ -68,6 +68,18 @@ export class PurchaseService {
     return purchases;
   }
 
+  async devGetAllPurchases() {
+    let data = [];
+
+    try {
+      data = await this.purchaseModel.find();
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return data;
+  }
+
   getUpdatedProductSizes(products: Array<PurchaseProduct>) {
     products = parseArray(products, []);
 

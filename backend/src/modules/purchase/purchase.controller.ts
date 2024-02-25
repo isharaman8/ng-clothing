@@ -87,6 +87,16 @@ export class PurchaseController {
     await this.getPurchasesHandler(query, params, request, response);
   }
 
+  @Get('/dev/get-all-purchases')
+  async devGetAllPurchases(@Res() response: CResponse) {
+    let purchases = await this.purchaseService.devGetAllPurchases();
+
+    purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
+    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
+
+    return response.status(200).send({ purchases });
+  }
+
   @Patch(':purchase_uid/verify')
   async verifyPurchase(@Param() _params: any, @Res() response: CResponse) {
     const { oldPurchase = {} } = response.locals;
