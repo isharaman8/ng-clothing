@@ -34,7 +34,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
     let validUserRole = false;
 
     const roles = parseArray(user.roles, []);
-    const allowedOriginsWithoutCheck = ['/auth/login', '/auth/signup'];
+    const allowedOriginsWithoutCheck = ['/auth/login', '/auth/signup', '/auth/profile/update'];
 
     if (_.includes(allowedOriginsWithoutCheck, originalUrl)) {
       validUserRole = true;
