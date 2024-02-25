@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { ROUTES } from '../constants';
 import settings from '../config/settings';
 import type { ReturnData, SignupData } from '../interfaces';
-import { parseBoolean, parseString, validateEmail } from '../utils';
+import { getBearerToken, parseBoolean, parseString, validateEmail } from '../utils';
 
 // third party imports
 import axios from 'axios';
@@ -21,10 +21,6 @@ const getParsedSignupPayload = (obj: any): SignupData => {
 		username: parseString(obj.username, null),
 		profile_picture: parseString(obj.profile_picture, null)
 	};
-};
-
-const getBearerToken = (obj: any) => {
-	return `Bearer ${obj.auth_token}`;
 };
 
 // exported functions

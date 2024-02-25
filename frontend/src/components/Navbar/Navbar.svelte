@@ -5,13 +5,14 @@
 	// inner imports
 	import { getUrl } from './Navbar';
 	import { authUserData } from '../../stores';
+	import { getProducts } from '../../helpers/products';
+	import { DEFAULT_PROFILE_PICTURE } from '../../constants';
+	import { _getParsedProductsQuery } from '../../helpers/parser';
 
 	// third party imports
 	import _ from 'lodash';
 	import * as store from 'svelte/store';
-	import { getProducts } from '../../helpers/products';
-	import { DEFAULT_PROFILE_PICTURE } from '../../constants';
-	import { _getParsedProductsQuery } from '../../helpers/parser';
+	import { goto } from '$app/navigation';
 	import { CartOutline, SearchOutline, AngleDownOutline } from 'flowbite-svelte-icons';
 
 	// variables
@@ -32,6 +33,7 @@
 		authUserData.set({});
 
 		toggleDropdownVisibility();
+		goto('/');
 	}
 
 	const updateAndSearchProducts = _.debounce((event: any) => {
@@ -114,7 +116,9 @@
 						>
 							<ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
 								<li>
-									<a href="/profile" class="block px-4 py-2 hover:bg-gray-100">Profile</a>
+									<a href="/profile" on:click={toggleDropdownVisibility} class="block px-4 py-2 hover:bg-gray-100"
+										>Profile</a
+									>
 								</li>
 							</ul>
 							<div class="py-1">

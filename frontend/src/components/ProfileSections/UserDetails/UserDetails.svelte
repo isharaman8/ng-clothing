@@ -64,7 +64,7 @@
 				updatePayload['profile_picture'] = _.defaultTo(parseArray(returnData.data.images, [])[0]?.uid, null);
 			}
 
-			await updateProfile(userDetails, updatePayload);
+			updatedUserData = await updateProfile(userDetails, updatePayload);
 
 			if (updatedUserData?.error) {
 				throw new Error(updatedUserData.message);
@@ -87,6 +87,7 @@
 
 	<ImageUploader {file} onLoad={setFile} {props} />
 
+	<!-- separator -->
 	<div class="mt-4" />
 
 	<LabeledInput labelText={'Full Name'} name={'name'} value={name} onInput={updateValues} />
