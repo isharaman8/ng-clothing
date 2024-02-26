@@ -2,6 +2,9 @@
 import * as _ from 'lodash';
 
 // inner imports
+import { ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
+
+// inner imports
 import { _arrayOrSplit, parseArray } from 'src/utils';
 
 export const _getNameAggregationFilter = (query: any = {}) => {
@@ -166,6 +169,38 @@ export const _getMimeTypeAggregationFilter = (query: any = {}) => {
     let reqdMimeTypeArray = _arrayOrSplit(query.mimeType, ',');
 
     filter.push({ mimetype: { $in: reqdMimeTypeArray } });
+  }
+
+  return filter;
+};
+
+export const _getPurchaseStatusAggregationFilter = (query: any = {}) => {
+  const filter = [];
+  const allowedPurchaseStatusArray = _.values(ALLOWED_PURCHASE_STATUS);
+
+  if (!_.isEmpty(query.orderType) && !_.includes(query.orderType, 'all_orders')) {
+    const reqdStatusArray = _arrayOrSplit(query.orderType, ',');
+
+    if (_.every(reqdStatusArray, (status) => _.includes(allowedPurchaseStatusArray, status))) {
+      filter.push({ status: { $in: reqdStatusArray } });
+    }
+  }
+
+  return filter;
+};
+
+export const _getPaginationAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.pageSize) {
+    filter.push(
+      {
+        $skip: query.pageSkip,
+      },
+      {
+        $limit: query.pageSize,
+      },
+    );
   }
 
   return filter;

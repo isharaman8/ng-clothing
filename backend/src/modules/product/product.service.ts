@@ -9,11 +9,12 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import {
   _getUidAggregationFilter,
   _getNameAggregationFilter,
+  _getSlugAggregationFilter,
   _getPriceAggregationFilter,
   _getActiveAggregationFilter,
-  _getAvailableSizesAggregationFilter,
   _getGenderAggregationFilter,
-  _getSlugAggregationFilter,
+  _getPaginationAggregationFilter,
+  _getAvailableSizesAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 import { Product } from 'src/schemas/product.schema';
 import { _getParsedQuery } from 'src/helpers/parser';
@@ -130,14 +131,7 @@ export class ProductService {
     }
 
     // add pagination
-    baseQuery.push(
-      {
-        $skip: query.pageSkip,
-      },
-      {
-        $limit: query.pageSize,
-      },
-    );
+    baseQuery.push(..._getPaginationAggregationFilter(query));
 
     console.log('PRODUCT AGGREGATION QUERY', JSON.stringify(baseQuery));
 

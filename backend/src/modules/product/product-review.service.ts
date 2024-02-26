@@ -15,6 +15,7 @@ import {
   _getProductReviewFilter,
   _getUidAggregationFilter,
   _getActiveAggregationFilter,
+  _getPaginationAggregationFilter,
 } from '../../helpers/aggregationFilters';
 
 @Injectable()
@@ -32,12 +33,7 @@ export class ReviewService {
           ],
         },
       },
-      {
-        $skip: query.pageSkip,
-      },
-      {
-        $limit: query.pageSize,
-      },
+      ..._getPaginationAggregationFilter(query),
     ];
 
     let reviews = [];
