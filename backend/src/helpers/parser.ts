@@ -32,6 +32,7 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
     username: _.defaultTo(query.username, null),
     verified: parseBoolean(query.verified, null),
     pageNumber: parseNumber(query.page_number, 1),
+    orderType: _.defaultTo(query.order_type, null),
     productId: _.defaultTo(query.product_uid, null),
     purchaseId: _.defaultTo(query.purchase_uid, null),
     requiredSize: _.defaultTo(query.required_size, null),

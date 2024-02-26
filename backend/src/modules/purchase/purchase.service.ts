@@ -13,9 +13,11 @@ import { SharedService } from '../shared/shared.service';
 import { parseArray, parseBoolean, parseNumber } from 'src/utils';
 import { ALLOWED_PRODUCT_SIZES, ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
 import {
-  _getProductPurchaseFilter,
   _getUidAggregationFilter,
+  _getProductPurchaseFilter,
   _getVerifiedAggregationFilter,
+  _getPaginationAggregationFilter,
+  _getPurchaseStatusAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 
 @Injectable()
@@ -43,16 +45,18 @@ export class PurchaseService {
   }
 
   async getAllPurchases(query: any = {}) {
-    const baseQuery = [
+    const baseQuery: any = [
       {
         $match: {
           $and: [
             ..._getUidAggregationFilter(query),
             ..._getVerifiedAggregationFilter(query),
             ..._getProductPurchaseFilter(query),
+            ..._getPurchaseStatusAggregationFilter(query),
           ],
         },
       },
+      ..._getPaginationAggregationFilter(query),
     ];
 
     let purchases = [];
