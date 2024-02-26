@@ -11,6 +11,7 @@
 	import { showToast } from '../../misc/Toasts/toasts';
 	import EmptyOrderPage from './EmptyOrderPage.svelte';
 	import SingleOrderList from './SingleOrderList.svelte';
+	import { ORDER_TYPE_MAP } from '../../../constants/index';
 	import { getUserPurchases } from '../../../helpers/purchases';
 	import OrdersSkeletonLoader from '../../misc/SkeletonLoaders/OrdersSkeletonLoader.svelte';
 
@@ -28,7 +29,7 @@
 
 	async function localFetchOrders() {
 		const order_type = _.join(_.split(_.lowerCase(currentlySelectedOrder), ' '), '_');
-		const query = { page_number: currentPage, order_type };
+		const query = { page_number: currentPage, order_type: _.defaultTo(ORDER_TYPE_MAP[order_type], null) };
 
 		ordersLoading = true;
 
@@ -41,7 +42,7 @@
 
 			userOrders = parseArray(tempData.data, []);
 
-			if (_.isEmpty(userOrders) && query.page_number === 1) {
+			if (_.isEmpty(userOrders) && query.page_number === 1 && currentlySelectedOrder === 'All Orders') {
 				noOrdersPlaced = true;
 			}
 		} catch (error: any) {
@@ -136,7 +137,7 @@
 			<h1>Page {currentPage}</h1>
 			<button
 				on:click={incrementPageNumber}
-				disabled={userOrders.length <= 10 || ordersLoading}
+				disabled={userOrders.length < 10 || ordersLoading}
 				class="px-2 py-3 bg-blue-500 disabled:bg-blue-200 text-white font-medium rounded-xl">Next</button
 			>
 		</div>

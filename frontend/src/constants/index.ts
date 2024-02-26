@@ -64,3 +64,10 @@ export const STATUS_COLOR: any = Object.freeze({
 		background: 'bg-green-100'
 	}
 });
+
+export const ORDER_TYPE_MAP: any = Object.freeze({
+	cancelled: 'cancelled',
+	all_orders: 'all_orders',
+	completed: 'delivered,fulfilled',
+	pending: 'pending_verification,in_transit'
+});
