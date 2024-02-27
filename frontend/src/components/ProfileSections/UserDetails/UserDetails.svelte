@@ -11,23 +11,37 @@
 	import { updateProfile } from '../../../helpers/auth';
 	import { defaultToastMessages } from '../../../constants';
 	import { handleImageUpload } from '../../../helpers/upload';
+	import ImagePicker from '../../ImagePicker/ImagePicker.svelte';
 	import ImageUploader from '../../ImageUploader/ImageUploader.svelte';
 	import LabeledInput from '../../misc/LabeledInput/LabeledInput.svelte';
 
-	// variables
-	let file: File;
-	let loading = false;
-	let userDetails = store.get(authUserData);
-	let props = { initialSrc: userDetails?.user?.profile_picture };
-	let name = userDetails?.user?.name;
-	let email = userDetails?.user?.email;
-	let username = userDetails?.user?.username;
-
 	// functions
-	function setFile(_file: File) {
+	function setNewImageFile(_file: File) {
 		if (_file) {
+			oldSelectedImage = null;
 			file = _file;
+
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				const imageSrc = e.target ? (e.target.result as string) : '';
+
+				props = { initialSrc: imageSrc };
+			};
+
+			reader.readAsDataURL(file);
 		}
+
+		closeImageUploadOpen();
+	}
+
+	function setOldImage(obj: any = {}) {
+		if (obj?.uid) {
+			file = null;
+			oldSelectedImage = obj.uid;
+			props = { initialSrc: obj.url };
+		}
+
+		closeImageUploadOpen();
 	}
 
 	function updateValues(event: any) {
@@ -62,6 +76,8 @@
 
 				// set profile_picture in updatePayload
 				updatePayload['profile_picture'] = _.defaultTo(parseArray(returnData.data.images, [])[0]?.uid, null);
+			} else if (oldSelectedImage) {
+				updatePayload['profile_picture'] = oldSelectedImage;
 			}
 
 			updatedUserData = await updateProfile(userDetails, updatePayload);
@@ -69,6 +85,10 @@
 			if (updatedUserData?.error) {
 				throw new Error(updatedUserData.message);
 			}
+
+			// set file and old file as null
+			file = null;
+			oldSelectedImage = null;
 
 			showToast(success.title, success.description, 'success');
 		} catch (error: any) {
@@ -78,6 +98,25 @@
 		}
 	}
 
+	function openImageUploadOpen() {
+		imageUploaderOpen = true;
+	}
+
+	function closeImageUploadOpen() {
+		imageUploaderOpen = false;
+	}
+
+	// variables
+	let file: File | null;
+	let loading = false;
+	let oldSelectedImage: any = null;
+	let imageUploaderOpen = false;
+	let userDetails = store.get(authUserData);
+	let name = userDetails?.user?.name;
+	let email = userDetails?.user?.email;
+	let username = userDetails?.user?.username;
+	let props = { initialSrc: userDetails?.user?.profile_picture };
+
 	// subscribe store
 	authUserData.subscribe((data: any) => (userDetails = data));
 </script>
@@ -85,7 +124,7 @@
 <section class="flex flex-col justify-center items-center gap-4">
 	<h1 class="text-3xl w-[80%] text-left text-gray-700">Personal Details</h1>
 
-	<ImageUploader {file} onLoad={setFile} {props} />
+	<ImageUploader {file} onClick={openImageUploadOpen} onLoad={setNewImageFile} {props} />
 
 	<!-- separator -->
 	<div class="mt-4" />
@@ -101,4 +140,13 @@
 			<section>Update Profile</section>
 		{/if}
 	</button>
+
+	<!-- image picker popup -->
+	{#if imageUploaderOpen}
+		<ImagePicker
+			handleOnClose={closeImageUploadOpen}
+			handleNewImagePick={setNewImageFile}
+			handleOldImagePick={setOldImage}
+		/>
+	{/if}
 </section>

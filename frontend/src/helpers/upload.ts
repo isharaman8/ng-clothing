@@ -4,9 +4,10 @@ import axios from 'axios';
 // inner imports
 import { ROUTES } from '../constants';
 import settings from '../config/settings';
+import { getBearerToken } from '../utils';
 import type { ReturnData } from '../interfaces';
 
-export async function handleImageUpload(imageFile: File, authToken: string): Promise<ReturnData> {
+export const handleImageUpload = async (imageFile: File, authToken: string): Promise<ReturnData> => {
 	const formData = new FormData();
 	const result: any = { error: false, message: undefined, data: null };
 	const url = `${settings.config.baseApiUrl}/${ROUTES.uploads}/image-upload`;
@@ -36,4 +37,32 @@ export async function handleImageUpload(imageFile: File, authToken: string): Pro
 	}
 
 	return result;
-}
+};
+
+export const getUserUploads = async (userDetails: any = {}) => {
+	const result: any = { error: false, message: undefined, data: null };
+	const url = `${settings.config.baseApiUrl}/${ROUTES.uploads}/image`;
+
+	try {
+		if (!userDetails?.auth_token) {
+			throw new Error('user token is required');
+		}
+
+		const tempData = await axios.get(url, {
+			headers: {
+				Authorization: getBearerToken(userDetails)
+			}
+		});
+
+		if (tempData.status !== 200) {
+			throw new Error(tempData.data.message);
+		}
+
+		result['data'] = tempData.data.images;
+	} catch (error: any) {
+		result['error'] = true;
+		result['message'] = error?.response?.data?.message || error.message;
+	}
+
+	return result;
+};
