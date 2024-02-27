@@ -205,3 +205,22 @@ export const _getPaginationAggregationFilter = (query: any = {}) => {
 
   return filter;
 };
+
+export const _getCombinedSearchAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (query.q) {
+    filter.push({
+      $or: [
+        {
+          name: { $in: [new RegExp('^' + query.q, 'i')] },
+        },
+        {
+          category_name: { $in: [new RegExp('^' + query.q, 'i')] },
+        },
+      ],
+    });
+  }
+
+  return filter;
+};

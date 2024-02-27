@@ -18,6 +18,7 @@ import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { Category, CategorySchema } from 'src/schemas/category.schema';
 import { Purchase, PurchaseSchema } from 'src/schemas/purchase.schema';
+import { SharedProductService } from '../shared/shared-product.service';
 import { ValidateProductMiddleware } from 'src/middlewares/validate-product.middleware';
 import { ValidateProductReviewMiddleware } from 'src/middlewares/validate-product-review.middleware';
 
@@ -33,7 +34,16 @@ import { ValidateProductReviewMiddleware } from 'src/middlewares/validate-produc
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService, S3Service, SharedService, CategoryService, ReviewService, PurchaseService, UserService],
+  providers: [
+    S3Service,
+    UserService,
+    SharedService,
+    ReviewService,
+    ProductService,
+    PurchaseService,
+    CategoryService,
+    SharedProductService,
+  ],
 })
 export class ProductModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -10,6 +10,7 @@ import { parseBoolean } from 'src/utils';
 import { QueryParams } from 'src/interfaces';
 import { Category } from 'src/schemas/category.schema';
 import { CreateOrUpdateCategoryDto } from 'src/dto/category.dto';
+import { SharedProductService } from '../shared/shared-product.service';
 import {
   _getUidAggregationFilter,
   _getSlugAggregationFilter,
@@ -18,7 +19,10 @@ import {
 
 @Injectable()
 export class CategoryService {
-  constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) {}
+  constructor(
+    @InjectModel(Category.name) private categoryModel: Model<Category>,
+    private sharedProductService: SharedProductService,
+  ) {}
 
   async getAllCategories(query: QueryParams) {
     const aggregationQuery = [
@@ -63,6 +67,25 @@ export class CategoryService {
       await this.categoryModel.updateOne({ uid: payload.uid }, payload, {
         upsert: true,
       });
+
+      // update products
+      if (payload.name || payload.description) {
+        const bulkUpdateArray = [
+          {
+            updateMany: {
+              filter: { category: { $in: [payload.uid] } },
+              update: {
+                $set: {
+                  category_name: payload.name,
+                  category_description: payload.description,
+                },
+              },
+            },
+          },
+        ];
+
+        await this.sharedProductService.bulkUpdateOp(bulkUpdateArray);
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

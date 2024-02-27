@@ -11,11 +11,11 @@ export class AuthService {
 
   async getAuthToken(user: CreateOrUpdateUserDto): Promise<string> {
     const payload = {
-      roles: user.roles,
       uid: user.uid,
-      username: user.username,
+      roles: user.roles,
       email: user.email,
       active: user.active,
+      username: user.username,
     };
     const token = await this.jwtService.signAsync(payload);
 

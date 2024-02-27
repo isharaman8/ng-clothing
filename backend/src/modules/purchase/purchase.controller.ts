@@ -7,15 +7,15 @@ import { parseArray } from 'src/utils';
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { PurchaseService } from './purchase.service';
-import { ProductService } from '../product/product.service';
 import { ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
+import { SharedProductService } from '../shared/shared-product.service';
 
 @Controller('purchase')
 export class PurchaseController {
   constructor(
     private purchaseService: PurchaseService,
-    private productService: ProductService,
+    private sharedProductService: SharedProductService,
   ) {}
 
   // inner helpers
@@ -65,7 +65,7 @@ export class PurchaseController {
     // update sizes in products
     const productSizeBulkUpdateArray = this.purchaseService.getUpdatedProductSizes(createdPurchase.products);
 
-    await this.productService.bulkUpdateOp(productSizeBulkUpdateArray);
+    await this.sharedProductService.bulkUpdateOp(productSizeBulkUpdateArray);
 
     return response
       .status(201)

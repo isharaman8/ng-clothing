@@ -35,7 +35,7 @@ export class ProductController {
   }
 
   private async createOrUpdateProductHandler(request: CRequest, response: CResponse, statusCode: number) {
-    const { oldProducts, products: payload, productCategories, uploadedImages } = response.locals;
+    const { oldProducts, products: payload, uploadedImages } = response.locals;
     const { user = {} } = request;
 
     let createdProducts: any;
@@ -55,7 +55,7 @@ export class ProductController {
 
     createdProducts = tempProducts;
     createdProducts = _.map(createdProducts, (createdProduct) =>
-      this.productService.getParsedProductResponsePayload(createdProduct, productCategories),
+      this.productService.getParsedProductResponsePayload(createdProduct),
     );
 
     return response.status(statusCode).send({ products: createdProducts });
@@ -63,7 +63,6 @@ export class ProductController {
 
   private async getProductsHandler(query: any, params: any, response: CResponse) {
     let products = [];
-    let categories = [];
     let reviewUserDetails = [];
 
     const parsedQuery = _getParsedQuery(query);
@@ -87,12 +86,9 @@ export class ProductController {
       'product',
     );
 
-    // get categories
-    categories = await this.productService.getProductsCategoriesDetails(products);
-
     // parse response payload
     products = _.map(products, (product) => {
-      const retProduct = this.productService.getParsedProductResponsePayload(product, categories);
+      const retProduct = this.productService.getParsedProductResponsePayload(product);
 
       // parse review;
       if (parsedQuery.reviews) {

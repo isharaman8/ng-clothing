@@ -18,6 +18,7 @@ export const _getParsedParams = (params: Params = {}) => {
 
 export const _getParsedQuery = (query: QueryParams = {}) => {
   const queryPayload = {
+    q: _.defaultTo(query.q, null),
     uid: _.defaultTo(query.uid, null),
     name: _.defaultTo(query.name, null),
     slug: _.defaultTo(query.slug, null),
