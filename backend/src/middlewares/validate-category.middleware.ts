@@ -17,9 +17,9 @@ import {
 import { _notEmpty, parseArray } from 'src/utils';
 import { CreateOrUpdateCategoryDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
-import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 import { Category } from 'src/schemas/category.schema';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
+import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 import { CategoryService } from 'src/modules/category/category.service';
 
 @Injectable()
@@ -100,7 +100,7 @@ export class ValidateCategoryMiddleware implements NestMiddleware {
 
     const params = _getParsedParams(req.params);
     const parsedCategory = this.categoryService.getParsedCategoryPayload(category, user);
-    const findQuery = _getParsedQuery({ uid: params.categoryId, user_id: user.uid });
+    const findQuery = _getParsedQuery({ uid: params.categoryId });
 
     findQuery['active'] = null;
 

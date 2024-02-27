@@ -17,10 +17,10 @@ import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { _notEmpty, parseArray } from 'src/utils';
 import { CRequest, CResponse } from 'src/interfaces';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { UserService } from 'src/modules/user/user.service';
 import { ALLOWED_USER_ROLES } from 'src/constants/constants';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
-import { S3Service } from 'src/modules/s3/s3.service';
 
 @Injectable()
 export class ValidateUserMiddleware implements NestMiddleware {
@@ -30,7 +30,7 @@ export class ValidateUserMiddleware implements NestMiddleware {
     private uploadService: S3Service,
   ) {}
 
-  private validateUserRole(user: any = {}, method: string, originalUrl: string) {
+  private validateUserRole(user: any = {}, _method: string, originalUrl: string) {
     let validUserRole = false;
 
     const roles = parseArray(user.roles, []);
@@ -126,12 +126,11 @@ export class ValidateUserMiddleware implements NestMiddleware {
     }
 
     if (_.isEmpty(reqUser) || !_.has(reqUser, 'email') || !_.has(reqUser, 'username')) {
-      console.log('REQ.USER', reqUser);
-
       throw new InternalServerErrorException('user not found');
     }
 
     parsedUserBody['email'] = reqUser.email;
+    parsedUserBody['roles'] = reqUser.roles;
     parsedUserBody['username'] = reqUser.username;
 
     findQuery['email'] = parsedUserBody['email'];

@@ -15,6 +15,7 @@ import {
   _getGenderAggregationFilter,
   _getPaginationAggregationFilter,
   _getAvailableSizesAggregationFilter,
+  _getCombinedSearchAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 import { Product } from 'src/schemas/product.schema';
 import { _getParsedQuery } from 'src/helpers/parser';
@@ -63,6 +64,7 @@ export class ProductService {
             ..._getAvailableSizesAggregationFilter(query),
             ..._getUidAggregationFilter(query),
             ..._getGenderAggregationFilter(query),
+            ..._getCombinedSearchAggregationFilter(query),
           ],
         },
       },
@@ -195,16 +197,6 @@ export class ProductService {
     return true;
   }
 
-  async bulkUpdateOp(bulkUpdateArray: Array<any>) {
-    try {
-      if (!_.isEmpty(bulkUpdateArray)) {
-        await this.productModel.bulkWrite(bulkUpdateArray);
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
   getParsedProductBody(body: CreateOrUpdateProductDto, user: any = {}) {
     const { active, images, name, price, uid, description, category, gender, available_sizes } = body;
 
@@ -224,17 +216,18 @@ export class ProductService {
     return payload;
   }
 
-  getParsedProductResponsePayload(product: any = {}, categories: any = []) {
+  getParsedProductResponsePayload(product: any = {}) {
     product = JSON.parse(JSON.stringify(product));
-
-    const reqdCategory = _.find(categories, (category) => category.uid === product.category) || {};
-
-    product.category = reqdCategory;
 
     // delete unnecessary properties
     delete product.$setOnInsert;
     delete product._id;
     delete product.__v;
+
+    // sanitize response for categories
+    product.category = _.defaultTo(product.category, null);
+    product.category_name = _.defaultTo(product.category_name, null);
+    product.category_description = _.defaultTo(product.category_description, null);
 
     // parse images for object or string
     product.images = _.map(product.images, (image: UploadedImage | string) =>
@@ -256,6 +249,8 @@ export class ProductService {
       active: parseBoolean(product.active, oldProduct.active),
       category: _.defaultTo(product.category, oldProduct.category),
       description: _.defaultTo(product.description, oldProduct.description),
+      category_name: _.defaultTo(product.category_name, oldProduct.category_name) || null,
+      category_description: _.defaultTo(product.category_description, oldProduct.category_description) || null,
       available_sizes: _.defaultTo(product.available_sizes, oldProduct.available_sizes) || ALLOWED_PRODUCT_SIZES,
     };
 

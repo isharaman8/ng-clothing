@@ -8,6 +8,7 @@ import { S3Service } from '../s3/s3.service';
 import { SharedService } from './shared.service';
 import { ProductService } from '../product/product.service';
 import { CategoryService } from '../category/category.service';
+import { SharedProductService } from './shared-product.service';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { SharedValidatorService } from './shared-validator.service';
@@ -22,6 +23,6 @@ import { Category, CategorySchema } from 'src/schemas/category.schema';
       { name: Category.name, schema: CategorySchema },
     ]),
   ],
-  providers: [SharedService, SharedValidatorService, S3Service, ProductService, CategoryService],
+  providers: [SharedService, SharedValidatorService, S3Service, ProductService, CategoryService, SharedProductService],
 })
 export class SharedModule {}

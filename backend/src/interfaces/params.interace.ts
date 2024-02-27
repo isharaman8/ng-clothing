@@ -8,6 +8,7 @@ export interface Params {
 }
 
 export interface QueryParams {
+  q?: string;
   price?: number;
   gender?: string;
   active?: boolean;

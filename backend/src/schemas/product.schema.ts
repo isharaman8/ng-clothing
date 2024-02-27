@@ -41,6 +41,12 @@ export class Product {
 
   @Prop({ default: null })
   category: string;
+
+  @Prop({ default: null })
+  category_name: string;
+
+  @Prop({ default: null })
+  category_description: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

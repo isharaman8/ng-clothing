@@ -130,7 +130,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
     return updatedProducts;
   }
 
-  private async validateProductCategory(
+  private async validateProductCategoryAndPopulateCategoryData(
     products: Array<Partial<CreateOrUpdateProductDto>>,
     oldProducts: Array<CreateOrUpdateProductDto>,
   ) {
@@ -163,6 +163,22 @@ export class ValidateProductMiddleware implements NestMiddleware {
     reqdCategories = _.map(reqdCategories, (category) =>
       _.pick(parseObject(category, {}), ['uid', 'name', 'description', 'slug']),
     );
+
+    // populate category_name and category_description in payload
+    _.forEach(products, (product) => {
+      if (_.isEmpty(product.category)) {
+        return;
+      }
+
+      const reqdCategory = _.find(reqdCategories, (category) => category.uid === product.category);
+
+      if (_.isEmpty(reqdCategory)) {
+        return;
+      }
+
+      product['category_name'] = reqdCategory.name;
+      product['category_description'] = reqdCategory.description;
+    });
 
     return reqdCategories;
   }
@@ -244,7 +260,7 @@ export class ValidateProductMiddleware implements NestMiddleware {
       parsedProducts = _.map(parsedProducts, (product) => ({ ...product, uid: params.productId }));
     }
 
-    reqdCategories = await this.validateProductCategory(parsedProducts, oldProducts);
+    reqdCategories = await this.validateProductCategoryAndPopulateCategoryData(parsedProducts, oldProducts);
     parsedProducts = await this.validateAndParseProductSlug(parsedProducts);
 
     const { products: tempImageProducts, uploadedImages: tempUploadedImages } =

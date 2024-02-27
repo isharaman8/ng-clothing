@@ -14,6 +14,7 @@ import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { Category, CategorySchema } from 'src/schemas/category.schema';
+import { SharedProductService } from '../shared/shared-product.service';
 import { SharedValidatorService } from '../shared/shared-validator.service';
 import { ValidateCartMiddleware } from 'src/middlewares/validate-cart.middleware';
 
@@ -27,7 +28,15 @@ import { ValidateCartMiddleware } from 'src/middlewares/validate-cart.middleware
     ]),
   ],
   controllers: [CartController],
-  providers: [CartService, ProductService, SharedService, SharedValidatorService, S3Service, CategoryService],
+  providers: [
+    S3Service,
+    CartService,
+    SharedService,
+    ProductService,
+    CategoryService,
+    SharedProductService,
+    SharedValidatorService,
+  ],
 })
 export class CartModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
