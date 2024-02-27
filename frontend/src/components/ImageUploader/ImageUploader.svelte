@@ -8,6 +8,7 @@
 
 	export let props: any = {};
 	export let file: any = null;
+	export let onClick: any = null;
 	export let onLoad: any = () => {};
 
 	let imageSrc: string = '';
@@ -25,12 +26,25 @@
 			imageSrc = e.target ? (e.target.result as string) : '';
 			onLoad(file);
 		};
+
 		reader.readAsDataURL(file);
+	}
+
+	function handleImageClick() {
+		if (_.isFunction(onClick)) {
+			onClick();
+		} else {
+			fileInput?.click();
+		}
 	}
 
 	onMount(() => {
 		imageSrc = _.defaultTo(props.initialSrc, 'https://via.placeholder.com/150');
 	});
+
+	$: {
+		imageSrc = _.defaultTo(props.initialSrc, 'https://via.placeholder.com/150');
+	}
 </script>
 
 <div class="flex items-center justify-center">
@@ -40,7 +54,7 @@
 		src={imageSrc}
 		alt="A fluffy orange cat sitting on a windowsill"
 		class="w-32 h-32 rounded-full object-cover cursor-pointer"
-		on:click={() => fileInput?.click()}
+		on:click={handleImageClick}
 	/>
 
 	<label
