@@ -13,7 +13,7 @@
 	export let productNameArray: Array<string>;
 </script>
 
-<tr>
+<tr class="text-gray-600">
 	<td>{idx + 1}</td>
 	<td class="flex justify-start items-center gap-2">
 		<img class="h-10 max-w-8 mt-2" src={image} alt={lastProduct?.name} />
