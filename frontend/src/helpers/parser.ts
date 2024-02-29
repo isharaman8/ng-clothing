@@ -3,8 +3,9 @@ import { parseBoolean, parseNumber } from '../utils';
 
 export const _getParsedProductsQuery = (query: any = {}) => {
 	return {
-		name: _.defaultTo(query.name, null),
+		q: _.defaultTo(query.q, null),
 		uid: _.defaultTo(query.uid, null),
+		name: _.defaultTo(query.name, null),
 		slug: _.defaultTo(query.slug, null),
 		price: parseNumber(query.price, null),
 		email: _.defaultTo(query.email, null),

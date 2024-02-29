@@ -1,9 +1,12 @@
 <script lang="ts">
 	// third party imports
 	import _ from 'lodash';
+	import { onMount } from 'svelte';
+	import * as store from 'svelte/store';
 	import { UserOutline, ShoppingBagOutline } from 'flowbite-svelte-icons';
 
 	// inner imports
+	import { authUserData } from '../../stores';
 	import SideBarButton from '../../components/misc/SideBarButton/SideBarButton.svelte';
 	import UserOrders from '../../components/ProfileSections/UserOrders/UserOrders.svelte';
 	import UserDetails from '../../components/ProfileSections/UserDetails/UserDetails.svelte';
@@ -48,6 +51,14 @@
 	];
 
 	let currentlySelectedPage = 'My Details';
+	const userDetails = store.get(authUserData);
+
+	// onMount
+	onMount(() => {
+		if (_.isEmpty(userDetails)) {
+			window.location.href = '/';
+		}
+	});
 </script>
 
 <section class="mt-24 max-w-[100vw] min-h-[88vh] flex flex-col justify-start items-center">

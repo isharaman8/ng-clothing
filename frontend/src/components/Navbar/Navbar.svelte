@@ -42,7 +42,7 @@
 		}
 
 		searchQuery = event.target.value;
-		const queryParams = _getParsedProductsQuery({ name: searchQuery });
+		const queryParams = _getParsedProductsQuery({ q: searchQuery });
 
 		getProducts(queryParams);
 	}, 1000);
