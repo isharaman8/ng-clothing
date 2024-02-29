@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { Model } from 'mongoose';
 import { NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
-import { BadRequestException, Injectable, InternalServerErrorException, NestMiddleware } from '@nestjs/common';
+import { BadRequestException, Injectable, NestMiddleware } from '@nestjs/common';
 
 // inner imports
 import { _notEmpty, parseArray } from 'src/utils';

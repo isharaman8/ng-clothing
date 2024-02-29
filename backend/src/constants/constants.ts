@@ -46,3 +46,8 @@ export const REVIEW_USER_PROJECTION = Object.freeze({
   uid: 1,
   profile_picture: 1,
 });
+
+export const ADDRESS_TYPE_ENUM = Object.freeze({
+  home: 'home',
+  work: 'work',
+});

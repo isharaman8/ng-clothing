@@ -13,6 +13,7 @@ export const _getParsedParams = (params: Params = {}) => {
     productId: params.product_uid,
     categoryId: params.category_uid,
     purchaseId: params.purchase_uid,
+    userAddressId: params.user_address_uid,
   };
 };
 
@@ -34,6 +35,7 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
     verified: parseBoolean(query.verified, null),
     pageNumber: parseNumber(query.page_number, 1),
     orderType: _.defaultTo(query.order_type, null),
+    addresses: parseBoolean(query.addresses, false),
     productId: _.defaultTo(query.product_uid, null),
     purchaseId: _.defaultTo(query.purchase_uid, null),
     requiredSize: _.defaultTo(query.required_size, null),

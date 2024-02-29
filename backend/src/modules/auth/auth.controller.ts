@@ -1,18 +1,22 @@
 // third party imports
+import * as _ from 'lodash';
 import { Get, Req, Res, Body, Post, Controller, UnauthorizedException, Patch } from '@nestjs/common';
 
 // inner imports
+import { parseArray } from 'src/utils';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { CRequest, CResponse } from 'src/interfaces';
 import { _getParsedQuery } from 'src/helpers/parser';
 import { CreateOrUpdateUserDto, LoginUserDto } from 'src/dto';
+import { UserAddressService } from '../user/user-address.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private userService: UserService,
     private authService: AuthService,
+    private userAddressService: UserAddressService,
   ) {}
 
   // internal helpers
@@ -69,7 +73,7 @@ export class AuthController {
   async getProfile(@Req() request: CRequest, @Res() response: CResponse) {
     const parsedQuery = _getParsedQuery(request.query);
 
-    let user: Array<CreateOrUpdateUserDto> | CreateOrUpdateUserDto;
+    let user: any;
 
     // add props in query
     parsedQuery.uid = request.user.uid;
@@ -87,6 +91,10 @@ export class AuthController {
 
     // parse response
     user = this.userService.getParsedUserResponsePayload(user[0]);
+    user['user_addresses'] = _.map(
+      parseArray(user.user_addresses, []),
+      this.userAddressService.getParsedUserAddressResponsePayload,
+    );
 
     return response.status(200).send({ user });
   }

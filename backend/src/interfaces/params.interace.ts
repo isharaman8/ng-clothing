@@ -5,6 +5,7 @@ export interface Params {
   product_uid?: string;
   purchase_uid?: string;
   category_uid?: string;
+  user_address_uid?: string;
 }
 
 export interface QueryParams {
@@ -17,6 +18,7 @@ export interface QueryParams {
   max_price?: number;
   min_price?: number;
   page_size?: number;
+  addresses?: boolean;
   page_number?: number;
   uid?: string | string[];
   slug?: string | string[];
