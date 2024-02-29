@@ -11,17 +11,20 @@ import { SharedService } from '../shared/shared.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
+import { UserAddressService } from '../user/user-address.service';
 import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
+import { UserAddress, UserAddressSchema } from 'src/schemas/user-address.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Upload.name, schema: UploadSchema },
+      { name: UserAddress.name, schema: UserAddressSchema },
     ]),
   ],
   controllers: [AuthController],
-  providers: [UserService, AuthService, S3Service, SharedService],
+  providers: [UserService, AuthService, S3Service, SharedService, UserAddressService],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

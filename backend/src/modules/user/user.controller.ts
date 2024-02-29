@@ -1,15 +1,20 @@
 // third party imports
 import { Response } from 'express';
-import { Body, Controller, Patch, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post, Req, Res } from '@nestjs/common';
 
 // inner imports
-import { CResponse } from 'src/interfaces';
 import { UserService } from './user.service';
-import { CreateOrUpdateUserDto } from 'src/dto';
+import { CRequest, CResponse } from 'src/interfaces';
+import { _getParsedParams } from 'src/helpers/parser';
+import { UserAddressService } from './user-address.service';
+import { CreateOrUpdateUserAddressDto, CreateOrUpdateUserDto } from 'src/dto';
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private userAddressService: UserAddressService,
+  ) {}
 
   // internal helpers
   private async createOrUpdateUserHandler(user: any, response: CResponse, statusCode: number) {
@@ -26,6 +31,16 @@ export class UserController {
     return response.status(statusCode).send({ user: this.userService.getParsedUserResponsePayload(createdUser) });
   }
 
+  private async createOrUpdateUserAddressHandler(user: any, response: CResponse, statusCode: number) {
+    const { oldAddress, address } = response.locals;
+
+    let createdOrUpdatedAddress = await this.userAddressService.createOrUpdateUserAddress(address, oldAddress, user);
+    createdOrUpdatedAddress = this.userAddressService.getParsedUserAddressResponsePayload(createdOrUpdatedAddress);
+
+    return response.status(statusCode).send({ address: createdOrUpdatedAddress });
+  }
+
+  // main controllers
   @Post('')
   async createUser(@Body('user') user: CreateOrUpdateUserDto, @Res() response: Response) {
     await this.createOrUpdateUserHandler(user, response, 201);
@@ -34,5 +49,32 @@ export class UserController {
   @Patch(':user_id')
   async updateUser(@Body('user') user: Partial<CreateOrUpdateUserDto>, @Res() response: Response) {
     await this.createOrUpdateUserHandler(user, response, 200);
+  }
+
+  @Post('/address')
+  async createUserAddress(
+    @Body('address') _address: CreateOrUpdateUserAddressDto,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
+    await this.createOrUpdateUserAddressHandler(request.user, response, 201);
+  }
+
+  @Patch('/address/:user_address_uid')
+  async updateUserAddress(
+    @Body('address') _address: Partial<CreateOrUpdateUserAddressDto>,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
+    await this.createOrUpdateUserAddressHandler(request.user, response, 200);
+  }
+
+  @Delete('/address/:user_address_uid')
+  async deleteUserAddress(@Param() params: any, @Res() response: CResponse) {
+    const parsedParams = _getParsedParams(params);
+
+    await this.userAddressService.deleteUserAddress(parsedParams.userAddressId);
+
+    return response.status(204).send({});
   }
 }

@@ -14,7 +14,6 @@ import {
   _getUserNameAggregationFilter,
   _getActiveAggregationFilter,
 } from 'src/helpers/aggregationFilters';
-import { QueryParams } from 'src/interfaces';
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
 import { parseArray, parseBoolean } from 'src/utils';
@@ -27,7 +26,7 @@ export class UserService {
     private sharedService: SharedService,
   ) {}
 
-  async getAllUsers(query: QueryParams, projection: any = {}) {
+  async getAllUsers(query: any = {}, projection: any = {}) {
     const orBlock = [..._getUserNameAggregationFilter(query), ..._getEmailAggregationFilter(query)];
     const andBlock = [
       ..._getActiveAggregationFilter(query),
@@ -40,6 +39,30 @@ export class UserService {
     }
 
     const baseQuery: any = [{ $match: { $and: andBlock } }];
+
+    if (query.addresses) {
+      baseQuery.push({
+        $lookup: {
+          from: 'useraddresses',
+          let: { userId: '$uid' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [{ $eq: ['$user_id', '$$userId'] }, { $eq: ['$active', true] }],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+              },
+            },
+          ],
+          as: 'user_addresses',
+        },
+      });
+    }
 
     if (!_.isEmpty(projection)) {
       baseQuery.push({ $project: projection });
