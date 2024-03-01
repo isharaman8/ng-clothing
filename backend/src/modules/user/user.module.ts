@@ -41,7 +41,7 @@ export class UserModule implements NestModule {
 
     consumer
       .apply(AuthMiddleware)
-      .forRoutes(...allowdRoutes, ...allowedAddressRoutes)
+      .forRoutes(...allowdRoutes, ...allowedAddressRoutes, { path: 'user/address', method: RequestMethod.GET })
       .apply(ValidateUserMiddleware)
       .forRoutes(...allowdRoutes)
       .apply(ValidateUserAddressMiddleware)

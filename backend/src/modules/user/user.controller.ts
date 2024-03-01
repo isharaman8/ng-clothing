@@ -1,12 +1,14 @@
 // third party imports
+import * as _ from 'lodash';
 import { Response } from 'express';
-import { Body, Controller, Delete, Param, Patch, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
 
 // inner imports
+import { parseArray } from 'src/utils';
 import { UserService } from './user.service';
 import { CRequest, CResponse } from 'src/interfaces';
-import { _getParsedParams } from 'src/helpers/parser';
 import { UserAddressService } from './user-address.service';
+import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 import { CreateOrUpdateUserAddressDto, CreateOrUpdateUserDto } from 'src/dto';
 
 @Controller('user')
@@ -49,6 +51,17 @@ export class UserController {
   @Patch(':user_id')
   async updateUser(@Body('user') user: Partial<CreateOrUpdateUserDto>, @Res() response: Response) {
     await this.createOrUpdateUserHandler(user, response, 200);
+  }
+
+  @Get('/address')
+  async getUserAddresses(@Query() query: any, @Req() request: CRequest, @Res() response: CResponse) {
+    const parsedQuery = _getParsedQuery(query);
+    parsedQuery['userId'] = request.user.uid;
+
+    let userAddresses = await this.userAddressService.getAllUserAddresses(parsedQuery);
+    userAddresses = _.map(parseArray(userAddresses, []), this.userAddressService.getParsedUserAddressResponsePayload);
+
+    return response.status(200).send({ addresses: userAddresses });
   }
 
   @Post('/address')
