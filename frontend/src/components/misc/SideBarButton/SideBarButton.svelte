@@ -13,7 +13,7 @@
 	$: activeClass = active ? 'active-button' : 'inactive-button';
 </script>
 
-<button on:click={onClick} class={`flex justify-center items-center gap-2 p-2 w-full ${activeClass}`}>
+<button on:click={onClick} class={`flex justify-start items-center gap-2 p-2 w-full ${activeClass}`}>
 	<ExportedIcon />
 	{text}
 </button>

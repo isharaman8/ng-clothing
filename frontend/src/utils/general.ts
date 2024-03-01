@@ -23,3 +23,9 @@ export const _notEmpty = (obj: any = {}): boolean => {
 export const parseString = (value: any, defaultValue: any) => {
 	return typeof value === 'string' ? value : defaultValue;
 };
+
+export const _splitNameAndCapitalize = (name: string, split: string = '_') => {
+	const splitArray = _.map(_.split(name, split), (value) => _.capitalize(value));
+
+	return _.trim(_.join(splitArray, ' '));
+};

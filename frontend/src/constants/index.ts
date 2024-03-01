@@ -37,13 +37,31 @@ export const defaultToastMessages = Object.freeze({
 			title: 'Profile Update Failed'
 		}
 	},
-	addToCart: {
+	addAddress: {
 		success: {
-			title: 'Added to cart successfully',
-			description: 'Added to cart successfully'
+			title: 'Address Added Successfully',
+			description: 'Address Added Successfully'
 		},
 		failure: {
-			title: 'Add to cart failed'
+			title: 'Address Add Failed'
+		}
+	},
+	updateAddress: {
+		success: {
+			title: 'Address Updated Successfully',
+			description: 'Address Updated Successfully'
+		},
+		failure: {
+			title: 'Address Update Failed'
+		}
+	},
+	deleteAddress: {
+		success: {
+			title: 'Address Deleted Successfully',
+			description: 'Address Deleted Successfully'
+		},
+		failure: {
+			title: 'Address Deletion Failed'
 		}
 	}
 });
