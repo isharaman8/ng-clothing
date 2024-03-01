@@ -3,13 +3,14 @@
 	import _ from 'lodash';
 	import { onMount } from 'svelte';
 	import * as store from 'svelte/store';
-	import { UserOutline, ShoppingBagOutline } from 'flowbite-svelte-icons';
+	import { UserOutline, ShoppingBagOutline, AddressCardSolid } from 'flowbite-svelte-icons';
 
 	// inner imports
 	import { authUserData } from '../../stores';
 	import SideBarButton from '../../components/misc/SideBarButton/SideBarButton.svelte';
 	import UserOrders from '../../components/ProfileSections/UserOrders/UserOrders.svelte';
 	import UserDetails from '../../components/ProfileSections/UserDetails/UserDetails.svelte';
+	import UserAddresses from '../../components/ProfileSections/UserAddresses/UserAddresses.svelte';
 
 	// functions
 	function onButtonSelect(event: any) {
@@ -23,16 +24,18 @@
 		const currentlySelectedButton = _.find(buttons, (btn) => btn.active)?.text;
 
 		if (!currentlySelectedButton) {
-			currentlySelectedPage = 'My Details';
+			currentlySelectedPage = UserDetails;
 
 			return true;
 		}
 
 		// update currently selected page
 		if (currentlySelectedButton.includes('My Orders')) {
-			currentlySelectedPage = 'My Orders';
+			currentlySelectedPage = UserOrders;
+		} else if (currentlySelectedButton.includes('My Addresses')) {
+			currentlySelectedPage = UserAddresses;
 		} else {
-			currentlySelectedPage = 'My Details';
+			currentlySelectedPage = UserDetails;
 		}
 	}
 
@@ -47,10 +50,15 @@
 			text: 'My Orders',
 			icon: ShoppingBagOutline,
 			active: false
+		},
+		{
+			text: 'My Addresses',
+			icon: AddressCardSolid,
+			active: false
 		}
 	];
 
-	let currentlySelectedPage = 'My Details';
+	let currentlySelectedPage = UserDetails;
 	const userDetails = store.get(authUserData);
 
 	// onMount
@@ -67,7 +75,7 @@
 		<div class="w-full min-h-[650px] mt-8">
 			<div class="flex flex-row justify-center items-center p-5">
 				<!-- left panel (my details, my orders) -->
-				<div class="flex flex-col justify-center items-center">
+				<div class="flex flex-col justify-center items-start min-w-[200px]">
 					{#each buttons as button}
 						<SideBarButton
 							ExportedIcon={button.icon}
@@ -80,11 +88,7 @@
 
 				<!-- right panel -->
 				<div class="flex-grow min-h-[600px]">
-					{#if currentlySelectedPage === 'My Details'}
-						<UserDetails />
-					{:else if currentlySelectedPage === 'My Orders'}
-						<UserOrders />
-					{/if}
+					<svelte:component this={currentlySelectedPage}></svelte:component>
 				</div>
 			</div>
 		</div>

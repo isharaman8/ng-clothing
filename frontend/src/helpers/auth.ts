@@ -124,8 +124,8 @@ export const updateProfile = async (userData: any, updatePayload: any): Promise<
 };
 
 export const getProfile = async (userData: any = {}) => {
-	const returnData: any = { error: false, message: null, data: undefined };
 	const url = `${settings.config.baseApiUrl}/${ROUTES.auth}/profile`;
+	const returnData: any = { error: false, message: null, data: undefined };
 
 	try {
 		if (!userData.auth_token) {
@@ -143,8 +143,6 @@ export const getProfile = async (userData: any = {}) => {
 		}
 
 		if (_.isEmpty(tempData.data?.user)) {
-			console.log(`[error] ${JSON.stringify(tempData.data)}`);
-
 			throw new Error(tempData.data.message || 'no user found');
 		}
 

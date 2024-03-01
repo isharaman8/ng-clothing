@@ -69,7 +69,10 @@
 			<CloseOutline class="text-gray-700 cursor-pointer" on:click={handleOnClose} />
 		</div>
 
-		<div class="grid grid-cols-3 overflow-y-scroll gap-2" style="scrollbar-width: none; -ms-overflow-style: none;">
+		<div
+			class="grid grid-cols-3 max-h-[400px] overflow-y-scroll gap-2"
+			style="scrollbar-width: none; -ms-overflow-style: none;"
+		>
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 			{#if uploadLoading}
