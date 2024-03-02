@@ -1,6 +1,6 @@
 // third party imports
+import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 // inner imports
 import { CreateOrUpdateUserDto } from 'src/dto';

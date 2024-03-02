@@ -17,11 +17,30 @@ export class UserAddressService {
 
   async createOrUpdateUserAddress(address: any = {}, oldAddress: any = {}, user: any = {}) {
     const payload = this.getCreateOrUpdateUserAddressPayload(address, oldAddress, user);
+    const bulkWriteArray: any = [
+      {
+        updateOne: {
+          filter: { uid: payload.uid },
+          update: { $set: payload },
+          upsert: true,
+        },
+      },
+    ];
+
+    // setting primary: false in other addresses if primary = true is provided
+    if (payload.primary) {
+      bulkWriteArray.push({
+        updateMany: {
+          filter: { user_id: payload.user_id, uid: { $ne: payload.uid } },
+          update: {
+            $set: { primary: false },
+          },
+        },
+      });
+    }
 
     try {
-      await this.userAddressModel.updateOne({ uid: payload.uid }, payload, {
-        upsert: true,
-      });
+      await this.userAddressModel.bulkWrite(bulkWriteArray);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

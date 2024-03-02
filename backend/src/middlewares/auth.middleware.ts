@@ -23,6 +23,10 @@ export class AuthMiddleware implements NestMiddleware {
 
       request['user'] = payload;
     } catch (error) {
+      if (error.message === 'invalid signature') {
+        throw new UnauthorizedException('jwt error: invalid jwt token');
+      }
+
       throw new InternalServerErrorException(error.message);
     }
 
