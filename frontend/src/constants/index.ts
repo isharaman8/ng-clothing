@@ -1,3 +1,5 @@
+import { SalePercentSolid } from 'flowbite-svelte-icons';
+
 export const ROUTES = Object.freeze({
 	products: 'product',
 	purchases: 'purchase',
@@ -71,3 +73,18 @@ export const ORDER_TYPE_MAP: any = Object.freeze({
 	completed: 'delivered,fulfilled',
 	pending: 'pending_verification,in_transit'
 });
+
+export const PRODUCT_ACCORDIAN = {
+	offers: {
+		title: 'SAVE EXTRA WITH 2 OFFERS',
+		description: [
+			'Get Rs.200 instant discount on your first Purchase above Rs.999 Coupon Code- NEW-200',
+			'Whistles! Get extra 20% cashback on prepaid orders above Rs.499 Coupon Code- NEW-20'
+		],
+		icon: SalePercentSolid
+	},
+	return_policy: {
+		title: '15 DAYS RETURN & EXCHANGE',
+		description: ['Easy returns upto 15 days of delivery. Exchange available on selective pincodes.']
+	}
+};
