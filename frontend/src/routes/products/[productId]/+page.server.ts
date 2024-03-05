@@ -12,6 +12,7 @@ export const load = async ({ params, fetch }) => {
 				message: 'Product not found!'
 			});
 		}
+
 		const { products } = await response.json();
 
 		return {

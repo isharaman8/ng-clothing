@@ -5,7 +5,7 @@
 	const defaultImg = 'https://via.placeholder.com/150';
 </script>
 
-<a href={`products/${product.uid}`}>
+<a href={`/products/${product.uid}`}>
 	<div class="flex flex-col cursor-pointer hover:shadow-md transition-transform ease-in-out">
 		<img src={product.images?.[0] || defaultImg } alt={product.name} />
 		<div class="px-2 py-2">

@@ -5,7 +5,8 @@ export const ROUTES = Object.freeze({
 	purchases: 'purchase',
 	auth: 'auth',
 	uploads: 's3',
-	user: 'user'
+	user: 'user',
+	cart: 'cart'
 });
 
 export const defaultToastMessages = Object.freeze({
@@ -34,6 +35,15 @@ export const defaultToastMessages = Object.freeze({
 		},
 		failure: {
 			title: 'Profile Update Failed'
+		}
+	},
+	addToCart: {
+		success: {
+			title: 'Added to cart successfully',
+			description: 'Added to cart successfully'
+		},
+		failure: {
+			title: 'Add to cart failed'
 		}
 	}
 });

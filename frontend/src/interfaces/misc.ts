@@ -1,5 +1,5 @@
 export interface ReturnData {
-	message: string | undefined;
+	message: string | null | undefined;
 	data: any;
 	error: boolean;
 }
