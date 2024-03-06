@@ -143,7 +143,6 @@ export class UserAddressService {
     delete address._id;
     delete address.$setOnInsert;
     delete address.__v;
-    delete address.user_id;
     delete address.active;
 
     return address;

@@ -24,4 +24,8 @@ export class CreateOrUpdatePurchaseDto {
   @IsString()
   @IsOptional()
   status: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address_id: string;
 }
