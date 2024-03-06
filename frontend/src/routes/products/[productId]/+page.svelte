@@ -2,11 +2,11 @@
     import * as store from 'svelte/store';
 	import { page } from '$app/stores';
     import { CartOutline } from 'flowbite-svelte-icons';
-	import ProductAccordian from '../../../components/ProductAccordian/ProductAccordian.svelte';
-    import { PRODUCT_ACCORDIAN, defaultToastMessages } from '../../../constants';
-	import { showToast } from '../../../components/misc/Toasts/toasts';
 	import { authUserData } from '../../../stores';
 	import { addToCart } from '../../../helpers/products';
+	import { showToast } from '../../../components/misc/Toasts/toasts';
+    import { PRODUCT_ACCORDIAN, defaultToastMessages } from '../../../constants';
+	import ProductAccordian from '../../../components/ProductAccordian/ProductAccordian.svelte';
 
     export let data;
 
@@ -20,9 +20,10 @@
     const defaultImage = 'https://via.placeholder.com/800';
     
     let loading = false;
+    let quantity: Number = 1; 
     let selectedSize: String = "";
     let userDetails = store.get(authUserData);
-    let quantity: Number = 1; 
+    let selectedImage = product.images[0] || defaultImage;
 
     // subscribe store
 	authUserData.subscribe((data: any) => (userDetails = data));
@@ -62,11 +63,11 @@
     <div class="w-[50%]">
         <div class="flex gap-4">
             <div class="w-[85%] h-[70vh]">
-                <img class="h-full object-cover" src={product.images[0] || defaultImage} alt="product-img">
+                <img class="h-full w-full object-cover" src={selectedImage} alt="product-img">
             </div>
             <div class="w-[15%]">
                 {#each product.images as image}
-                    <div class="bg-slate-300">
+                    <div role="button" tabindex="0" on:keypress={() => selectedImage = image} on:click={() => selectedImage = image } class="bg-slate-300 mb-2">
                         <img src={image} alt="img">
                     </div>
                 {/each}
@@ -89,7 +90,7 @@
         <p class="font-semibold uppercase">Select size</p>
         <div class="flex gap-4 my-2">
             {#each allSizes as size}
-                <button on:click={() => selectedSize = size} class={`${!sizes.includes(size) ? 'cursor-not-allowed bg-gray-300 opacity-50' : 'cursor-pointer bg-white'} ${selectedSize === size && 'border-2 border-[#9589ec] text-[#9589ec] font-bold'} border border-gray-400 rounded-sm px-4 py-2`} disabled={!sizes.includes(size)}>{size}</button>
+                <button on:click={() => selectedSize = size} class={`${!sizes.includes(size) ? 'cursor-not-allowed bg-gray-300 opacity-50' : 'cursor-pointer bg-white'} ${selectedSize === size && 'outline outline-[1.5px] outline-[#9589ec] text-[#9589ec] font-bold'} border border-gray-400 rounded-sm px-4 py-2`} disabled={!sizes.includes(size)}>{size}</button>
             {/each}
         </div>
         <div class="flex gap-2 my-4">
