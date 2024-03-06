@@ -1,6 +1,6 @@
 // Third party imports
 import * as _ from 'lodash';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 // Inner imports
 import { parseObject } from 'src/utils';
@@ -38,7 +38,7 @@ export class SharedValidatorService {
         throw new BadRequestException(`invalid product size ${obj.size}`);
       }
 
-      if (obj.qty > parseObject(reqdProduct.available_sizes, ALLOWED_PRODUCT_SIZES)[obj.size] || 0) {
+      if (obj.qty > (parseObject(reqdProduct.available_sizes, ALLOWED_PRODUCT_SIZES)[obj.size] || 0)) {
         throw new BadRequestException('product quantity shoudnt be greater than the one available');
       }
     }

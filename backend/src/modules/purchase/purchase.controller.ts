@@ -8,6 +8,7 @@ import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { PurchaseService } from './purchase.service';
 import { ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
+import { UserAddressService } from '../user/user-address.service';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
 import { SharedProductService } from '../shared/shared-product.service';
 
@@ -15,6 +16,7 @@ import { SharedProductService } from '../shared/shared-product.service';
 export class PurchaseController {
   constructor(
     private purchaseService: PurchaseService,
+    private userAddressService: UserAddressService,
     private sharedProductService: SharedProductService,
   ) {}
 
@@ -24,10 +26,10 @@ export class PurchaseController {
     const parsedParams = _getParsedParams(params);
     const { user = {} } = request;
 
-    let purchases: any;
+    let purchases: any = [],
+      userAddresses: any = [];
 
     // adding props to parsedQuery
-
     if (!_.includes(parseArray(user.roles, []), 'admin') || !parsedQuery.userId) {
       parsedQuery['userId'] = user.uid;
     }
@@ -38,7 +40,17 @@ export class PurchaseController {
 
     purchases = await this.purchaseService.getAllPurchases(parsedQuery);
     purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
-    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
+
+    // finding required purchase addresses
+    const userAddressesUids = _.compact(_.map(purchases, (purchase) => purchase.address_id));
+    const findAddressQuery = _getParsedQuery({ uid: userAddressesUids, user_id: request.user.uid });
+
+    userAddresses = await this.userAddressService.getAllUserAddresses(findAddressQuery);
+    userAddresses = _.map(userAddresses, this.userAddressService.getParsedUserAddressResponsePayload);
+
+    purchases = _.map(purchases, (purchase) =>
+      this.purchaseService.getParsedPurchaseResponsePayload(purchase, userAddresses),
+    );
 
     return response.status(200).send({ purchases });
   }
@@ -50,16 +62,13 @@ export class PurchaseController {
     @Res() response: CResponse,
   ) {
     const { user = {} } = request;
-    const { oldPurchase } = response.locals;
+    const { oldPurchase, userAddresses } = response.locals;
     const payload = response.locals.purchase;
 
-    let createdPurchase: any;
-
-    createdPurchase = await this.purchaseService.createOrUpdatePurchase(payload, oldPurchase, user);
+    let createdPurchase = await this.purchaseService.createOrUpdatePurchase(payload, oldPurchase, user);
 
     // get updated image urls
     let tempPurchase = await this.purchaseService.getUpatedPurchaseImageUrls([createdPurchase]);
-
     createdPurchase = tempPurchase[0];
 
     // update sizes in products
@@ -69,7 +78,7 @@ export class PurchaseController {
 
     return response
       .status(201)
-      .send({ purchase: this.purchaseService.getParsedPurchaseResponsePayload(createdPurchase) });
+      .send({ purchase: this.purchaseService.getParsedPurchaseResponsePayload(createdPurchase, userAddresses) });
   }
 
   @Get('')
@@ -88,11 +97,21 @@ export class PurchaseController {
   }
 
   @Get('/dev/get-all-purchases')
-  async devGetAllPurchases(@Res() response: CResponse) {
+  async devGetAllPurchases(@Req() request: CRequest, @Res() response: CResponse) {
     let purchases = await this.purchaseService.devGetAllPurchases();
+    let userAddresses: any = [];
+
+    // finding required purchase addresses
+    const userAddressesUids = _.compact(_.map(purchases, (purchase) => purchase.address_id));
+    const findAddressQuery = _getParsedQuery({ uid: userAddressesUids, user_id: request.user.uid });
+
+    userAddresses = await this.userAddressService.getAllUserAddresses(findAddressQuery);
+    userAddresses = _.map(userAddresses, this.userAddressService.getParsedUserAddressResponsePayload);
 
     purchases = await this.purchaseService.getUpatedPurchaseImageUrls(purchases);
-    purchases = _.map(purchases, this.purchaseService.getParsedPurchaseResponsePayload);
+    purchases = _.map(purchases, (purchase) =>
+      this.purchaseService.getParsedPurchaseResponsePayload(purchase, userAddresses),
+    );
 
     return response.status(200).send({ purchases });
   }

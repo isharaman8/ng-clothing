@@ -132,19 +132,20 @@ export class PurchaseService {
   }
 
   getParsedPurchaseBody(body: any = {}, user: any = {}) {
-    const { uid, products, verified } = body;
+    const { uid, products, verified, address_id } = body;
 
     const payload: any = {
       uid: _.defaultTo(uid, null),
       products: parseArray(products, []),
       user_id: _.defaultTo(user.uid, null),
       verified: parseBoolean(verified, false),
+      address_id: _.defaultTo(address_id, null),
     };
 
     return payload;
   }
 
-  getParsedPurchaseResponsePayload(purchase: any = {}) {
+  getParsedPurchaseResponsePayload(purchase: any = {}, userAddresses: any = []) {
     purchase = JSON.parse(JSON.stringify(purchase));
 
     const totalCartPrice = _.reduce(
@@ -152,13 +153,16 @@ export class PurchaseService {
       (acc, curr) => acc + parseNumber(curr.price, 0) * parseNumber(curr.qty, 0),
       0,
     );
+    const reqdUserAddress = _.find(userAddresses, (address) => address.uid === purchase.address_id) || {};
 
+    purchase['address'] = reqdUserAddress;
     purchase['total_price'] = totalCartPrice;
 
     // delete unnecessary properties
     delete purchase.$setOnInsert;
     delete purchase._id;
     delete purchase.__v;
+    delete purchase.address_id;
 
     return purchase;
   }
@@ -174,6 +178,7 @@ export class PurchaseService {
       verified: parseBoolean(purchase.verified, false),
       status: _.defaultTo(purchase.status, oldPurchase.status),
       products: parseArray(purchase.products, oldPurchase.products),
+      address_id: _.defaultTo(purchase.address_id, oldPurchase.address_id),
     };
   }
 }

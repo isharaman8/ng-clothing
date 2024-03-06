@@ -24,6 +24,9 @@ export class Purchase {
 
   @Prop({ default: ALLOWED_PURCHASE_STATUS.pending_verification })
   status: string;
+
+  @Prop({ required: true })
+  address_id: string;
 }
 
 export const PurchaseSchema = SchemaFactory.createForClass(Purchase);

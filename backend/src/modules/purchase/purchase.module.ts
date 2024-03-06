@@ -11,11 +11,13 @@ import { ProductService } from '../product/product.service';
 import { CategoryService } from '../category/category.service';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
+import { UserAddressService } from '../user/user-address.service';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
 import { Purchase, PurchaseSchema } from 'src/schemas/purchase.schema';
 import { Category, CategorySchema } from 'src/schemas/category.schema';
 import { SharedProductService } from '../shared/shared-product.service';
 import { SharedValidatorService } from '../shared/shared-validator.service';
+import { UserAddress, UserAddressSchema } from 'src/schemas/user-address.schema';
 import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.middleware';
 
 @Module({
@@ -25,17 +27,19 @@ import { ValidatePurchaseMiddleware } from 'src/middlewares/validate-purchase.mi
       { name: Product.name, schema: ProductSchema },
       { name: Purchase.name, schema: PurchaseSchema },
       { name: Category.name, schema: CategorySchema },
+      { name: UserAddress.name, schema: UserAddressSchema },
     ]),
   ],
   controllers: [PurchaseController],
   providers: [
-    PurchaseService,
-    ProductService,
     S3Service,
     SharedService,
-    SharedValidatorService,
+    ProductService,
+    PurchaseService,
     CategoryService,
+    UserAddressService,
     SharedProductService,
+    SharedValidatorService,
   ],
 })
 export class PurchaseModule implements NestModule {
