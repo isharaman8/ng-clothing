@@ -55,7 +55,7 @@
 	authUserData.subscribe((value: any) => (userData = value));
 </script>
 
-<nav class="border-gray-200 fixed top-0 left-0 w-[100vw] shadow-lg backdrop-blur-2xl">
+<nav class="border-gray-200 fixed top-0 left-0 w-[100vw] shadow-lg backdrop-blur-2xl z-[1000]">
 	<div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4 gap-8">
 		<!-- website icon or text -->
 		<a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
