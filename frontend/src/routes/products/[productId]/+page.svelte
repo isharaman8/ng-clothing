@@ -18,7 +18,7 @@
     const reviewsCount = product.reviews ? product.reviews.length : 0;
     const singularOrPlural = reviewsCount === 1 ? 'review' : 'reviews';
     const defaultImage = 'https://via.placeholder.com/800';
-    
+
     let loading = false;
     let quantity: Number = 1; 
     let selectedSize: String = "";
@@ -59,13 +59,13 @@
 	} 
 </script>
 
-<section class="w-full flex gap-10 mt-[8rem] px-[4rem]">
+<section class="w-full flex gap-10 mt-[8rem] px-[4rem] min-h-screen">
     <div class="w-[50%]">
-        <div class="flex gap-4">
-            <div class="w-[85%] h-[70vh]">
-                <img class="h-full w-full object-cover" src={selectedImage} alt="product-img">
+        <div class="flex w-full h-full gap-4 overflow-hidden">
+            <div class="w-full">
+                <img class="h-auto w-full object-cover" src={selectedImage} alt="product-img">
             </div>
-            <div class="w-[15%]">
+            <div class="w-[15%] overflow-auto">
                 {#each product.images as image}
                     <div role="button" tabindex="0" on:keypress={() => selectedImage = image} on:click={() => selectedImage = image } class="bg-slate-300 mb-2">
                         <img src={image} alt="img">
