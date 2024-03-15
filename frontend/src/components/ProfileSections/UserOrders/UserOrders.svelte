@@ -82,7 +82,7 @@
 	<h1 class="w-[80%] text-left text-3xl text-gray-700">My Orders</h1>
 
 	{#if noOrdersPlaced}
-		<EmptyOrderPage />
+		<EmptyOrderPage title="No orders placed" description="Looks like you haven't made your order yet!" buttonName="Get Products" />
 	{:else}
 		<!-- order type -->
 		<div class="flex flex-row justify-start items-center gap-3 w-[80%] ml-4 mt-4">

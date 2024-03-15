@@ -8,6 +8,7 @@ import settings from '../config/settings';
 import { _getParsedProductsQuery } from './parser';
 import type { ReturnData } from '../interfaces';
 import { getBearerToken } from '../utils';
+import { goto } from '$app/navigation';
 
 // functions
 export const getProducts = async (queryParams: any = {}) => {
@@ -39,6 +40,7 @@ export const addToCart = async (userData: any, updatePayload: any): Promise<Retu
 
 	try {
 		if (!userData.auth_token) {
+			goto('/login');
 			throw new Error('please provide auth token');
 		}
 

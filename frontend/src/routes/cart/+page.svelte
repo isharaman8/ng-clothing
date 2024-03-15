@@ -1,49 +1,24 @@
 <script>
+	import CartProductCard from "../../components/Cart/cartProductCard.svelte";
+	import EmptyOrderPage from "../../components/ProfileSections/UserOrders/EmptyOrderPage.svelte";
+
     export let data;
     const {cart = {}} = data;
-    console.log(cart)
     const {products = []} = cart;
-    const allSizes = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
     const totalProducts = cart?.products?.length || 0;
+    const noItemsInCart = !cart?.products?.length;
 </script>
 
 <section class="mt-[8rem] px-[10rem]">
+    {#if noItemsInCart}
+    <EmptyOrderPage title="Hey, it feels so light!" description="There is nothing in your bag. Lets add some items." buttonName="Shop Now" />
+	{:else}
     <h1 class="text-4xl font-bold mb-2 uppercase">Your bag</h1>
     <p>Total ({totalProducts}) {totalProducts.length > 1 ? 'items' : 'item'} <span class="text-xl font-bold">₹{cart.total_price}</span></p>
     <div class="w-full my-4 flex gap-20">
         <div class="w-[50%]">
             {#each products as product (product.uid)}
-                <div class="flex gap-8 py-4 px-4 border-2 border-gray-300 rounded-md">
-                    <div class="w-[15rem]">
-                    <img class="h-auto w-full rounded-lg" src={product.images[0]} alt="product">
-                    </div>
-                    <div>
-                        <h3 class="text-xl capitalize font-bold">{product.name}</h3>
-                        <p class="text-sm font-semibold">₹ {product.price}</p>
-    
-                      <div class="flex gap-4">
-                        <div class="flex gap-2 my-4">
-                            <label for="size" class="font-semibold">Size:</label>
-                            <select id="size" name="size" class="ml-2 px-2 outline outline-2 outline-gray-300">
-                                {#each allSizes as size}
-                                <option value={size}>{size}</option>
-                            {/each}
-                            </select>
-                        </div>
-    
-                        <div class="flex gap-2 my-4">
-                            <label for="quantity" class="font-semibold">Qty:</label>
-                            <select id="quantity" name="quantity" class="ml-2 px-2 outline outline-2 outline-gray-300">
-                                <option value={1}>1</option>
-                                <option value={2}>2</option>
-                                <option value={3}>3</option>
-                                <option value={4}>4</option>
-                                <option value={5}>5</option>
-                            </select>
-                        </div>
-                      </div>
-                    </div>
-                </div>
+               <CartProductCard product={product}/>
             {/each}
         </div>
         <div class="w-auto">
@@ -67,4 +42,5 @@
             </div>
         </div>
     </div>
+    {/if}
 </section>

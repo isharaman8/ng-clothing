@@ -3,10 +3,16 @@ import settings from '../../config/settings';
 import * as store from 'svelte/store';
 import { authUserData } from '../../stores';
 import { getBearerToken } from '../../utils';
+import _ from 'lodash';
 
 export const load = async ({ fetch }) => {
 	try {
 		const userDetails = store.get(authUserData);
+
+		if (_.isEmpty(userDetails)) {
+			return {};
+		}
+
 		const url = `${settings.config.baseApiUrl}/cart`;
 		const response = await fetch(url, {
 			headers: {
