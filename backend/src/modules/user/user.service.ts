@@ -11,8 +11,8 @@ import {
   _getUidAggregationFilter,
   _getNameAggregationFilter,
   _getEmailAggregationFilter,
-  _getUserNameAggregationFilter,
   _getActiveAggregationFilter,
+  _getUserNameAggregationFilter,
 } from 'src/helpers/aggregationFilters';
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from 'src/dto';
@@ -82,6 +82,11 @@ export class UserService {
   }
 
   async createOrUpdateUser(user: any, oldUser: any) {
+    if (!oldUser.uid) {
+      // todo: set it to false after sendgrid verification
+      user['is_verified'] = true;
+    }
+
     const payload = this.getCreateOrUpdateUserPayload(user, oldUser);
 
     try {
@@ -172,6 +177,7 @@ export class UserService {
       roles: parseArray(user.roles, oldUser.roles),
       username: _.defaultTo(oldUser.username, user.username),
       password: _.defaultTo(user.hashed_password, oldUser.password),
+      is_verified: parseBoolean(user.is_verified, oldUser.is_verified) || false,
       profile_picture: _.defaultTo(user.profile_picture, oldUser.profile_picture),
     };
 

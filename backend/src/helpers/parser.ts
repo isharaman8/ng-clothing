@@ -24,6 +24,7 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
     name: _.defaultTo(query.name, null),
     slug: _.defaultTo(query.slug, null),
     price: parseNumber(query.price, null),
+    token: _.defaultTo(query.token, null),
     email: _.defaultTo(query.email, null),
     gender: _.defaultTo(query.gender, null),
     active: parseBoolean(query.active, true),

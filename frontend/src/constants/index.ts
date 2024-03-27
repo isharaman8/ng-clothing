@@ -63,6 +63,15 @@ export const defaultToastMessages = Object.freeze({
 		failure: {
 			title: 'Address Deletion Failed'
 		}
+	},
+	addToCart: {
+		success: {
+			title: 'Product added to cart',
+			description: 'Product added to cart'
+		},
+		failure: {
+			title: 'Something went wrong'
+		}
 	}
 });
 

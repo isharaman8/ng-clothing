@@ -1,6 +1,16 @@
 // third party imports
+import {
+  Get,
+  Req,
+  Res,
+  Body,
+  Post,
+  Patch,
+  Controller,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as _ from 'lodash';
-import { Get, Req, Res, Body, Post, Controller, UnauthorizedException, Patch } from '@nestjs/common';
 
 // inner imports
 import { parseArray } from 'src/utils';
@@ -38,17 +48,24 @@ export class AuthController {
     // parse response
     createdOrUpdatedUser = this.userService.getParsedUserResponsePayload(createdOrUpdatedUser);
 
-    return response.status(statusCode).send({ user: createdOrUpdatedUser, auth_token: userToken });
+    return { user: createdOrUpdatedUser, auth_token: userToken };
   }
 
   @Post('signup')
   async signUpUser(@Body('user') _user: CreateOrUpdateUserDto, @Res() response: CResponse) {
-    await this.signUpOrUpdateUser(response, 200);
+    const responseData = await this.signUpOrUpdateUser(response, 200);
+
+    // send verification email
+    await this.authService.sendVerificationEmail(responseData);
+
+    return response.status(201).send(responseData);
   }
 
   @Patch('/profile/update')
   async updateProfile(@Body('user') _user: Partial<CreateOrUpdateUserDto>, @Res() response: CResponse) {
-    await this.signUpOrUpdateUser(response, 200);
+    const responseData = await this.signUpOrUpdateUser(response, 200);
+
+    return response.status(200).send(responseData);
   }
 
   @Post('login')
@@ -97,5 +114,43 @@ export class AuthController {
     );
 
     return response.status(200).send({ user });
+  }
+
+  @Get('/verify')
+  async verifyToken(@Req() request: CRequest, @Res() response: CResponse) {
+    const query = _getParsedQuery(request.query);
+
+    if (_.isEmpty(query.token)) {
+      throw new BadRequestException('request token required for verification');
+    }
+
+    const user = await this.authService.getPayloadFromToken(query.token);
+
+    if (!user?.email) {
+      throw new BadRequestException('user not found');
+    }
+
+    // populate query
+    query['email'] = user.email;
+    query['username'] = user.username;
+
+    const checkUserExists = await this.userService.getAllUsers(query);
+
+    if (_.isEmpty(checkUserExists)) {
+      throw new BadRequestException('user not found');
+    }
+
+    await this.userService.createOrUpdateUser({ email: user.email, is_verified: true }, checkUserExists[0]);
+
+    return response.status(200).send({ message: 'user verified successfully' });
+  }
+
+  @Post('/send-verification-email')
+  async sendVerificationEmail(@Req() request: CRequest, @Res() response: CResponse) {
+    const userToken = await this.authService.getAuthToken(request.user);
+
+    await this.authService.sendVerificationEmail({ user: request.user, auth_token: userToken });
+
+    return response.status(200).send({ message: 'mail sent successfully' });
   }
 }

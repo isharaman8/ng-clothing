@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { Model } from 'mongoose';
 import { NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
-import { BadRequestException, Injectable, NestMiddleware } from '@nestjs/common';
+import { BadRequestException, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 
 // inner imports
 import { _notEmpty, parseArray } from 'src/utils';
@@ -29,6 +29,12 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
       if (!oldPurchase) {
         throw new BadRequestException('invalid verify request');
       }
+    }
+  }
+
+  private validateVerifiedUser(method: string, user: any) {
+    if (method.toUpperCase() === 'POST' && !user.is_verified) {
+      throw new UnauthorizedException('user not verified');
     }
   }
 
@@ -77,6 +83,7 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
       oldPurchase = _.last(tempOldPurchase);
     }
 
+    this.validateVerifiedUser(req.method, req.user);
     this.validateVerifyRequest(req.method, req.originalUrl, oldPurchase);
 
     userAddresses = await this.validateAndGetAddresses(req.method, parsedPurchase, req.user);

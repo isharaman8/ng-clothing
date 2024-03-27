@@ -10,6 +10,7 @@ export interface Params {
 
 export interface QueryParams {
   q?: string;
+  token?: string;
   price?: number;
   gender?: string;
   active?: boolean;
