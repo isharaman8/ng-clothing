@@ -16,18 +16,21 @@ export class SendgridService {
     sgMail.setApiKey(this.sendgridConfigObj.apiKey);
   }
 
-  async sendEmail(to: string, subject: string, text: string): Promise<void> {
-    const msg = {
-      to,
-      from: this.sendgridConfigObj.sender,
-      subject,
-      text,
+  async sendEmail(dynamicTemplateData: any, dynamicTemplateUid: string, toEmails: Array<string>): Promise<void> {
+    const payload: any = {
+      from: { email: this.sendgridConfigObj.sender },
+      personalizations: [
+        {
+          to: toEmails,
+          dynamic_template_data: dynamicTemplateData,
+        },
+      ],
+      template_id: dynamicTemplateUid,
     };
-
-    console.log('MAIL PAYLOAD', JSON.stringify(msg));
+    console.log('MAIL PAYLOAD', JSON.stringify(payload));
 
     try {
-      await sgMail.send(msg);
+      await sgMail.send(payload);
     } catch (error) {
       console.log(`[SENDGRID ERROR]: ${error}`);
     }
