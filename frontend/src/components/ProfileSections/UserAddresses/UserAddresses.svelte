@@ -55,6 +55,15 @@
 		addOrUpdatePopupOpen = true;
 	}
 
+	function localSelectAddress(userAddressData: any) {
+		selectedAddress = userAddressData.uid;
+		handleAddressSelect(userAddressData);
+	}
+
+	// props
+	export let selectForCheckout: boolean = false;
+	export let handleAddressSelect: any = () => {};
+
 	// variables
 	const userDetails = store.get(authUserData);
 
@@ -62,6 +71,7 @@
 	let noAddressFound = false;
 	let userAddresses: any = [];
 	let currentAddressForEdit: any;
+	let selectedAddress: any = null;
 	let addOrUpdatePopupOpen = false;
 	let skeletonLoaderArray = new Array(9);
 
@@ -70,7 +80,9 @@
 </script>
 
 <section class="flex flex-col justify-center items-center gap-5">
-	<h1 class="text-3xl w-[80%] text-left text-gray-700">Manage Addresses</h1>
+	<h1 class="text-3xl w-[80%] text-left text-gray-700">
+		{selectForCheckout ? 'Select Address For Checkout' : 'Manage Addresses'}
+	</h1>
 
 	{#if noAddressFound}
 		<NoAddressFound handleOnClick={() => selectAddressForEdit({})} />
@@ -82,7 +94,13 @@
 				{/each}
 			{:else}
 				{#each userAddresses as address}
-					<SingleUserAddressCard userAddressData={address} onClick={selectAddressForEdit} />
+					<SingleUserAddressCard
+						{selectedAddress}
+						{selectForCheckout}
+						userAddressData={address}
+						onClick={selectAddressForEdit}
+						handleAddressSelect={localSelectAddress}
+					/>
 				{/each}
 			{/if}
 		</div>
@@ -94,7 +112,7 @@
 	{/if}
 
 	<!-- bottom button for adding new address -->
-	{#if !noAddressFound}
+	{#if !noAddressFound && !selectForCheckout}
 		<button
 			on:click={() => selectAddressForEdit({})}
 			class="mt-4 p-4 rounded-lg bg-gray-700 text-gray-100 font-medium fixed bottom-4 right-4"

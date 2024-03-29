@@ -1,14 +1,14 @@
 // third party imports
 import axios from 'axios';
+import { goto } from '$app/navigation';
 
 // inner imports
 import { ROUTES } from '../constants';
 import { productData } from '../stores';
-import settings from '../config/settings';
-import { _getParsedProductsQuery } from './parser';
-import type { ReturnData } from '../interfaces';
 import { getBearerToken } from '../utils';
-import { goto } from '$app/navigation';
+import settings from '../config/settings';
+import type { ReturnData } from '../interfaces';
+import { _getParsedProductsQuery } from './parser';
 
 // functions
 export const getProducts = async (queryParams: any = {}) => {
@@ -31,7 +31,7 @@ export const getProducts = async (queryParams: any = {}) => {
 	return { products, error: false };
 };
 
-export const addToCart = async (userData: any, updatePayload: any): Promise<ReturnData> => {
+export const createOrUpdateCart = async (userData: any, updatePayload: any): Promise<ReturnData> => {
 	const returnData: ReturnData = { error: false, message: null, data: undefined };
 	const url = `${settings.config.baseApiUrl}/${ROUTES.cart}/create-or-update`;
 	const payload = {

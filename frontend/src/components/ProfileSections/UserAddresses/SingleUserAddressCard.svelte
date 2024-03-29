@@ -8,6 +8,9 @@
 	// props
 	export let onClick: any = () => {};
 	export let userAddressData: any = {};
+	export let selectedAddress: any = null;
+	export let selectForCheckout: boolean = false;
+	export let handleAddressSelect: any = () => {};
 
 	// variables
 	const {
@@ -29,8 +32,8 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-	class="shadow-lg flex flex-col justify-center items-start gap-3 p-5 rounded-lg cursor-pointer hover:shadow-2xl active:shadow-md relative"
-	on:click={() => onClick(userAddressData)}
+	class={`shadow-lg flex flex-col justify-center items-start gap-3 p-5 rounded-lg cursor-pointer hover:shadow-2xl active:shadow-md relative ${userAddressData.uid === selectedAddress ? 'bg-gray-300' : ''}`}
+	on:click={() => (selectForCheckout ? handleAddressSelect(userAddressData) : onClick(userAddressData))}
 >
 	{#if primary}
 		<p class="font-semibold text-green-700 absolute top-5 right-5">Primary</p>

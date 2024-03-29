@@ -1,19 +1,55 @@
-<script>
+<script lang="ts">
+	// third party imports
+	import _ from 'lodash';
+	import * as store from 'svelte/store';
+	import { goto } from '$app/navigation';
+
 	// inner imports
+	import Loader from '../../components/misc/Loader.svelte';
+	import { authUserData, purchaseData } from '../../stores';
+	import { createOrUpdateCart } from '../../helpers/products';
+	import { showToast } from '../../components/misc/Toasts/toasts';
 	import CartProductCard from '../../components/Cart/cartProductCard.svelte';
 	import EmptyOrderPage from '../../components/ProfileSections/UserOrders/EmptyOrderPage.svelte';
 
 	// functions
-	function localAddPurchase() {}
+	async function localCheckout() {
+		const payload = { products };
+		purchaseData.set(payload);
+
+		goto('/checkout');
+	}
+
+	async function handleProductRemove(product: any) {
+		const newProducts = _.filter(products, (prd) => prd.uid !== product.uid);
+
+		const payload = { products: newProducts };
+
+		try {
+			const returnData = await createOrUpdateCart(userDetails, payload);
+
+			if (returnData.error) {
+				throw new Error(returnData.message || 'Error while removing item from cart');
+			}
+
+			products = newProducts;
+		} catch (error: any) {
+			showToast('something went wrong', error.message, 'error');
+		}
+	}
 
 	// props
 	export let data;
 
 	// variables
 	const { cart = {} } = data;
-	const { products = [] } = cart;
-	const noItemsInCart = !cart?.products?.length;
-	const totalProducts = cart?.products?.length || 0;
+
+	let checkOutLoading = false;
+	let { products = [] } = cart;
+	let userDetails = store.get(authUserData);
+
+	$: noItemsInCart = !products.length;
+	$: totalProducts = products.length || 0;
 </script>
 
 <section class="mt-[8rem] px-[10rem]">
@@ -32,7 +68,7 @@
 		<div class="w-full my-4 flex gap-20">
 			<div class="w-[50%]">
 				{#each products as product (product.uid)}
-					<CartProductCard {product} />
+					<CartProductCard {product} localHandleRemove={handleProductRemove} />
 				{/each}
 			</div>
 			<div class="w-auto">
@@ -52,7 +88,16 @@
 						<p>₹{Number(cart.total_price) + 63.67}</p>
 					</div>
 					<p class="text-gray-400 text-sm">(Inclusive of tax ₹63.67)</p>
-					<button class="w-full bg-black my-2 text-white py-2 rounded-md">Checkout</button>
+					<button
+						on:click={localCheckout}
+						class="w-full bg-black my-2 text-white py-2 rounded-md flex justify-center items-center"
+					>
+						{#if checkOutLoading}
+							<Loader />
+						{:else}
+							Checkout
+						{/if}
+					</button>
 				</div>
 			</div>
 		</div>
