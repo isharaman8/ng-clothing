@@ -26,7 +26,9 @@ export class AuthService {
       email: user.email,
       active: user.active,
       username: user.username,
+      is_verified: user.is_verified,
     };
+
     const token = await this.jwtService.signAsync(payload);
 
     return token;

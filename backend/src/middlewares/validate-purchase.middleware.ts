@@ -70,6 +70,7 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
       user = {},
       body: { purchase = {} },
     } = req;
+
     const params = _getParsedParams(req.params);
     const parsedPurchase = this.purchaseService.getParsedPurchaseBody(purchase, user);
     const findQuery = _getParsedQuery({ uid: params.purchaseId, user_id: user.uid });

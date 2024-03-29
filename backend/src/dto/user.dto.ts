@@ -33,6 +33,10 @@ export class CreateOrUpdateUserDto {
   @IsString()
   @IsOptional()
   profile_picture: string;
+
+  @IsBoolean()
+  @IsOptional()
+  is_verified: boolean;
 }
 
 export class LoginUserDto {

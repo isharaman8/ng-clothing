@@ -1,9 +1,12 @@
 <script lang="ts">
-	import * as store from 'svelte/store';
+	// third party imports
 	import { page } from '$app/stores';
+	import * as store from 'svelte/store';
 	import { CartOutline } from 'flowbite-svelte-icons';
+
+	// inner imports
 	import { authUserData } from '../../../stores';
-	import { addToCart } from '../../../helpers/products';
+	import { createOrUpdateCart } from '../../../helpers/products';
 	import { showToast } from '../../../components/misc/Toasts/toasts';
 	import { PRODUCT_ACCORDIAN, defaultToastMessages } from '../../../constants';
 	import ProductAccordian from '../../../components/ProductAccordian/ProductAccordian.svelte';
@@ -45,7 +48,7 @@
 
 		try {
 			if (quantity && selectedSize.length) {
-				const returnData = await addToCart(userDetails, updatePayload);
+				const returnData = await createOrUpdateCart(userDetails, updatePayload);
 
 				if (returnData.error) {
 					throw new Error(returnData.message || 'Error while adding item to cart');
