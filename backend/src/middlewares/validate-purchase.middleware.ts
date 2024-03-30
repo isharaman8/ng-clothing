@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 
 // inner imports
-import { _notEmpty, parseArray } from 'src/utils';
+import { _notEmpty } from 'src/utils';
 import { CreateOrUpdatePurchaseDto } from 'src/dto';
 import { CRequest, CResponse } from 'src/interfaces';
 import { Purchase } from 'src/schemas/purchase.schema';
@@ -35,6 +35,18 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
   private validateVerifiedUser(method: string, user: any) {
     if (method.toUpperCase() === 'POST' && !user.is_verified) {
       throw new UnauthorizedException('user not verified');
+    }
+  }
+
+  private validateEmptyProductsAndStructure(purchase: CreateOrUpdatePurchaseDto, method: string) {
+    if (method.toString() !== 'POST') return;
+
+    if (!_.isArray(purchase.products) || _.isEmpty(purchase.products)) {
+      throw new BadRequestException('incorrect product structure: product is not an array');
+    }
+
+    if (_.isEmpty(purchase.products)) {
+      throw new BadRequestException('at least one product is required');
     }
   }
 
@@ -91,9 +103,8 @@ export class ValidatePurchaseMiddleware implements NestMiddleware {
     userAddresses = _.map(userAddresses, this.userAddressService.getParsedUserAddressResponsePayload);
 
     // attach validated products
-    parsedPurchase.products = await this.sharedValidatorService.validateAndParseProducts(
-      parseArray(parsedPurchase.products, []),
-    );
+    this.validateEmptyProductsAndStructure(parsedPurchase, req.method);
+    parsedPurchase.products = await this.sharedValidatorService.validateAndParseProducts(parsedPurchase, []);
 
     // for post request
     if (!oldPurchase || req.method.toUpperCase() === 'POST') {

@@ -3,12 +3,12 @@ import * as _ from 'lodash';
 import { Model } from 'mongoose';
 import { NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, InternalServerErrorException, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 
 // inner imports
+import { _notEmpty } from 'src/utils';
 import { Cart } from 'src/schemas/cart.schema';
 import { CreateOrUpdateCartDto } from 'src/dto';
-import { _notEmpty, parseArray } from 'src/utils';
 import { CRequest, CResponse } from 'src/interfaces';
 import { CartService } from 'src/modules/cart/cart.service';
 import { _getParsedParams, _getParsedQuery } from 'src/helpers/parser';
@@ -39,9 +39,7 @@ export class ValidateCartMiddleware implements NestMiddleware {
     }
 
     // attach validated products
-    parsedCart.products = await this.sharedValidatorService.validateAndParseProducts(
-      parseArray(parsedCart.products, []),
-    );
+    parsedCart.products = await this.sharedValidatorService.validateAndParseProducts(parsedCart, oldCart.products);
 
     // attach to res.locals
     res.locals.oldCart = oldCart;
