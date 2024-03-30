@@ -136,7 +136,7 @@ export class PurchaseService {
 
     const payload: any = {
       uid: _.defaultTo(uid, null),
-      products: parseArray(products, []),
+      products: parseArray(products, null),
       user_id: _.defaultTo(user.uid, null),
       verified: parseBoolean(verified, false),
       address_id: _.defaultTo(address_id, null),

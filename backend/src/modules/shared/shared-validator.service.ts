@@ -13,8 +13,47 @@ import { ALLOWED_PRODUCT_SIZES } from 'src/constants/constants';
 export class SharedValidatorService {
   constructor(private productService: ProductService) {}
 
+  private parseAddRemoveProducts(products: any, oldProducts: Array<BodyProduct>) {
+    if (Array.isArray(products.products) && !products.products_add && !products.products_remove) {
+      return products.products;
+    }
+
+    const { products_add = [], products_remove = [] } = products;
+    const newProducts: Array<any> = [];
+
+    // parse added products
+    for (const product of products_add) {
+      const reqdProduct = _.find(oldProducts, (prd: any) => prd.uid === product.uid);
+
+      if (!_.isEmpty(reqdProduct)) {
+        reqdProduct.qty += _.defaultTo(product.qty, 1);
+        newProducts.push(reqdProduct);
+      } else {
+        newProducts.push(product);
+      }
+    }
+
+    // parse removed products
+    for (const product of products_remove) {
+      const reqdProduct = _.find(oldProducts, (prd: any) => prd.uid === product.uid);
+
+      if (_.isEmpty(reqdProduct)) {
+        continue;
+      }
+
+      reqdProduct.qty -= _.defaultTo(product.qty, 1);
+
+      if (reqdProduct.qty >= 1) {
+        newProducts.push(reqdProduct);
+      }
+    }
+
+    return newProducts;
+  }
+
   // validators
-  async validateAndParseProducts(productArray: Array<BodyProduct>) {
+  async validateAndParseProducts(_products: any, oldProducts: Array<BodyProduct>) {
+    const productArray: any = this.parseAddRemoveProducts(_products, oldProducts);
     const productUids = _.compact(_.map(productArray, (product) => product.uid));
     const query = _getParsedQuery({ uid: productUids, page_size: productUids.length });
     const parsedProductArray = [];

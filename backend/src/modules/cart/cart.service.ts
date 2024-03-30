@@ -73,10 +73,17 @@ export class CartService {
   }
 
   getParsedCartPayload(body: any = {}) {
-    return {
+    const payload = {
       uid: _.defaultTo(body.uid, null),
-      products: _.defaultTo(body.products, null),
+      products: parseArray(body.products, null),
     };
+
+    if (body.products && !_.isArray(body.products)) {
+      payload['products_add'] = parseArray(body.products['add'], []);
+      payload['products_remove'] = parseArray(body.products['remove'], []);
+    }
+
+    return payload;
   }
 
   getCartPayload(cartPayload: any = {}, oldCart: any = {}, user: any = {}) {
