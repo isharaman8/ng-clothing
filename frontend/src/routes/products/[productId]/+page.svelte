@@ -33,13 +33,15 @@
 
 	async function handleAddToCart() {
 		const updatePayload: any = {
-			products: [
-				{
-					uid: product.uid,
-					qty: Number(quantity),
-					size: selectedSize
-				}
-			]
+			products: {
+				add: [
+					{
+						uid: product.uid,
+						qty: Number(quantity),
+						size: selectedSize
+					}
+				]
+			}
 		};
 
 		const { success, failure } = defaultToastMessages.addToCart;
