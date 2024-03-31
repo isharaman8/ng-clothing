@@ -58,7 +58,7 @@
 		}
 	];
 
-	let currentlySelectedPage = UserDetails;
+	let currentlySelectedPage: any = UserDetails;
 	const userDetails = store.get(authUserData);
 
 	// onMount
