@@ -48,6 +48,15 @@ export class SharedValidatorService {
       }
     }
 
+    // parse not included products
+    for (const product of oldProducts) {
+      const checkOldProduct = _.every(newProducts, (prd) => prd.uid !== product.uid);
+
+      if (checkOldProduct && product.qty >= 1) {
+        newProducts.push(product);
+      }
+    }
+
     return newProducts;
   }
 
