@@ -21,9 +21,12 @@
 	}
 
 	async function handleProductRemove(product: any) {
-		const newProducts = _.filter(products, (prd) => prd.uid !== product.uid);
+		const removedProduct = _.find(products, (prd) => prd.uid === product.uid);
+		const payload = { products: { remove: [removedProduct] } };
 
-		const payload = { products: newProducts };
+		if (_.isEmpty(removedProduct)) {
+			throw new Error('product not found');
+		}
 
 		try {
 			const returnData = await createOrUpdateCart(userDetails, payload);
@@ -32,8 +35,9 @@
 				throw new Error(returnData.message || 'Error while removing item from cart');
 			}
 
-			products = newProducts;
+			products = _.filter(products, (prd) => prd.uid !== removedProduct.uid);
 		} catch (error: any) {
+			console.log('removed product', removedProduct);
 			showToast('something went wrong', error.message, 'error');
 		}
 	}
