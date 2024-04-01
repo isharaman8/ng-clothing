@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 
 	// inner imports
+	import { parseArray } from '../../utils';
 	import Loader from '../../components/misc/Loader.svelte';
 	import { authUserData, purchaseData } from '../../stores';
 	import { createOrUpdateCart } from '../../helpers/products';
@@ -20,13 +21,51 @@
 		goto('/checkout');
 	}
 
-	async function handleProductRemove(product: any) {
-		const removedProduct = _.find(products, (prd) => prd.uid === product.uid);
-		const payload = { products: { remove: [removedProduct] } };
+	async function HandleProductChange(product: any, type: 'decrement' | 'remove' | 'increment' | 'modify') {
+		const addedProducts = [];
+		const removedProducts = [];
+		const modifiedProducts = [];
+		const reqdProduct = _.find(products, (prd) => prd.uid === product.uid);
 
-		if (_.isEmpty(removedProduct)) {
+		if (_.isEmpty(reqdProduct)) {
 			throw new Error('product not found');
 		}
+
+		if (_.includes(['remove', 'decrement'], type)) {
+			if (type === 'decrement') {
+				const decrementValue = reqdProduct.qty - product.qty;
+
+				reqdProduct.qty = decrementValue;
+			} else if (type === 'remove') {
+				reqdProduct.qty = reqdProduct.qty;
+			}
+
+			removedProducts.push(reqdProduct);
+		} else if (_.includes(['increment'], type)) {
+			const qtyToBeIncremented = product.qty - reqdProduct.qty;
+
+			reqdProduct.qty = qtyToBeIncremented;
+
+			addedProducts.push(reqdProduct);
+		} else if (_.includes(['modify'], type)) {
+			modifiedProducts.push(product);
+		}
+
+		const payloadProducts: any = {};
+
+		if (!_.isEmpty(addedProducts)) {
+			payloadProducts['add'] = addedProducts;
+		}
+
+		if (!_.isEmpty(removedProducts)) {
+			payloadProducts['remove'] = removedProducts;
+		}
+
+		if (!_.isEmpty(modifiedProducts)) {
+			payloadProducts['modify'] = modifiedProducts;
+		}
+
+		const payload = { products: payloadProducts };
 
 		try {
 			const returnData = await createOrUpdateCart(userDetails, payload);
@@ -35,9 +74,9 @@
 				throw new Error(returnData.message || 'Error while removing item from cart');
 			}
 
-			products = _.filter(products, (prd) => prd.uid !== removedProduct.uid);
+			products = parseArray(returnData.data?.cart?.products, []);
+			total_price = returnData.data?.cart.total_price;
 		} catch (error: any) {
-			console.log('removed product', removedProduct);
 			showToast('something went wrong', error.message, 'error');
 		}
 	}
@@ -49,7 +88,7 @@
 	const { cart = {} } = data;
 
 	let checkOutLoading = false;
-	let { products = [] } = cart;
+	let { products = [], total_price = 0 } = cart;
 	let userDetails = store.get(authUserData);
 
 	$: noItemsInCart = !products.length;
@@ -67,12 +106,12 @@
 		<h1 class="text-4xl font-bold mb-2 uppercase">Your bag</h1>
 		<p>
 			Total ({totalProducts}) {totalProducts.length > 1 ? 'items' : 'item'}
-			<span class="text-xl font-bold">₹{cart.total_price}</span>
+			<span class="text-xl font-bold">₹{total_price}</span>
 		</p>
 		<div class="w-full my-4 flex gap-20">
 			<div class="w-[50%]">
 				{#each products as product (product.uid)}
-					<CartProductCard {product} localHandleRemove={handleProductRemove} />
+					<CartProductCard {product} localHandleProductChange={HandleProductChange} />
 				{/each}
 			</div>
 			<div class="w-auto">
@@ -80,7 +119,7 @@
 					<h2 class="text-2xl font-semibold mb-5">Order Summary</h2>
 					<div class="flex justify-between mb-2">
 						<p>{totalProducts} {totalProducts.length > 1 ? 'items' : 'item'}</p>
-						<p>₹{cart.total_price}</p>
+						<p>₹{total_price}</p>
 					</div>
 					<div class="flex justify-between mb-2">
 						<p>Delivery</p>
@@ -89,9 +128,8 @@
 					<hr />
 					<div class="flex justify-between font-bold mt-2">
 						<p>Total</p>
-						<p>₹{Number(cart.total_price) + 63.67}</p>
+						<p>₹{Number(total_price)}</p>
 					</div>
-					<p class="text-gray-400 text-sm">(Inclusive of tax ₹63.67)</p>
 					<button
 						on:click={localCheckout}
 						class="w-full bg-black my-2 text-white py-2 rounded-md flex justify-center items-center"
