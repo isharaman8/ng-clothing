@@ -81,6 +81,7 @@ export class CartService {
     if (body.products && !_.isArray(body.products)) {
       payload['products_add'] = parseArray(body.products['add'], []);
       payload['products_remove'] = parseArray(body.products['remove'], []);
+      payload['products_modify'] = parseArray(body.products['modify'], []);
     }
 
     return payload;

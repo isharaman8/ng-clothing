@@ -14,11 +14,16 @@ export class SharedValidatorService {
   constructor(private productService: ProductService) {}
 
   private parseAddRemoveProducts(products: any, oldProducts: Array<BodyProduct>) {
-    if (Array.isArray(products.products) && !products.products_add && !products.products_remove) {
+    if (
+      Array.isArray(products.products) &&
+      !products.products_add &&
+      !products.products_remove &&
+      !products.products_modify
+    ) {
       return products.products;
     }
 
-    const { products_add = [], products_remove = [] } = products;
+    const { products_add = [], products_remove = [], products_modify = [] } = products;
     const newProducts: Array<any> = [];
 
     // parse added products
@@ -46,6 +51,20 @@ export class SharedValidatorService {
       if (reqdProduct.qty >= 1) {
         newProducts.push(reqdProduct);
       }
+    }
+
+    // parse modified products (only change in size)
+    for (const product of products_modify) {
+      const reqdProduct = _.find(oldProducts, (prd: any) => prd.uid === product.uid);
+
+      if (_.isEmpty(reqdProduct)) {
+        continue;
+      }
+
+      reqdProduct.size = product.size;
+      reqdProduct.qty = product.qty;
+
+      newProducts.push(reqdProduct);
     }
 
     // parse not included products
