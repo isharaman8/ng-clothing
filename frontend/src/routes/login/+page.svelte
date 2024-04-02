@@ -47,26 +47,24 @@
 </script>
 
 <div class="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
-	<form
-		class="flex flex-col justify-center items-center gap-2 rounded-lg bg-gray-300 p-8 shadow-xl"
-		on:submit={handleSubmit}
-	>
-		<h1 class="text-start w-full text-2xl font-semibold">Login</h1>
+	<form class="w-[30%] m-auto" on:submit={handleSubmit}>
+		<h1 class="text-center w-full text-2xl font-semibold">Login to start shopping</h1>
 		<label class="form_label">
 			Email
-			<input type="email" placeholder="email" class="form_input" bind:value={email} />
+			<input type="email" placeholder="john@example.com" class="form_input w-full" bind:value={email} />
 		</label>
 		<label class="form_label">
 			Password
-			<input type="password" placeholder="password" class="form_input" bind:value={password} />
+			<input type="password" placeholder="*******" class="form_input w-full" bind:value={password} />
 		</label>
-		<a href="/signup" class="w-full text-xs text-gray-900 text-right my-2 underline">New Account? Signup</a>
-		<button class="bg-gray-800 px-3 py-2 text-white font-semibold rounded-lg mt-3">
+		<button class="bg-gray-800 px-3 py-3 w-full rounded-3xl text-white font-semibold mt-4">
 			{#if loading}
-				<Loader />
+			<Loader />
 			{:else}
-				<section>Submit</section>
+			<section>Submit</section>
 			{/if}
 		</button>
+		<p class="mt-2 text-center">Don't have an account? <a class="font-semibold underline" href="/signup">Sign up</a></p>
+
 	</form>
 </div>
