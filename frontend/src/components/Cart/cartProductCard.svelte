@@ -40,7 +40,7 @@
 </script>
 
 <div class="flex gap-8 py-4 px-4 mb-4 border-2 border-gray-300 rounded-md">
-	<div class="w-[15rem]">
+	<div class="w-[15rem] min-h-[200px] h-[13rem]">
 		<img class="w-full h-full object-cover object-top rounded-lg" src={image} alt="product" />
 	</div>
 	<div>
