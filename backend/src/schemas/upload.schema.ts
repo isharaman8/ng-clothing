@@ -26,7 +26,7 @@ export class Upload {
   url: string;
 
   @Prop({ required: true })
-  urlExpiryDate: Date;
+  url_expiry_date: Date;
 
   @Prop({ required: true })
   size: number;

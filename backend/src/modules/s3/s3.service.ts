@@ -83,7 +83,7 @@ export class S3Service {
           key: String(name),
           bucket,
           url: fileUrl,
-          urlExpiryDate: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
+          url_expiry_date: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
         };
 
         return response;
@@ -114,7 +114,7 @@ export class S3Service {
         bucket,
         service_uid,
         url: newFileUrl,
-        urlExpiryDate: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
+        url_expiry_date: new Date(new Date().getTime() + MAX_PRESIGNED_URL_DURATION).toISOString(),
       };
 
       responses.push(newFileResponse);
@@ -122,7 +122,7 @@ export class S3Service {
         updateOne: {
           filter: { uid },
           update: {
-            $set: { url: newFileResponse.url, urlExpiryDate: new Date(newFileResponse.urlExpiryDate) },
+            $set: { url: newFileResponse.url, url_expiry_date: new Date(newFileResponse.url_expiry_date) },
           },
         },
       });
