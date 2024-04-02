@@ -5,9 +5,12 @@
 	flex-direction: column;
 	margin-top: 15px;
 	gap: 5px;
+	width: 100%;
 }
 
 .form_input {
-	padding: 5px 10px;
-	border-radius: 10px;
+	padding: 10px;
+	border-radius: 6px;
+	background: #f4f6ff;
+	border: 1px solid #c6c6c6;
 }

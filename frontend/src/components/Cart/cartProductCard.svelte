@@ -36,11 +36,12 @@
 
 	// variables
 	const allSizes = _.keys(product.available_sizes) || ['S', 'M', 'L', 'XL', '2XL', '3XL'];
+	const image = product.images[0];
 </script>
 
-<div class="flex gap-8 py-4 px-4 border-2 border-gray-300 rounded-md">
+<div class="flex gap-8 py-4 px-4 mb-4 border-2 border-gray-300 rounded-md">
 	<div class="w-[15rem]">
-		<img class="h-auto w-full rounded-lg" src={product.images[0]} alt="product" />
+		<img class="w-full h-full object-cover object-top rounded-lg" src={image} alt="product" />
 	</div>
 	<div>
 		<h3 class="text-xl capitalize font-bold">{product.name}</h3>
