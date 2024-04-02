@@ -78,9 +78,6 @@ export const addOrUpdateUserAddress = async (
 	const headers = { headers: { Authorization: getBearerToken(userData) } };
 	const payload = { address: getParsedCreateOrUpdateUserAddress(addressPayload, oldAddress) };
 
-	console.log('addressPayload', addressPayload);
-	console.log('oldAddress', oldAddress);
-
 	try {
 		if (!userData.auth_token) {
 			throw new Error('please provide auth token');

@@ -6,9 +6,15 @@
 	// third party imports
 	import * as store from 'svelte/store';
 	import { productData } from '../../stores';
+	import ProductSkeletonLoader from '../misc/SkeletonLoaders/Products/ProductSkeletonLoader.svelte';
+	import ProductsHeadingSkeletonLoader from '../misc/SkeletonLoaders/Products/ProductsHeadingSkeletonLoader.svelte';
 
 	// props
 	export let title = sampleTitle;
+	export let loading: boolean = true;
+
+	// variables
+	let skeletonLoadingArray = new Array(10);
 
 	$: products = store.get(productData);
 
@@ -17,12 +23,22 @@
 
 <section class="p-20">
 	<!-- title -->
-	<h1 class="text-3xl font-semibold mb-6">{title}</h1>
+	{#if !loading}
+		<h1 class="text-3xl font-semibold mb-6">{title}</h1>
+	{:else}
+		<ProductsHeadingSkeletonLoader />
+	{/if}
 
 	<!-- products -->
 	<div class="grid grid-cols-5 gap-8">
-		{#each products as product}
-			<ProductCard {product} />
-		{/each}
+		{#if !loading}
+			{#each products as product}
+				<ProductCard {product} />
+			{/each}
+		{:else}
+			{#each skeletonLoadingArray as _temp}
+				<ProductSkeletonLoader />
+			{/each}
+		{/if}
 	</div>
 </section>
