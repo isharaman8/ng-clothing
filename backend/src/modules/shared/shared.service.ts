@@ -17,7 +17,7 @@ export class SharedService {
 
     // filtering images that needs to be updated
     for (const image of dbImages) {
-      const imageExpiryDate = new Date(image.urlExpiryDate),
+      const imageExpiryDate = new Date(image.url_expiry_date),
         currentDate = new Date();
 
       if (currentDate >= imageExpiryDate) {
@@ -42,7 +42,7 @@ export class SharedService {
 
       if (reqdDBImageIndex !== -1) {
         const oldImage: UploadedImage = dbImagesArray[reqdDBImageIndex],
-          newImage: UploadedImage = { ...oldImage, url: url.url, urlExpiryDate: url.urlExpiryDate };
+          newImage: UploadedImage = { ...oldImage, url: url.url, url_expiry_date: url.url_expiry_date };
 
         dbImagesArray[reqdDBImageIndex] = newImage;
       }

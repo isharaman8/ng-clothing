@@ -17,7 +17,7 @@ export class S3Controller {
   async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() request: CRequest,
-    @Res() response: CResponse, 
+    @Res() response: CResponse,
   ) {
     let rs = [];
 
@@ -37,7 +37,7 @@ export class S3Controller {
     images = await this.s3Service.getAllUploads(uploadQuery);
 
     // update images
-    const filterExpiredUrlImages = _.filter(images, (image) => new Date(image.urlExpiryDate) <= new Date());
+    const filterExpiredUrlImages = _.filter(images, (image) => new Date(image.url_expiry_date) <= new Date());
     const s3UrlArray: Array<S3GetUrlArray> = _.map(filterExpiredUrlImages, (image) => ({
       key: image.key,
       bucket: image.bucket,
@@ -51,7 +51,7 @@ export class S3Controller {
 
       if (reqdImage) {
         image.url = reqdImage.url;
-        image.urlExpiryDate = reqdImage.urlExpiryDate;
+        image.url_expiry_date = reqdImage.url_expiry_date;
       }
     }
 

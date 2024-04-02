@@ -39,7 +39,7 @@ export const ALLOWED_PURCHASE_STATUS = Object.freeze({
 
 export const ALLOWED_RATING = [1, 2, 3, 4, 5];
 
-export const MAX_PRESIGNED_URL_DURATION = 604800000;
+export const MAX_PRESIGNED_URL_DURATION = 596160000;
 
 export const REVIEW_USER_PROJECTION = Object.freeze({
   uid: 1,
