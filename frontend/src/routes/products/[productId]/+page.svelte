@@ -10,6 +10,7 @@
 	import { showToast } from '../../../components/misc/Toasts/toasts';
 	import { PRODUCT_ACCORDIAN, defaultToastMessages } from '../../../constants';
 	import ProductAccordian from '../../../components/ProductAccordian/ProductAccordian.svelte';
+	import Loader from '../../../components/misc/Loader.svelte';
 
 	export let data;
 
@@ -123,16 +124,25 @@
 		<div class="flex gap-4 my-5">
 			<button
 				on:click={handleAddToCart}
-				disabled={!selectedSize.length}
-				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} bg-[#9589ec] flex justify-center items-center gap-2 px-[2rem] py-2 font-semibold text-sm rounded-md uppercase`}
+				disabled={!selectedSize.length || loading}
+				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} bg-[#9589ec] flex justify-center items-center gap-2 px-[2rem] py-2 font-semibold text-sm rounded-md uppercase w-1/2`}
 			>
-				<CartOutline class="w-[.8rem]" /> Add to cart
+				{#if !loading}
+					<CartOutline class="w-[.8rem]" /> Add to cart
+				{:else}
+					<Loader borderColor={'border-white-400'} />
+				{/if}
 			</button>
 			<button
-				disabled={!selectedSize.length}
-				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} border-2 flex justify-center items-center gap-2 border-gray-400 text-gray-600 px-[3.6rem] py-2 font-semibold text-sm rounded-md uppercase`}
-				>Buy Now</button
+				disabled={!selectedSize.length || loading}
+				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} border-2 flex justify-center items-center gap-2 border-gray-400 text-gray-600 px-[3.6rem] py-2 font-semibold text-sm rounded-md uppercase w-1/2`}
 			>
+				{#if !loading}
+					Buy Now
+				{:else}
+					<Loader borderColor={'border-black'} />
+				{/if}
+			</button>
 		</div>
 
 		<ProductAccordian accordian={PRODUCT_ACCORDIAN.offers} />
