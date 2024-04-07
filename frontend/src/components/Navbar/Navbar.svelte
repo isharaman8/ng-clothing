@@ -131,7 +131,7 @@
 				{/if}
 			</div>
 
-			<div id="searchMobile" bind:this={searchToggleVar} class="w-full absolute left-0 px-2 bg-[#E4E6EE]">
+			<div id="searchMobile" bind:this={searchToggleVar} class="w-full absolute left-0 px-2 bg-[#E4E6EE] hidden">
 				<form>
 					<label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
 					<div class="relative">
