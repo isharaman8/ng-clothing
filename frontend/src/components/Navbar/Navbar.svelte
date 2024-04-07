@@ -13,12 +13,14 @@
 	import _ from 'lodash';
 	import * as store from 'svelte/store';
 	import { goto } from '$app/navigation';
-	import { CartOutline, SearchOutline, AngleDownOutline, BarsOutline, UserOutline } from 'flowbite-svelte-icons';
+	import { CartOutline, SearchOutline, AngleDownOutline, UserOutline, CloseSolid } from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 
 	// variables
 	let userData: any;
 	let dropdownvar: any;
 	let mobileDropdownvar: any;
+	let searchToggleVar: any;
 	let searchQuery: any = '';
 
 	$: userData = store.get(authUserData);
@@ -31,6 +33,12 @@
 
 		if (mobileDropdownvar) {
 			mobileDropdownvar.classList.toggle('hidden');
+		}
+	}
+
+	function toggleSearchVisibility() {
+		if (searchToggleVar) {
+			searchToggleVar.classList.toggle('hidden');
 		}
 	}
 
@@ -56,6 +64,16 @@
 		updateAndSearchProducts(event);
 	}
 
+	 onMount(() => {
+        document.body.addEventListener('click', handleOutsideClick);
+    });
+
+    function handleOutsideClick(event: any) {
+        if(!event.target?.id?.toLowerCase().includes("search")){
+			searchToggleVar.classList.add('hidden');
+		}
+    }
+
 	// store subscribe
 	authUserData.subscribe((value: any) => (userData = value));
 </script>
@@ -71,7 +89,7 @@
 			</div>
 
 			<div class="flex gap-6 items-center relative">
-				<SearchOutline class="h-8 w-6" />
+				<SearchOutline id="searchIcon" class="h-8 w-6" on:click={toggleSearchVisibility} />
 				<a href={getUrl('cart')}>
 					<CartOutline class="h-8 w-6" />
 				</a>
@@ -111,6 +129,27 @@
 						<UserOutline class="h-8 w-6"/>
 					</a>
 				{/if}
+			</div>
+
+			<div id="searchMobile" bind:this={searchToggleVar} class="w-full absolute left-0 px-2 bg-[#E4E6EE]">
+				<form>
+					<label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
+					<div class="relative">
+						<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+							<SearchOutline id="searchIcon" class="text-gray-500" />
+						</div>
+						<input
+							type="search"
+							id="default-search"
+							value={searchQuery}
+							on:input={debouncedUpdate}
+							class="block p-4 ps-10 w-[90%] text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+							placeholder="Search for clothes, brands, or styles..."
+							required
+						/>
+					</div>
+				</form>
+				<CloseSolid on:click={toggleSearchVisibility} class="text-gray-500 absolute top-4 right-4"/>
 			</div>
 
 		</div>
