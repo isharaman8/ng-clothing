@@ -47,7 +47,7 @@
 </script>
 
 <div class="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
-	<form class="w-[30%] m-auto" on:submit={handleSubmit}>
+	<form class="w-[30%] max-sm:w-[90%] m-auto" on:submit={handleSubmit}>
 		<h1 class="text-center w-full text-2xl font-semibold">Login to start shopping</h1>
 		<label class="form_label">
 			Email

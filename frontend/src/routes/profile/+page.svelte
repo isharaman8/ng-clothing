@@ -73,9 +73,9 @@
 	<div class="w-[80%] mt-6">
 		<h1 class="text-4xl font text-gray-800 w-full">My Account</h1>
 		<div class="w-full min-h-[650px] mt-8">
-			<div class="flex flex-row justify-center items-center p-5">
+			<div class="flex flex-row max-sm:flex-col justify-center items-center p-5 max-sm:p-1">
 				<!-- left panel (my details, my orders) -->
-				<div class="flex flex-col justify-center items-start min-w-[200px]">
+				<div class="flex flex-col justify-center items-start min-w-[200px] max-sm:w-full">
 					{#each buttons as button}
 						<SideBarButton
 							ExportedIcon={button.icon}
@@ -87,7 +87,7 @@
 				</div>
 
 				<!-- right panel -->
-				<div class="flex-grow min-h-[600px]">
+				<div class="flex-grow min-h-[600px] max-sm:mt-8 max-sm:w-full">
 					<svelte:component this={currentlySelectedPage}></svelte:component>
 				</div>
 			</div>

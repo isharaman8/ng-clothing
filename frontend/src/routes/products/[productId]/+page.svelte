@@ -67,13 +67,13 @@
 	}
 </script>
 
-<section class="w-full flex gap-10 mt-[8rem] px-[4rem] min-h-screen">
-	<div class="w-[50%]">
-		<div class="flex w-full h-full gap-4 overflow-hidden">
+<section class="w-full flex max-sm:flex-col gap-10 mt-[8rem] px-[4rem] max-sm:px-6 min-h-screen">
+	<div class="w-[50%] max-sm:w-full">
+		<div class="flex max-sm:flex-col w-full h-full gap-4 overflow-hidden">
 			<div class="w-full">
 				<img class="h-auto w-full object-cover" src={selectedImage} alt="product-img" />
 			</div>
-			<div class="w-[15%] overflow-auto">
+			<div class="w-[15%] max-sm:w-[20%] overflow-auto">
 				{#each product.images as image}
 					<div
 						role="button"
@@ -88,7 +88,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="w-[35%] border-l-2">
+	<div class="w-[35%] max-sm:w-full">
 		<div class="flex gap-2 text-sm capitalize mb-4">
 			<a href="/">Home</a>
 			{#each breadcrumbs as title}
@@ -102,7 +102,7 @@
 		<div class="text-sm my-2">{reviewsCount === 0 ? 'No reviews' : `${reviewsCount} ${singularOrPlural}`}</div>
 		<hr class="my-2" />
 		<p class="font-semibold uppercase">Select size</p>
-		<div class="flex gap-4 my-2">
+		<div class="flex flex-wrap gap-4 my-2">
 			{#each allSizes as size}
 				<button
 					on:click={() => (selectedSize = size)}
@@ -125,7 +125,7 @@
 			<button
 				on:click={handleAddToCart}
 				disabled={!selectedSize.length || loading}
-				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} bg-[#9589ec] flex justify-center items-center gap-2 px-[2rem] py-2 font-semibold text-sm rounded-md uppercase w-1/2`}
+				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} bg-[#9589ec] flex justify-center items-center gap-2 px-[2rem] max-sm:px-4 py-2 font-semibold text-sm rounded-md uppercase w-1/2`}
 			>
 				{#if !loading}
 					<CartOutline class="w-[.8rem]" /> Add to cart
@@ -135,7 +135,7 @@
 			</button>
 			<button
 				disabled={!selectedSize.length || loading}
-				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} border-2 flex justify-center items-center gap-2 border-gray-400 text-gray-600 px-[3.6rem] py-2 font-semibold text-sm rounded-md uppercase w-1/2`}
+				class={`${!selectedSize.length ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} border-2 flex justify-center items-center gap-2 border-gray-400 text-gray-600 px-[3.6rem] max-sm:px-4 py-2 font-semibold text-sm rounded-md uppercase w-1/2`}
 			>
 				{#if !loading}
 					Buy Now

@@ -9,8 +9,8 @@
 	export let extraLabelClasses: string = 'w-[80%]';
 </script>
 
-<label class={`flex justify-between items-center gap-7 mb-2 ${extraLabelClasses}`}>
-	<span class="text-xl text-gray-700">{labelText}</span>
+<label class={`flex max-sm:flex-col max-sm:w-full justify-between items-center max-sm:items-start gap-7 max-sm:gap-2 mb-2 ${extraLabelClasses}`}>
+	<span class="text-xl text-gray-700 max-sm:w-full max-sm:inline-block">{labelText}</span>
 	<input
 		{name}
 		bind:value
@@ -18,6 +18,6 @@
 		type="text"
 		{placeholder}
 		on:input={onInput}
-		class={`rounded-md p-2 bg-gray-100 disabled:bg-gray-300 text-gray-800 ${extraInputClasses}`}
+		class={`rounded-md p-2 bg-gray-100 disabled:bg-gray-300 text-gray-800 ${extraInputClasses} max-sm:w-full`}
 	/>
 </label>

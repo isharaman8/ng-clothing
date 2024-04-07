@@ -121,7 +121,7 @@
 	authUserData.subscribe((data: any) => (userDetails = data));
 </script>
 
-<section class="flex flex-col justify-center items-center gap-4">
+<section class="flex flex-col justify-center max-sm:items-start items-center gap-4">
 	<h1 class="text-3xl w-[80%] text-left text-gray-700">Personal Details</h1>
 
 	<ImageUploader {file} onClick={openImageUploadOpen} onLoad={setNewImageFile} {props} />
