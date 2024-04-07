@@ -78,7 +78,7 @@
 	onMount(localFetchOrders);
 </script>
 
-<section class="flex flex-col justify-center items-center gap-4">
+<section class="flex flex-col justify-center items-center  max-sm:items-start gap-4">
 	<h1 class="w-[80%] text-left text-3xl text-gray-700">My Orders</h1>
 
 	{#if noOrdersPlaced}

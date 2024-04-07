@@ -40,15 +40,15 @@
 </script>
 
 <div class="flex gap-8 py-4 px-4 mb-4 border-2 border-gray-300 rounded-md">
-	<div class="w-[15rem] min-h-[200px] h-[13rem]">
+	<div class="w-[15rem] max-sm:w-[10rem] min-h-[200px] h-[13rem] max-sm:h-[10rem]">
 		<img class="w-full h-full object-cover object-top rounded-lg" src={image} alt="product" />
 	</div>
 	<div>
 		<h3 class="text-xl capitalize font-bold">{product.name}</h3>
-		<p class="text-sm font-semibold">₹ {product.price}</p>
+		<p class="text-sm font-semibold max-sm:text-lg">₹ {product.price}</p>
 
-		<div class="flex gap-4">
-			<div class="flex gap-2 my-4">
+		<div class="flex gap-4 max-sm:flex-col max-sm:gap-0">
+			<div class="flex gap-2 my-4 max-sm:my-2">
 				<label for="size" class="font-semibold">Size:</label>
 				<select
 					id="size"
@@ -63,7 +63,7 @@
 				</select>
 			</div>
 
-			<div class="flex gap-2 my-4">
+			<div class="flex gap-2 my-4 max-sm:my-2">
 				<label for="quantity" class="font-semibold">Qty:</label>
 				<select
 					on:change={handleIncrementDecrement}

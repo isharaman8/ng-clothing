@@ -79,8 +79,8 @@
 	onMount(localFetchUserAddresses);
 </script>
 
-<section class="flex flex-col justify-center items-center gap-5">
-	<h1 class="text-3xl w-[80%] text-left text-gray-700">
+<section class="flex flex-col justify-center items-center  max-sm:items-start gap-5">
+	<h1 class="text-3xl w-[80%] max-sm:w-full text-left text-gray-700">
 		{selectForCheckout ? 'Select Address For Checkout' : 'Manage Addresses'}
 	</h1>
 

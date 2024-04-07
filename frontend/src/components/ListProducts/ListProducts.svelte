@@ -21,7 +21,7 @@
 	productData.subscribe((data) => (products = data));
 </script>
 
-<section class="p-20">
+<section class="p-4 md:p-20 lg:p-20 xl:p-20">
 	<!-- title -->
 	{#if !loading}
 		<h1 class="text-3xl font-semibold mb-6">{title}</h1>
@@ -30,7 +30,7 @@
 	{/if}
 
 	<!-- products -->
-	<div class="grid grid-cols-5 gap-8">
+	<div class="grid  grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8">
 		{#if !loading}
 			{#each products as product}
 				<ProductCard {product} />

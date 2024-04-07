@@ -9,8 +9,8 @@
 	<div class="flex flex-col cursor-pointer hover:shadow-md transition-transform ease-in-out">
 		<img src={product.images?.[0] || defaultImg } alt={product.name} />
 		<div class="px-2 py-2">
-			<h1 class="text-sm font-semibold">{product.name}</h1>
-			<p class="text-sm font-bold">₹ {product.price}</p>
+			<h1 class="text-sm font-semibold max-sm:text-lg">{product.name}</h1>
+			<p class="text-sm font-bold max-sm:text-lg">₹ {product.price}</p>
 		</div>
 	</div>
 </a>
