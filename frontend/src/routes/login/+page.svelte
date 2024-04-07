@@ -46,9 +46,9 @@
 	}
 </script>
 
-<div class="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
+<div class="w-[100vw] h-[100vh] max-sm:h-auto max-sm:mt-28 flex flex-col justify-center items-center">
 	<form class="w-[30%] max-sm:w-[90%] m-auto" on:submit={handleSubmit}>
-		<h1 class="text-center w-full text-2xl font-semibold">Login to start shopping</h1>
+		<h1 class="text-center w-full text-2xl font-semibold max-sm:text-3xl max-sm:mb-6">Login to start shopping</h1>
 		<label class="form_label">
 			Email
 			<input type="email" placeholder="john@example.com" class="form_input w-full" bind:value={email} />

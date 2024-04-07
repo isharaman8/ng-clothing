@@ -80,7 +80,7 @@
 	}
 </script>
 
-<div class="w-full mt-[7rem] h-full flex flex-col justify-center items-center">
+<div class="w-full mt-[7rem] h-full flex flex-col justify-center items-center max-sm:mb-6">
 	<form class="w-[30%] max-sm:w-[90%] m-auto" on:submit={handleSubmit}>
 		<h1 class="text-center w-full text-3xl mb-6 font-semibold">Create an account</h1>
 		<ImageUploader {file} onLoad={setFile} />
