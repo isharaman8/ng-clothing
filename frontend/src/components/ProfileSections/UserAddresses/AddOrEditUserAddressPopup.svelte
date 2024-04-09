@@ -83,10 +83,10 @@
 	export let handleOnClose: any = () => {};
 
 	// variables
-	const extraLabelClasses = 'w-64';
-	const addressInputClasses = 'w-80';
-	const nonAddressInputClasses = 'w-64';
-	const labeledInputClasses = 'mt-2 w-full';
+	const extraLabelClasses = 'w-full';
+	const addressInputClasses = 'w-full';
+	const nonAddressInputClasses = 'w-full';
+	const labeledInputClasses = 'mt-2 w-full flex-col';
 	const userDetails: any = store.get(authUserData);
 
 	let newAddress: any = {
@@ -367,110 +367,119 @@
 	let buttonLoading = false;
 </script>
 
-<div class="fixed top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center backdrop-blur-md">
-	<div class="max-w-[80%] min-w-[50%] bg-white p-8 rounded-md">
+<div class="fixed top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center backdrop-blur-md max-sm:overflow-auto">
+	<div class="max-w-[80%] min-w-[70%] max-sm:min-w-[90%] mt-[6rem] max-sm:mt-[50rem] bg-white p-8 rounded-md">
 		<div class="w-full flex justify-between items-center">
 			<h1 class="max-w-[80%] text-left text-2xl mb-2 font-medium text-gray-700">
 				{newAddress.uid === null ? 'Add New Address' : 'Update Address'}
 			</h1>
 			<CloseOutline class="text-gray-700 cursor-pointer" on:click={() => handleOnClose(false)} />
 		</div>
-		<LabeledSelect
-			name={'type'}
-			{extraLabelClasses}
-			options={selectTypeOptions}
-			selectValue={newAddress.type}
-			labelHeading={'Address Type'}
-			placeholder={'Select Address Type'}
-			handleOnChange={handleValueChange}
-		/>
-		<LabeledSelect
-			name={'primary'}
-			{extraLabelClasses}
-			labelHeading={'Primary'}
-			options={selectPrimaryOptions}
-			selectValue={newAddress.primary}
-			handleOnChange={handleValueChange}
-			placeholder={'Is Address Primary'}
-		/>
-		<LabeledSelect
-			name={'country'}
-			{extraLabelClasses}
-			labelHeading={'Country'}
-			options={selectCountriesOptions}
-			selectValue={newAddress.country}
-			handleOnChange={handleValueChange}
-			placeholder={'Select Country'}
-		/>
-		<LabeledInput
-			name="city"
-			labelText="City Name"
-			value={newAddress.city}
-			placeholder="City Name"
-			onInput={handleValueChange}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={nonAddressInputClasses}
-		/>
-		<LabeledInput
-			name="user_name"
-			labelText="Contact Name"
-			placeholder="Contact Name"
-			value={newAddress.user_name}
-			onInput={handleValueChange}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={nonAddressInputClasses}
-		/>
-		<LabeledInput
-			name="postal_code"
-			labelText="Postal Code"
-			placeholder="Postal Code"
-			onInput={handleValueChange}
-			value={newAddress.postal_code}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={nonAddressInputClasses}
-		/>
-		<LabeledInput
-			name="contact_number"
-			labelText="Contact Number"
-			placeholder="Contact Number"
-			onInput={handleValueChange}
-			value={newAddress.contact_number}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={nonAddressInputClasses}
-		/>
-		<LabeledInput
-			placeholder="State/Province"
-			name="state_province"
-			labelText="State/Province"
-			value={newAddress.state_province}
-			onInput={handleValueChange}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={nonAddressInputClasses}
-		/>
-		<LabeledInput
-			name="address_line_1"
-			placeholder="Address One"
-			labelText="Address Line 1"
-			onInput={handleValueChange}
-			value={newAddress.address_line_1}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={addressInputClasses}
-		/>
-		<LabeledInput
-			name="address_line_2"
-			placeholder="Address Two"
-			labelText="Address Line 2"
-			onInput={handleValueChange}
-			value={newAddress.address_line_2}
-			extraLabelClasses={labeledInputClasses}
-			extraInputClasses={addressInputClasses}
-		/>
+		<div class="flex gap-4 max-sm:flex-col">
+			<LabeledSelect
+				name={'type'}
+				{extraLabelClasses}
+				options={selectTypeOptions}
+				selectValue={newAddress.type}
+				labelHeading={'Address Type'}
+				placeholder={'Select Address Type'}
+				handleOnChange={handleValueChange}
+			/>
+			<LabeledSelect
+				name={'primary'}
+				{extraLabelClasses}
+				labelHeading={'Primary'}
+				options={selectPrimaryOptions}
+				selectValue={newAddress.primary}
+				handleOnChange={handleValueChange}
+				placeholder={'Is Address Primary'}
+			/>
+			<LabeledSelect
+				name={'country'}
+				{extraLabelClasses}
+				labelHeading={'Country'}
+				options={selectCountriesOptions}
+				selectValue={newAddress.country}
+				handleOnChange={handleValueChange}
+				placeholder={'Select Country'}
+			/>
+		</div>
+		
+		<div class="flex gap-4 max-sm:flex-col">
+			<LabeledInput
+				name="city"
+				labelText="City Name"
+				value={newAddress.city}
+				placeholder="City Name"
+				onInput={handleValueChange}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={nonAddressInputClasses}
+			/>
+			<LabeledInput
+				name="user_name"
+				labelText="Contact Name"
+				placeholder="Contact Name"
+				value={newAddress.user_name}
+				onInput={handleValueChange}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={nonAddressInputClasses}
+			/>
+		</div>
+		<div class="flex gap-4 max-sm:flex-col">
+			<LabeledInput
+				name="postal_code"
+				labelText="Postal Code"
+				placeholder="Postal Code"
+				onInput={handleValueChange}
+				value={newAddress.postal_code}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={nonAddressInputClasses}
+			/>
+			<LabeledInput
+				name="contact_number"
+				labelText="Contact Number"
+				placeholder="Contact Number"
+				onInput={handleValueChange}
+				value={newAddress.contact_number}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={nonAddressInputClasses}
+			/>
+			<LabeledInput
+				placeholder="State/Province"
+				name="state_province"
+				labelText="State/Province"
+				value={newAddress.state_province}
+				onInput={handleValueChange}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={nonAddressInputClasses}
+			/>
+		</div>
+		<div class="flex gap-4 max-sm:flex-col">
+			<LabeledInput
+				name="address_line_1"
+				placeholder="Address One"
+				labelText="Address Line 1"
+				onInput={handleValueChange}
+				value={newAddress.address_line_1}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={addressInputClasses}
+			/>
+			<LabeledInput
+				name="address_line_2"
+				placeholder="Address Two"
+				labelText="Address Line 2"
+				onInput={handleValueChange}
+				value={newAddress.address_line_2}
+				extraLabelClasses={labeledInputClasses}
+				extraInputClasses={addressInputClasses}
+			/>
+		</div>
 
-		<span class="w-full flex justify-between items-center">
+		<span class="w-full flex max-sm:flex-col justify-between items-center">
 			<button
 				disabled={buttonLoading}
 				on:click={localHandleAddOrUpdateAddress}
-				class="mt-4 p-4 rounded-lg bg-gray-700 disabled:bg-gray-500 text-gray-100 font-medium"
+				class="mt-4 p-4 rounded-lg bg-gray-700 disabled:bg-gray-500 text-gray-100 font-medium max-sm:w-full"
 			>
 				{#if buttonLoading}
 					<Loader borderColor="border-white" />
@@ -483,7 +492,7 @@
 				<button
 					disabled={buttonLoading}
 					on:click={localHandleDeleteAddress}
-					class="mt-4 p-4 rounded-lg bg-red-700 disabled:bg-red-500 text-gray-100 font-medium"
+					class="mt-4 p-4 rounded-lg bg-red-700 disabled:bg-red-500 text-gray-100 font-medium max-sm:w-full"
 				>
 					{#if buttonLoading}
 						<Loader borderColor="border-white" />

@@ -69,9 +69,17 @@
     });
 
     function handleOutsideClick(event: any) {
-        if(!event.target?.id?.toLowerCase().includes("search")){
+		if(!searchToggleVar) return;
+
+        if(!event.target?.id?.toLowerCase()?.includes("search")){
 			searchToggleVar.classList.add('hidden');
 		}
+    }
+
+	function handleKeyPress(event: KeyboardEvent) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            toggleSearchVisibility();
+        }
     }
 
 	// store subscribe
@@ -89,7 +97,9 @@
 			</div>
 
 			<div class="flex gap-6 items-center relative">
-				<SearchOutline id="searchIcon" class="h-8 w-6" on:click={toggleSearchVisibility} />
+				<span id="search-span" role="button" tabindex="0" on:keypress={handleKeyPress} on:click={toggleSearchVisibility}>
+					<SearchOutline id="searchIcon" class="h-8 w-6" />
+				</span>
 				<a href={getUrl('cart')}>
 					<CartOutline class="h-8 w-6" />
 				</a>
@@ -156,7 +166,7 @@
 
 		<!-- website icon or text -->
 		<a href="/" class="flex max-sm:hidden items-center space-x-3 rtl:space-x-reverse">
-			<h1 class="self-center text-2xl font-semibold whitespace-nowrap">Clothing Website</h1>
+			<span class="self-center text-4xl whitespace-nowrap font-extrabold">NG</span>
 		</a>
 
 		<!-- search bar -->
