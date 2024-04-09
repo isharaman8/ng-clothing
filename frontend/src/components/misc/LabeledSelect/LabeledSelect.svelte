@@ -9,12 +9,12 @@
 	export let options: Array<{ title: string; value: string | boolean }>;
 </script>
 
-<label class={`w-full flex justify-between items-center mt-2`}>
+<label class={`w-full flex flex-col mt-2`}>
 	<span class="text-gray-700 text-xl">{labelHeading}</span>
 	<select
 		{name}
 		value={selectValue}
-		class={`p-2 rounded-lg text-gray-6200 ${extraLabelClasses}`}
+		class={`p-2 rounded-lg text-gray-6200 mt-2 ${extraLabelClasses} border-2 border-gray-300 shadow-sm`}
 		{placeholder}
 		on:change={handleOnChange}
 	>

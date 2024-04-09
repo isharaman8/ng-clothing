@@ -47,7 +47,7 @@
 	}
 </script>
 
-<div class="flex items-center justify-center">
+<div class="flex items-center justify-center max-sm:w-full">
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 	<img

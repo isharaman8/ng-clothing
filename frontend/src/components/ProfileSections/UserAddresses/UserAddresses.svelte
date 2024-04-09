@@ -87,7 +87,7 @@
 	{#if noAddressFound}
 		<NoAddressFound handleOnClick={() => selectAddressForEdit({})} />
 	{:else}
-		<div class="w-[80%] grid grid-cols-3 gap-4">
+		<div class="w-[80%] max-sm:w-full grid grid-cols-2 md:max-lg:grid-cols-1 max-sm:grid-cols-1 gap-4">
 			{#if addressLoading}
 				{#each skeletonLoaderArray as _temp}
 					<AddressSkeletonLoader />

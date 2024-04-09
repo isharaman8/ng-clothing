@@ -121,7 +121,7 @@
 	authUserData.subscribe((data: any) => (userDetails = data));
 </script>
 
-<section class="flex flex-col justify-center max-sm:items-start items-center gap-4">
+<section class="flex flex-col justify-center max-sm:items-start mb-4 items-center gap-4">
 	<h1 class="text-3xl w-[80%] text-left text-gray-700">Personal Details</h1>
 
 	<ImageUploader {file} onClick={openImageUploadOpen} onLoad={setNewImageFile} {props} />
@@ -133,7 +133,7 @@
 	<LabeledInput labelText={'Email'} name={'email'} value={email} disabled={true} />
 	<LabeledInput labelText={'Username'} name={'username'} value={username} disabled={true} />
 
-	<button class="mt-8 bg-gray-100 text-gray-800 p-4 rounded-lg font-semibold" on:click={localUpdateProfile}>
+	<button class="mt-8 bg-gray-100 text-gray-800 max-sm:w-full p-4 rounded-lg font-semibold" on:click={localUpdateProfile}>
 		{#if loading}
 			<Loader />
 		{:else}

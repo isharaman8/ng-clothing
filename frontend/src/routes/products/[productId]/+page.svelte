@@ -68,23 +68,23 @@
 	}
 </script>
 
-<section class="w-full flex max-sm:flex-col gap-10 mt-[8rem] max-sm:mt-[6rem] max-sm:gap-4 px-[4rem] max-sm:px-6 min-h-screen">
-	<div class="hidden max-sm:block">
+<section class="w-full flex max-sm:flex-col md:max-lg:flex-col mb-10 gap-10 mt-[8rem] max-sm:mt-[6rem] max-sm:gap-4 px-[4rem] max-sm:px-6 min-h-screen">
+	<div class="hidden max-sm:block md:max-lg:block">
 		<Breadcrumbs {product} {breadcrumbs}/>
 	</div>
-	<div class="w-[50%] max-sm:w-full">
-		<div class="flex max-sm:flex-col w-full h-full gap-4 overflow-hidden">
+	<div class="w-[50%] max-sm:w-full md:max-lg:w-full">
+		<div class="flex max-sm:flex-col md:max-lg:flex-col w-full h-full gap-4 overflow-hidden">
 			<div class="w-full">
 				<img class="h-auto w-full object-cover" src={selectedImage} alt="product-img" />
 			</div>
-			<div class="w-[15%] max-sm:w-full max-sm:flex max-sm:gap-2 overflow-auto">
+			<div class="w-[15%] max-sm:w-full max-sm:flex max-sm:gap-2 md:max-lg:w-full md:max-lg:flex md:max-lg:gap-2 overflow-auto">
 				{#each product.images as image}
 					<div
 						role="button"
 						tabindex="0"
 						on:keypress={() => (selectedImage = image)}
 						on:click={() => (selectedImage = image)}
-						class="bg-slate-300 mb-2 max-sm:w-[20%]"
+						class="bg-slate-300 mb-2 max-sm:w-[20%] md:max-lg:w-[20%]"
 					>
 						<img src={image} alt="img" />
 					</div>
@@ -92,8 +92,8 @@
 			</div>
 		</div>
 	</div>
-	<div class="w-[35%] max-sm:w-full">
-		<div class="max-sm:hidden">
+	<div class="w-[35%] max-sm:w-full md:max-lg:w-full">
+		<div class="max-sm:hidden md:max-lg:hidden">
 		<Breadcrumbs {product} {breadcrumbs}/>
 		</div>
 		<h1 class="text-4xl font-bold capitalize">{product.name}</h1>

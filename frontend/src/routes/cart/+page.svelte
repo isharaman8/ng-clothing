@@ -120,7 +120,7 @@
 	onMount(localGetUserCart);
 </script>
 
-<section class="mt-[8rem] px-[10rem] max-sm:px-6">
+<section class="mt-[8rem] px-[10rem] max-sm:px-6 md:max-lg:px-6">
 	{#if noItemsInCart && !loading}
 		<EmptyOrderPage
 			title="Hey, it feels so light!"
@@ -137,7 +137,7 @@
 				<span class="text-xl font-bold">₹{total_price}</span>
 			</p>
 		{/if}
-		<div class="w-full my-4 flex max-sm:flex-col gap-20">
+		<div class="w-full my-4 flex max-sm:flex-col gap-20 md:max-lg:gap-10">
 			<div class="w-[50%] max-sm:w-full">
 				{#if loading}
 					{#each skeletonLoaderCartProductArray as _temp}
@@ -150,7 +150,7 @@
 				{/if}
 			</div>
 			<div class="w-auto">
-				<div class="py-4 px-6 border-2 border-gray-300 rounded-md w-[20rem]">
+				<div class="py-4 px-6 border-2 border-gray-300 rounded-md w-[20rem] max-sm:w-full">
 					{#if !loading}
 						<h2 class="text-2xl font-semibold mb-5">Order Summary</h2>
 						<div class="flex justify-between mb-2">
