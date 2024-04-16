@@ -19,7 +19,9 @@
 	// functions
 	async function localCheckout() {
 		const payload = { products };
-		purchaseData.set(payload);
+
+		purchaseDetails['checkout_purchase'] = payload;
+		purchaseData.set(purchaseDetails);
 
 		goto('/checkout');
 	}
@@ -91,6 +93,7 @@
 	let loading = false;
 	let checkOutLoading = false;
 	let userDetails = store.get(authUserData);
+	let purchaseDetails: any = store.get(purchaseData);
 
 	const skeletonLoaderCartProductArray = new Array(2);
 
