@@ -2,8 +2,13 @@
 	// third party imports
 	import _ from 'lodash';
 
+	// inner imports
+	import Loader from '../misc/Loader.svelte';
+	import { showToast } from '../misc/Toasts/toasts';
+
 	// props
 	export let product: any;
+	export let loading: boolean = false;
 	export let localHandleProductChange: any = () => {};
 
 	// functions
@@ -34,7 +39,17 @@
 		}
 	}
 
+	async function handleProductRemove() {
+		try {
+			await localHandleProductChange(product, 'remove');
+		} catch (error: any) {
+			showToast('something went wrong', error.message, 'error');
+		}
+	}
+
 	// variables
+	let buttonLoading = false;
+
 	const allSizes = _.keys(product.available_sizes) || ['S', 'M', 'L', 'XL', '2XL', '3XL'];
 	const image = product.images[0];
 </script>
@@ -81,10 +96,13 @@
 			</div>
 		</div>
 		<div>
-			<button
-				on:click={() => localHandleProductChange(product, 'remove')}
-				class="w-full bg-black my-2 text-white py-2 rounded-md">Remove</button
-			>
+			<button on:click={handleProductRemove} class="w-full bg-black my-2 text-white py-2 rounded-md">
+				{#if loading}
+					<Loader />
+				{:else}
+					Remove
+				{/if}
+			</button>
 		</div>
 	</div>
 </div>

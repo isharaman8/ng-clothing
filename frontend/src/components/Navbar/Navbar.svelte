@@ -4,26 +4,19 @@
 
 	// inner imports
 	import { getUrl } from './Navbar';
-	import { authUserData } from '../../stores';
 	import { getProducts } from '../../helpers/products';
+	import { authUserData, cartData } from '../../stores';
 	import { DEFAULT_PROFILE_PICTURE } from '../../constants';
 	import { _getParsedProductsQuery } from '../../helpers/parser';
 
 	// third party imports
 	import _ from 'lodash';
+	import { onMount } from 'svelte';
 	import * as store from 'svelte/store';
 	import { goto } from '$app/navigation';
+	import { getUserCart } from '../../helpers/cart';
+	import { showToast } from '../misc/Toasts/toasts';
 	import { CartOutline, SearchOutline, AngleDownOutline, UserOutline, CloseSolid } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
-
-	// variables
-	let userData: any;
-	let dropdownvar: any;
-	let mobileDropdownvar: any;
-	let searchToggleVar: any;
-	let searchQuery: any = '';
-
-	$: userData = store.get(authUserData);
 
 	// functions
 	function toggleDropdownVisibility() {
@@ -64,26 +57,63 @@
 		updateAndSearchProducts(event);
 	}
 
-	 onMount(() => {
-        document.body.addEventListener('click', handleOutsideClick);
-    });
+	function handleOutsideClick(event: any) {
+		if (!searchToggleVar) return;
 
-    function handleOutsideClick(event: any) {
-		if(!searchToggleVar) return;
-
-        if(!event.target?.id?.toLowerCase()?.includes("search")){
+		if (!event.target?.id?.toLowerCase()?.includes('search')) {
 			searchToggleVar.classList.add('hidden');
 		}
-    }
+	}
 
 	function handleKeyPress(event: KeyboardEvent) {
-        if (event.key === 'Enter' || event.key === ' ') {
-            toggleSearchVisibility();
-        }
-    }
+		if (event.key === 'Enter' || event.key === ' ') {
+			toggleSearchVisibility();
+		}
+	}
+
+	async function localGetUserCart() {
+		if (_.isEmpty(userData)) return;
+
+		cartLoading = true;
+
+		try {
+			const tempData = await getUserCart(userData);
+
+			if (tempData.error) {
+				throw new Error(tempData.message);
+			}
+		} catch (error: any) {
+			showToast('Error fetching cart', error.message, 'error');
+		} finally {
+			cartLoading = false;
+		}
+	}
+
+	// variables
+	let userData: any;
+	let dropdownvar: any;
+	let cartLoading = false;
+	let searchToggleVar: any;
+	let searchQuery: any = '';
+	let mobileDropdownvar: any;
+
+	$: userCart = store.get(cartData);
+	$: userData = store.get(authUserData);
 
 	// store subscribe
+	cartData.subscribe((value: any) => (userCart = value));
 	authUserData.subscribe((value: any) => (userData = value));
+
+	// on mount
+	onMount(() => {
+		if (_.isEmpty(userData)) {
+			goto('/login');
+			return;
+		}
+
+		document.body.addEventListener('click', handleOutsideClick);
+		localGetUserCart();
+	});
 </script>
 
 <nav class="border-gray-200 fixed top-0 left-0 w-[100vw] shadow-lg backdrop-blur-2xl z-[1000] max-sm:bg-[#E4E6EE]">
@@ -97,13 +127,27 @@
 			</div>
 
 			<div class="flex gap-6 items-center relative">
-				<span id="search-span" role="button" tabindex="0" on:keypress={handleKeyPress} on:click={toggleSearchVisibility}>
+				<span
+					id="search-span"
+					role="button"
+					tabindex="0"
+					on:keypress={handleKeyPress}
+					on:click={toggleSearchVisibility}
+				>
 					<SearchOutline id="searchIcon" class="h-8 w-6" />
 				</span>
 				<a href={getUrl('cart')}>
 					<CartOutline class="h-8 w-6" />
+
+					{#if userCart?.products?.length}
+						<div
+							class="flex justify-center items-center absolute top-[-10px] right-[-10px] text-[0.6rem] w-5 h-5 bg-gray-700 text-center rounded-full text-white font-semibold"
+						>
+							{userCart.products.length}
+						</div>
+					{/if}
 				</a>
-	
+
 				{#if userData.auth_token}
 					<button id="dropdownNavbarLinkMobile" on:click={toggleDropdownVisibility}>
 						<img
@@ -115,28 +159,28 @@
 
 					<!-- Dropdown menu -->
 					<div
-					bind:this={mobileDropdownvar}
-					id="dropdownNavbarMobile"
-					class="z-10 hidden absolute top-12 left-14 font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-24"
-				>
-					<ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
-						<li>
-							<a href="/profile" on:click={toggleDropdownVisibility} class="block px-4 py-2 hover:bg-gray-100"
-								>Profile</a
+						bind:this={mobileDropdownvar}
+						id="dropdownNavbarMobile"
+						class="z-10 hidden absolute top-12 left-14 font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-24"
+					>
+						<ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
+							<li>
+								<a href="/profile" on:click={toggleDropdownVisibility} class="block px-4 py-2 hover:bg-gray-100"
+									>Profile</a
+								>
+							</li>
+						</ul>
+						<div class="py-1">
+							<button
+								on:click={logout}
+								class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start"
+								>Sign out</button
 							>
-						</li>
-					</ul>
-					<div class="py-1">
-						<button
-							on:click={logout}
-							class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start"
-							>Sign out</button
-						>
+						</div>
 					</div>
-				</div>
 				{:else}
 					<a href={getUrl('login')}>
-						<UserOutline class="h-8 w-6"/>
+						<UserOutline class="h-8 w-6" />
 					</a>
 				{/if}
 			</div>
@@ -159,9 +203,8 @@
 						/>
 					</div>
 				</form>
-				<CloseSolid on:click={toggleSearchVisibility} class="text-gray-500 absolute top-4 right-4"/>
+				<CloseSolid on:click={toggleSearchVisibility} class="text-gray-500 absolute top-4 right-4" />
 			</div>
-
 		</div>
 
 		<!-- website icon or text -->
@@ -196,7 +239,17 @@
 			>
 				<li>
 					<a class="flex justify-center items-center gap-2" href={getUrl('cart')}>
-						<CartOutline class="h-5" /> Cart
+						<div class="relative">
+							<CartOutline class="h-5" />
+
+							{#if userCart?.products?.length}
+								<div
+									class="flex justify-center items-center absolute top-[-10px] right-[-10px] text-[0.6rem] w-5 h-5 bg-gray-700 text-center rounded-full text-white font-semibold"
+								>
+									{userCart.products.length}
+								</div>
+							{/if}
+						</div>
 					</a>
 				</li>
 				<li>
