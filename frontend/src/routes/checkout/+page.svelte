@@ -4,8 +4,9 @@
 	import { goto } from '$app/navigation';
 
 	// inner imports
+	import { createOrUpdateCart } from '../../helpers/cart';
+	import Loader from '../../components/misc/Loader.svelte';
 	import { authUserData, purchaseData } from '../../stores';
-	import { createOrUpdateCart } from '../../helpers/products';
 	import { showToast } from '../../components/misc/Toasts/toasts';
 	import { createOrUpdatePurchase } from '../../helpers/purchases';
 	import UserAddresses from '../../components/ProfileSections/UserAddresses/UserAddresses.svelte';
@@ -47,11 +48,8 @@
 	let currentlySelectedAddress: any = null;
 	let userDetails: any = store.get(authUserData);
 	let purchaseDetails: any = store.get(purchaseData);
-	const { products = [] } = purchaseDetails;
 
-	$: {
-		console.log('currentlySelectedAddress', currentlySelectedAddress);
-	}
+	const { products = [] } = purchaseDetails;
 </script>
 
 <div class="mt-24 p-8 flex flex-col justify-center items-center">
@@ -64,8 +62,12 @@
 
 	<button
 		on:click={localAddPurchase}
-		class="mt-4 p-4 rounded-lg bg-gray-700 text-gray-100 font-medium fixed bottom-4 right-4"
+		class="mt-4 p-4 rounded-lg bg-gray-700 text-gray-100 font-medium fixed bottom-4 right-4 min-w-36"
 	>
-		Checkout
+		{#if checkOutLoading}
+			<Loader />
+		{:else}
+			Checkout
+		{/if}
 	</button>
 </div>

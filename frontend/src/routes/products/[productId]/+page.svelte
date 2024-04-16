@@ -6,12 +6,12 @@
 
 	// inner imports
 	import { authUserData } from '../../../stores';
-	import { createOrUpdateCart } from '../../../helpers/products';
+	import { createOrUpdateCart } from '../../../helpers/cart';
+	import Loader from '../../../components/misc/Loader.svelte';
 	import { showToast } from '../../../components/misc/Toasts/toasts';
 	import { PRODUCT_ACCORDIAN, defaultToastMessages } from '../../../constants';
-	import ProductAccordian from '../../../components/ProductAccordian/ProductAccordian.svelte';
-	import Loader from '../../../components/misc/Loader.svelte';
 	import Breadcrumbs from '../../../components/misc/Breadcrumbs/Breadcrumbs.svelte';
+	import ProductAccordian from '../../../components/ProductAccordian/ProductAccordian.svelte';
 
 	export let data;
 
@@ -68,16 +68,20 @@
 	}
 </script>
 
-<section class="w-full flex max-sm:flex-col md:max-lg:flex-col mb-10 gap-10 mt-[8rem] max-sm:mt-[6rem] max-sm:gap-4 px-[4rem] max-sm:px-6 min-h-screen">
+<section
+	class="w-full flex max-sm:flex-col md:max-lg:flex-col mb-10 gap-10 mt-[8rem] max-sm:mt-[6rem] max-sm:gap-4 px-[4rem] max-sm:px-6 min-h-screen"
+>
 	<div class="hidden max-sm:block md:max-lg:block">
-		<Breadcrumbs {product} {breadcrumbs}/>
+		<Breadcrumbs {product} {breadcrumbs} />
 	</div>
 	<div class="w-[50%] max-sm:w-full md:max-lg:w-full">
 		<div class="flex max-sm:flex-col md:max-lg:flex-col w-full h-full gap-4 overflow-hidden">
 			<div class="w-full">
 				<img class="h-auto w-full object-cover" src={selectedImage} alt="product-img" />
 			</div>
-			<div class="w-[15%] max-sm:w-full max-sm:flex max-sm:gap-2 md:max-lg:w-full md:max-lg:flex md:max-lg:gap-2 overflow-auto">
+			<div
+				class="w-[15%] max-sm:w-full max-sm:flex max-sm:gap-2 md:max-lg:w-full md:max-lg:flex md:max-lg:gap-2 overflow-auto"
+			>
 				{#each product.images as image}
 					<div
 						role="button"
@@ -94,7 +98,7 @@
 	</div>
 	<div class="w-[35%] max-sm:w-full md:max-lg:w-full">
 		<div class="max-sm:hidden md:max-lg:hidden">
-		<Breadcrumbs {product} {breadcrumbs}/>
+			<Breadcrumbs {product} {breadcrumbs} />
 		</div>
 		<h1 class="text-4xl font-bold capitalize">{product.name}</h1>
 		<p class="capitalize my-4">{product.description}</p>
