@@ -28,7 +28,8 @@
 			await createOrUpdateCart(userDetails, { products: [] });
 
 			// empty purchase data
-			purchaseData.set({});
+			purchaseDetails['checkout_purchase'] = {};
+			purchaseData.set(purchaseDetails);
 
 			showToast('purchase created successfully', 'purchase created successfully', 'success');
 			goto('/');
@@ -48,8 +49,7 @@
 	let currentlySelectedAddress: any = null;
 	let userDetails: any = store.get(authUserData);
 	let purchaseDetails: any = store.get(purchaseData);
-
-	const { products = [] } = purchaseDetails;
+	let { checkout_purchase: { products = [] } = { products: [] } } = purchaseDetails;
 </script>
 
 <div class="mt-24 p-8 flex flex-col justify-center items-center">
