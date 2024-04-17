@@ -78,11 +78,15 @@
 	onMount(localFetchOrders);
 </script>
 
-<section class="flex flex-col justify-center items-center  max-sm:items-start gap-4">
+<section class="flex flex-col justify-center items-center max-sm:items-start gap-4">
 	<h1 class="w-[80%] text-left text-3xl text-gray-700">My Orders</h1>
 
 	{#if noOrdersPlaced}
-		<EmptyOrderPage title="No orders placed" description="Looks like you haven't made your order yet!" buttonName="Get Products" />
+		<EmptyOrderPage
+			title="No orders placed"
+			description="Looks like you haven't made your order yet!"
+			buttonName="Get Products"
+		/>
 	{:else}
 		<!-- order type -->
 		<div class="flex flex-row justify-start items-center gap-3 w-[80%] ml-4 mt-4">
@@ -123,7 +127,16 @@
 						{@const parsedImageArray = parseArray(lastProduct?.images, [])}
 						{@const image = parsedImageArray[parsedImageArray.length - 1] || 'https://via.placeholder.com/150'}
 
-						<SingleOrderList {status} {lastProduct} {orderDate} {productNameArray} {image} {totalPrice} {idx} />
+						<SingleOrderList
+							orderDetails={order}
+							{status}
+							{lastProduct}
+							{orderDate}
+							{productNameArray}
+							{image}
+							{totalPrice}
+							{idx}
+						/>
 					{/each}
 				{/if}
 			</tbody>
