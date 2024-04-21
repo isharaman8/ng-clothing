@@ -129,13 +129,13 @@
 
 						<SingleOrderList
 							orderDetails={order}
-							{status}
-							{lastProduct}
-							{orderDate}
-							{productNameArray}
-							{image}
-							{totalPrice}
 							{idx}
+							{image}
+							{status}
+							{orderDate}
+							{totalPrice}
+							{lastProduct}
+							{productNameArray}
 						/>
 					{/each}
 				{/if}

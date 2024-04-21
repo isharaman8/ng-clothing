@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 
 	// inner imports
+	import { STATUS_DETAILS } from '../../../constants';
 	import { purchaseData } from '../../../stores';
 	import { parseArray, parseObject } from '../../../utils';
 	import { selectCountriesOptions } from '../../../constants';
@@ -20,6 +21,12 @@
 
 	// variables
 	let { single_order: singleOrder = {} } = store.get(purchaseData);
+	let {
+		text: statusTextColor,
+		background: statusBackgroundColor,
+		enriched_value: statusEnrichedValue
+	} = parseObject(STATUS_DETAILS[singleOrder.status], {});
+	let deliveredOnDate = new Date(singleOrder.updated_at).toLocaleString();
 
 	$: address = parseObject(singleOrder.address, {});
 	$: products = parseArray(singleOrder.products, []);
@@ -40,8 +47,16 @@
 
 <div class="mt-24 p-8 flex flex-col justify-center items-center">
 	<div class="w-[80%]">
-		<h1 class="w-full text-3xl">Order Details</h1>
-		<p class="text-[0.8rem] text-gray-700">Ordered on {new Date(singleOrder.created_at).toLocaleString()}</p>
+		<div class="flex justify-between items-end">
+			<div>
+				<h1 class="w-full text-3xl">Order Details</h1>
+				<p class="text-[0.8rem] text-gray-700">Ordered on {new Date(singleOrder.created_at).toLocaleString()}</p>
+			</div>
+
+			<p class={`${statusTextColor} ${statusBackgroundColor} p-2 font-semibold text-sm rounded-md`}>
+				{statusEnrichedValue}
+			</p>
+		</div>
 
 		<!-- summary/details -->
 		<div class="w-full rounded-md border border-gray-400 p-3 mt-2 flex justify-between items-center">
@@ -71,7 +86,12 @@
 
 		<!-- products -->
 		<div class="w-full rounded-md border border-gray-400 mt-2 flex flex-col justify-between items-start gap-3">
-			<h1 class="rounded-t-md text-2xl w-full bg-gray-300 px-3 py-2 border-b border-gray-400">Products</h1>
+			<div class="rounded-t-md w-full bg-gray-300 px-3 py-2 border-b border-gray-400">
+				<h1 class="text-2xl">Products</h1>
+				{#if ['delivered', 'fulfilled'].includes(singleOrder.status)}
+					<p class="text-[0.8rem] text-gray-600">Order delivered on {deliveredOnDate}</p>
+				{/if}
+			</div>
 
 			<div class="p-3 w-full">
 				<!-- single product -->
