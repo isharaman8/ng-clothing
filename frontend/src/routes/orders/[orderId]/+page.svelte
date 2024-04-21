@@ -7,15 +7,21 @@
 	import { goto } from '$app/navigation';
 
 	// inner imports
-	import { parseObject } from '../../../utils';
 	import { purchaseData } from '../../../stores';
-	import { showToast } from '../../../components/misc/Toasts/toasts';
+	import { parseArray, parseObject } from '../../../utils';
 	import { selectCountriesOptions } from '../../../constants';
+	import { showToast } from '../../../components/misc/Toasts/toasts';
+
+	// functions
+	function buyAgain() {
+		goto(`/`);
+	}
 
 	// variables
 	let { single_order: singleOrder = {} } = store.get(purchaseData);
 
 	$: address = parseObject(singleOrder.address, {});
+	$: products = parseArray(singleOrder.products, []);
 	$: countryName = _.find(selectCountriesOptions, (country) => country.value === address.country);
 
 	// on mount
@@ -63,8 +69,37 @@
 		</div>
 
 		<!-- products -->
-		<div class="w-full rounded-md border border-gray-400 p-3 mt-2 flex justify-between items-center">
+		<div class="w-full rounded-md border border-gray-400 p-3 mt-2 flex flex-col justify-between items-start gap-3">
 			<h1 class="text-2xl">Products</h1>
+
+			<!-- single product -->
+			{#each products as product, idx (product.uid)}
+				{@const productQty = product.qty}
+				{@const productName = product.name}
+				{@const productSize = product.size}
+				{@const productPrice = product.price}
+				{@const productRoute = `/products/${product.uid}`}
+				{@const parsedImageArray = parseArray(product?.images, [])}
+				{@const borderClasses = idx + 1 < products.length ? 'border-b border-gray-300' : ''}
+				{@const image = parsedImageArray[parsedImageArray.length - 1] || 'https://via.placeholder.com/150'}
+
+				<div class={`flex justify-start items-start gap-4 w-full pb-3 relative ${borderClasses}`}>
+					<a href={productRoute}>
+						<img src={image} alt={productName} class="max-w-20 cursor-pointer" />
+					</a>
+
+					<!-- product details -->
+					<div>
+						<a href={productRoute} class="text-xl hover:underline text-gray-800">{productName}</a>
+						<p class="text-[0.8rem] text-gray-700">Size - {productSize}</p>
+						<p class="text-[0.8rem] text-gray-700">Rs {productPrice * productQty}</p>
+					</div>
+
+					<!-- buy again button -->
+					<button class="absolute bottom-2 right-2 rounded-md bg-gray-600 text-white p-2 text-sm">Write a review</button
+					>
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>
