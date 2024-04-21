@@ -104,7 +104,7 @@
 	cartData.subscribe((data: any) => (cart = data));
 </script>
 
-<section class="mt-[8rem] px-[10rem] max-sm:px-6 md:max-lg:px-6">
+<section class="mt-[8rem] px-[10rem] min-h-[80vh] max-sm:px-6 md:max-lg:px-6">
 	{#if noItemsInCart && !loading}
 		<EmptyOrderPage
 			title="Hey, it feels so light!"

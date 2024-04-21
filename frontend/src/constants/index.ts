@@ -9,6 +9,8 @@ export const ROUTES = Object.freeze({
 	cart: 'cart'
 });
 
+export const DEFAULT_IMAGE = 'https://via.placeholder.com/150';
+
 export const defaultToastMessages = Object.freeze({
 	login: {
 		success: {

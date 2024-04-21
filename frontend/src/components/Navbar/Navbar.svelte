@@ -5,7 +5,7 @@
 	// inner imports
 	import { getUrl } from './Navbar';
 	import { getProducts } from '../../helpers/products';
-	import { authUserData, cartData } from '../../stores';
+	import { authUserData, cartData, productData } from '../../stores';
 	import { DEFAULT_PROFILE_PICTURE } from '../../constants';
 	import { _getParsedProductsQuery } from '../../helpers/parser';
 
@@ -17,6 +17,7 @@
 	import { getUserCart } from '../../helpers/cart';
 	import { showToast } from '../misc/Toasts/toasts';
 	import { CartOutline, SearchOutline, AngleDownOutline, UserOutline, CloseSolid } from 'flowbite-svelte-icons';
+	import SearchBox from './SearchBox.svelte';
 
 	// functions
 	function toggleDropdownVisibility() {
@@ -62,6 +63,7 @@
 
 		if (!event.target?.id?.toLowerCase()?.includes('search')) {
 			searchToggleVar.classList.add('hidden');
+			searchResultsVisible = false;
 		}
 	}
 
@@ -69,6 +71,10 @@
 		if (event.key === 'Enter' || event.key === ' ') {
 			toggleSearchVisibility();
 		}
+	}
+
+	function handleFocus() {
+		searchResultsVisible = true;
 	}
 
 	async function localGetUserCart() {
@@ -96,11 +102,15 @@
 	let searchToggleVar: any;
 	let searchQuery: any = '';
 	let mobileDropdownvar: any;
+	let searchResultsVisible: boolean = false;
 
 	$: userCart = store.get(cartData);
 	$: userData = store.get(authUserData);
+	$: products = store.get(productData);
 
+	
 	// store subscribe
+	productData.subscribe((data) => (products = data));
 	cartData.subscribe((value: any) => (userCart = value));
 	authUserData.subscribe((value: any) => (userData = value));
 
@@ -116,7 +126,7 @@
 	});
 </script>
 
-<nav class="border-gray-200 fixed top-0 left-0 w-[100vw] shadow-lg backdrop-blur-2xl z-[1000] max-sm:bg-[#E4E6EE]">
+<nav class="border-gray-200 fixed top-0 left-0 w-[100vw] shadow-lg backdrop-blur-2xl z-[1000000] max-sm:bg-[#E4E6EE]">
 	<div class="max-w-screen-xl flex sm:flex-wrap items-center justify-between mx-auto p-4 gap-8">
 		<!-- mobile menu -->
 		<div class="md:hidden flex items-center justify-between w-full px-2">
@@ -136,12 +146,12 @@
 				>
 					<SearchOutline id="searchIcon" class="h-8 w-6" />
 				</span>
-				<a href={getUrl('cart')}>
+				<a class="relative" href={getUrl('cart')}>
 					<CartOutline class="h-8 w-6" />
 
 					{#if userCart?.products?.length}
 						<div
-							class="flex justify-center items-center absolute top-[-10px] right-[-10px] text-[0.6rem] w-5 h-5 bg-gray-700 text-center rounded-full text-white font-semibold"
+							class="flex justify-center items-center absolute top-[-6px] right-[-10px] text-[0.6rem] w-5 h-5 bg-gray-700 text-center rounded-full text-white font-semibold"
 						>
 							{userCart.products.length}
 						</div>
@@ -197,11 +207,16 @@
 							id="default-search"
 							value={searchQuery}
 							on:input={debouncedUpdate}
+							on:focus={handleFocus}
 							class="block p-4 ps-10 w-[90%] text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
 							placeholder="Search for clothes, brands, or styles..."
 							required
+							autocomplete="off"
 						/>
 					</div>
+					{#if searchResultsVisible}
+						<SearchBox products={products}/>
+					{/if}
 				</form>
 				<CloseSolid on:click={toggleSearchVisibility} class="text-gray-500 absolute top-4 right-4" />
 			</div>
@@ -214,7 +229,7 @@
 
 		<!-- search bar -->
 
-		<form class="grow max-sm:hidden">
+		<form class="grow max-sm:hidden relative">
 			<label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
 			<div class="relative">
 				<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -225,11 +240,16 @@
 					id="default-search"
 					value={searchQuery}
 					on:input={debouncedUpdate}
+					on:focus={handleFocus}
 					class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
 					placeholder="Search for clothes, brands, or styles..."
+					autocomplete="off"
 					required
 				/>
 			</div>
+			{#if searchResultsVisible}
+				<SearchBox products={products}/>
+		  	{/if}
 		</form>
 
 		<!-- cart and login -->
@@ -297,3 +317,8 @@
 		</div>
 	</div>
 </nav>
+
+<!-- overlay  -->
+{#if searchResultsVisible}
+	<div class="absolute w-screen h-screen top-0 left-0 bg-[rgba(0,0,0,0.5)] z-0"></div>
+{/if}
