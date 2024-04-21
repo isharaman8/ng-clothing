@@ -11,6 +11,7 @@
 	import { parseArray, parseObject } from '../../../utils';
 	import { selectCountriesOptions } from '../../../constants';
 	import { showToast } from '../../../components/misc/Toasts/toasts';
+	import SingleOrderProduct from '../../../components/ProfileSections/UserOrders/SingleOrderProduct.svelte';
 
 	// functions
 	function buyAgain() {
@@ -69,37 +70,32 @@
 		</div>
 
 		<!-- products -->
-		<div class="w-full rounded-md border border-gray-400 p-3 mt-2 flex flex-col justify-between items-start gap-3">
-			<h1 class="text-2xl">Products</h1>
+		<div class="w-full rounded-md border border-gray-400 mt-2 flex flex-col justify-between items-start gap-3">
+			<h1 class="rounded-t-md text-2xl w-full bg-gray-300 px-3 py-2 border-b border-gray-400">Products</h1>
 
-			<!-- single product -->
-			{#each products as product, idx (product.uid)}
-				{@const productQty = product.qty}
-				{@const productName = product.name}
-				{@const productSize = product.size}
-				{@const productPrice = product.price}
-				{@const productRoute = `/products/${product.uid}`}
-				{@const parsedImageArray = parseArray(product?.images, [])}
-				{@const borderClasses = idx + 1 < products.length ? 'border-b border-gray-300' : ''}
-				{@const image = parsedImageArray[parsedImageArray.length - 1] || 'https://via.placeholder.com/150'}
+			<div class="p-3 w-full">
+				<!-- single product -->
+				{#each products as product, idx (product.uid)}
+					{@const productQty = product.qty}
+					{@const productName = product.name}
+					{@const productSize = product.size}
+					{@const productPrice = product.price}
+					{@const productRoute = `/products/${product.uid}`}
+					{@const parsedImageArray = parseArray(product?.images, [])}
+					{@const borderClasses = idx + 1 < products.length ? 'border-b border-gray-300' : ''}
+					{@const image = parsedImageArray[parsedImageArray.length - 1] || 'https://via.placeholder.com/150'}
 
-				<div class={`flex justify-start items-start gap-4 w-full pb-3 relative ${borderClasses}`}>
-					<a href={productRoute}>
-						<img src={image} alt={productName} class="max-w-20 cursor-pointer" />
-					</a>
-
-					<!-- product details -->
-					<div>
-						<a href={productRoute} class="text-xl hover:underline text-gray-800">{productName}</a>
-						<p class="text-[0.8rem] text-gray-700">Size - {productSize}</p>
-						<p class="text-[0.8rem] text-gray-700">Rs {productPrice * productQty}</p>
-					</div>
-
-					<!-- buy again button -->
-					<button class="absolute bottom-2 right-2 rounded-md bg-gray-600 text-white p-2 text-sm">Write a review</button
-					>
-				</div>
-			{/each}
+					<SingleOrderProduct
+						{image}
+						{productQty}
+						{productName}
+						{productSize}
+						{productRoute}
+						{productPrice}
+						{borderClasses}
+					/>
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>
