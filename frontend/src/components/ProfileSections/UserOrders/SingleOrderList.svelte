@@ -29,7 +29,7 @@
 	let purchaseDetails = store.get(purchaseData);
 </script>
 
-<tr class="text-gray-600 cursor-pointer" on:click={localHandleOrderClick}>
+<tr class="text-gray-600 cursor-pointer hover:shadow-inner" on:click={localHandleOrderClick}>
 	<td>{idx + 1}</td>
 	<td class="flex justify-start items-center gap-2">
 		<img class="h-10 max-w-8 mt-2" src={image} alt={lastProduct?.name} />
