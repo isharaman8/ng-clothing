@@ -113,6 +113,8 @@
 						{productRoute}
 						{productPrice}
 						{borderClasses}
+						productObj={product}
+						productUid={product.uid}
 					/>
 				{/each}
 			</div>
