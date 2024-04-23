@@ -1,14 +1,13 @@
 // third party imports
+import _ from 'lodash';
 import axios from 'axios';
-import { goto } from '$app/navigation';
 
 // inner imports
 import { ROUTES } from '../constants';
 import { productData } from '../stores';
-import { getBearerToken } from '../utils';
 import settings from '../config/settings';
-import type { ReturnData } from '../interfaces';
 import { _getParsedProductsQuery } from './parser';
+import { getBearerToken, parseArray } from '../utils';
 
 // functions
 export const getProducts = async (queryParams: any = {}) => {
@@ -29,4 +28,55 @@ export const getProducts = async (queryParams: any = {}) => {
 	}
 
 	return { products, error: false };
+};
+
+// review api functions
+const getParsedCreateOrUpdateReview = (review: any = {}, oldReview: any = {}) => {
+	const { images, description, rating } = review;
+
+	const payload = {
+		images: parseArray(images, oldReview.images) || [],
+		rating: _.defaultTo(rating, oldReview.rating) || 0,
+		description: _.defaultTo(description, oldReview.description) || ''
+	};
+
+	return payload;
+};
+
+export const createOrUpdateReviewFeedback = async (
+	userData: any,
+	productUid: string,
+	reviewPayload: any,
+	oldReview: any = {},
+	reviewUid: string | null = null
+) => {
+	const payload = { review: getParsedCreateOrUpdateReview(reviewPayload, oldReview) };
+	const returnData: any = { error: false, message: null, data: undefined };
+	const headers = { headers: { Authorization: getBearerToken(userData) } };
+	const url = `${settings.config.baseApiUrl}/${ROUTES.products}/${productUid}/review/${reviewUid || ''}`;
+
+	if (!userData.auth_token) {
+		throw new Error('please provide auth token');
+	}
+
+	try {
+		let tempData: any = {};
+
+		if (_.isEmpty(reviewUid)) {
+			tempData = await axios.post(url, payload, headers);
+		} else {
+			tempData = await axios.patch(url, payload, headers);
+		}
+
+		if ([200, 201].includes(tempData.status) === false) {
+			throw new Error(tempData.data.message);
+		}
+
+		returnData['data'] = tempData.data.review;
+	} catch (error: any) {
+		returnData['error'] = true;
+		returnData['message'] = error?.response?.data?.message || error.message;
+	}
+
+	return returnData;
 };

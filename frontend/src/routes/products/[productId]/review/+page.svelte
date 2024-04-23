@@ -10,11 +10,14 @@
 	import { parseObject } from '../../../../utils';
 	import { authUserData, reviewData } from '../../../../stores';
 	import Loader from '../../../../components/misc/Loader.svelte';
+	import { handleImageUpload } from '../../../../helpers/upload';
 	import { showToast } from '../../../../components/misc/Toasts/toasts';
+	import { createOrUpdateReviewFeedback } from '../../../../helpers/products';
 
 	// functions
 	function handleStarColoring(idx: number) {
 		fillStarsTillIdx = idx + 1;
+		startRatingError = false;
 	}
 
 	function clearStarColoring() {
@@ -28,8 +31,6 @@
 			return; // Show error: Please select an image file
 		}
 
-		console.log(file);
-
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			const imageSrc = e.target ? (e.target.result as string) : '';
@@ -37,8 +38,6 @@
 				file,
 				image_src: imageSrc
 			};
-
-			console.log(imagePayload);
 
 			imageArray = [...imageArray, imagePayload];
 		};
@@ -52,7 +51,7 @@
 		imageArray = _.cloneDeep(imageArray);
 	}
 
-	function submitReviewData() {
+	async function submitReviewData() {
 		if (fillStarsTillIdx === 0 || _.isEmpty(textAreaValue)) {
 			if (fillStarsTillIdx === 0) {
 				startRatingError = true;
@@ -63,6 +62,44 @@
 			}
 
 			return;
+		}
+
+		buttonLoading = true;
+
+		let payload: any = {};
+
+		try {
+			if (!_.isEmpty(imageArray)) {
+				const fileArray = _.map(imageArray, (obj) => obj.file);
+				const uploadedImageData = await handleImageUpload(fileArray, userDetails.auth_token);
+
+				if (uploadedImageData.error) {
+					throw new Error(uploadedImageData.message || '');
+				}
+
+				const imageData = uploadedImageData.data.images,
+					uploadedImageUids = _.compact(_.map(imageData, (obj) => obj.uid));
+
+				payload['images'] = uploadedImageUids;
+			}
+
+			payload['rating'] = fillStarsTillIdx;
+			payload['description'] = textAreaValue;
+
+			console.log('PAYLOAD', payload);
+
+			const returnedReviewData = await createOrUpdateReviewFeedback(userDetails, reviewProduct.uid, payload);
+
+			if (returnedReviewData.error) {
+				throw new Error(returnedReviewData.message || '');
+			}
+
+			showToast('Review added successfully', 'review added successfully', 'success');
+			goto('/');
+		} catch (error: any) {
+			showToast('Something went wrong', error.message, 'error');
+		} finally {
+			buttonLoading = false;
 		}
 	}
 
@@ -83,9 +120,6 @@
 
 	// on mount
 	onMount(() => {
-		console.log(userDetails);
-		console.log(reviewProduct);
-
 		if (_.isEmpty(reviewProduct) || _.isEmpty(userDetails)) {
 			showToast('Something went wrong', 'Unable to find product', 'error');
 			goto('/');
@@ -100,7 +134,7 @@
 		<!-- product name and image -->
 		<hr class="w-full mt-8" />
 		<div class="mt-8 flex justify-start items-start gap-2">
-			<img src={reviewProductImage} alt={reviewProduct?.name} class="w-8" />
+			<img src={reviewProductImage} alt={reviewProduct?.name} class="w-10" />
 			<h2 class="text-lg text-gray-700">{reviewProduct?.name}</h2>
 		</div>
 		<hr class="w-full mt-8" />
@@ -171,14 +205,11 @@
 				</p>
 			{/if}
 			<textarea
+				on:input={() => (writtenReviewError = false)}
 				bind:value={textAreaValue}
 				class="mt-2 w-full h-36 p-2 rounded text-gray-700 outline-none"
 				placeholder="How would you rate your experience with this clothing purchase?"
 			></textarea>
-
-			{#if fillStarsTillIdx > 0}
-				<button class="text-blue-500 text-md mt-4 hover:underline" on:click={clearStarColoring}>clear</button>
-			{/if}
 		</div>
 		<hr class="w-full mt-8" />
 

@@ -1,22 +1,27 @@
 // third party imports
+import _ from 'lodash';
 import axios from 'axios';
 
 // inner imports
 import { ROUTES } from '../constants';
 import settings from '../config/settings';
-import { getBearerToken } from '../utils';
 import type { ReturnData } from '../interfaces';
 import { _getParsedProductsQuery } from './parser';
+import { getBearerToken, parseArray } from '../utils';
 
-export const handleImageUpload = async (imageFile: File, authToken: string): Promise<ReturnData> => {
+export const handleImageUpload = async (imageFiles: Array<File>, authToken: string): Promise<ReturnData> => {
 	const formData = new FormData();
 	const result: any = { error: false, message: undefined, data: null };
 	const url = `${settings.config.baseApiUrl}/${ROUTES.uploads}/image-upload`;
 
-	formData.append('images', imageFile);
+	imageFiles = parseArray(imageFiles, [imageFiles]);
+
+	for (const imageFile of imageFiles) {
+		formData.append('images', imageFile);
+	}
 
 	try {
-		if (!imageFile || !authToken) {
+		if (!imageFiles || _.isEmpty(imageFiles) || !authToken) {
 			throw new Error('file and token are required');
 		}
 

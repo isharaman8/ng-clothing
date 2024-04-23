@@ -1,12 +1,13 @@
 import { SalePercentSolid } from 'flowbite-svelte-icons';
 
 export const ROUTES = Object.freeze({
-	products: 'product',
-	purchases: 'purchase',
 	auth: 'auth',
-	uploads: 's3',
+	cart: 'cart',
 	user: 'user',
-	cart: 'cart'
+	uploads: 's3',
+	review: 'review',
+	products: 'product',
+	purchases: 'purchase'
 });
 
 export const DEFAULT_IMAGE = 'https://via.placeholder.com/150';
