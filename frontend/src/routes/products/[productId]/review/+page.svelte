@@ -4,13 +4,13 @@
 	import { onMount } from 'svelte';
 	import * as store from 'svelte/store';
 	import { goto } from '$app/navigation';
-	import { CloseOutline, PlusOutline, StarOutline } from 'flowbite-svelte-icons';
+	import { CloseOutline, ExclamationCircleOutline, PlusOutline, StarOutline } from 'flowbite-svelte-icons';
 
 	// inner imports
 	import { parseObject } from '../../../../utils';
 	import { authUserData, reviewData } from '../../../../stores';
-	import { showToast } from '../../../../components/misc/Toasts/toasts';
 	import Loader from '../../../../components/misc/Loader.svelte';
+	import { showToast } from '../../../../components/misc/Toasts/toasts';
 
 	// functions
 	function handleStarColoring(idx: number) {
@@ -52,6 +52,20 @@
 		imageArray = _.cloneDeep(imageArray);
 	}
 
+	function submitReviewData() {
+		if (fillStarsTillIdx === 0 || _.isEmpty(textAreaValue)) {
+			if (fillStarsTillIdx === 0) {
+				startRatingError = true;
+			}
+
+			if (_.isEmpty(textAreaValue)) {
+				writtenReviewError = true;
+			}
+
+			return;
+		}
+	}
+
 	// variables
 	const startLength = new Array(5);
 
@@ -59,13 +73,19 @@
 	let imageArray: any = [];
 	let fillStarsTillIdx = 0;
 	let buttonLoading = false;
+	let startRatingError = false,
+		writtenReviewError = false;
+
 	let fileInput: HTMLInputElement | null = null;
 	let userDetails = parseObject(store.get(authUserData), {});
 	let { review_product: reviewProduct = {} } = parseObject(store.get(reviewData), {});
-	let reviewProductImage: string = _.first(reviewProduct.images) || '';
+	let reviewProductImage: string = _.first(reviewProduct?.images) || '';
 
 	// on mount
 	onMount(() => {
+		console.log(userDetails);
+		console.log(reviewProduct);
+
 		if (_.isEmpty(reviewProduct) || _.isEmpty(userDetails)) {
 			showToast('Something went wrong', 'Unable to find product', 'error');
 			goto('/');
@@ -80,8 +100,8 @@
 		<!-- product name and image -->
 		<hr class="w-full mt-8" />
 		<div class="mt-8 flex justify-start items-start gap-2">
-			<img src={reviewProductImage} alt={reviewProduct.name} class="w-8" />
-			<h2 class="text-lg text-gray-700">{reviewProduct.name}</h2>
+			<img src={reviewProductImage} alt={reviewProduct?.name} class="w-8" />
+			<h2 class="text-lg text-gray-700">{reviewProduct?.name}</h2>
 		</div>
 		<hr class="w-full mt-8" />
 
@@ -89,6 +109,13 @@
 		<div class="flex justify-between items-start mt-4">
 			<div>
 				<h2 class="text-xl">Overall Rating</h2>
+
+				{#if startRatingError}
+					<p class="flex justify-start items-center gap-1 mt-2 text-xs text-red-700">
+						<ExclamationCircleOutline class="size-4" /> Please select a start rating
+					</p>
+				{/if}
+
 				<div class="mt-2 flex justify-start items-center gap-2">
 					{#each startLength as _start, idx}
 						<button on:click={() => handleStarColoring(idx)}>
@@ -138,6 +165,11 @@
 		<!-- written review -->
 		<div class="mt-4 w-full">
 			<h2 class="text-xl">Add a written review</h2>
+			{#if writtenReviewError}
+				<p class="flex justify-start items-center gap-1 my-2 text-xs text-red-700">
+					<ExclamationCircleOutline class="size-4" /> Please add a written review
+				</p>
+			{/if}
 			<textarea
 				bind:value={textAreaValue}
 				class="mt-2 w-full h-36 p-2 rounded text-gray-700 outline-none"
@@ -152,7 +184,7 @@
 
 		<!-- submit button -->
 		<div class="w-full flex justify-end items-center">
-			<button class="w-28 mt-2 text-white text-sm font-semibold bg-gray-700 p-2 rounded-md">
+			<button on:click={submitReviewData} class="w-28 mt-2 text-white text-sm font-semibold bg-gray-700 p-2 rounded-md">
 				{#if buttonLoading}
 					<Loader borderColor={'white'} />
 				{:else}
