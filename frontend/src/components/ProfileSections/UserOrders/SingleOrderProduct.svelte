@@ -21,6 +21,8 @@
 	function handleWriteReview() {
 		reviewStoreDetails['review_product'] = productObj;
 
+		reviewData.set(reviewStoreDetails);
+
 		goto(`/products/${productUid}/review`);
 	}
 
