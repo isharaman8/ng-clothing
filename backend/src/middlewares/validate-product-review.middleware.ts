@@ -103,7 +103,8 @@ export class ValidateProductReviewMiddleware implements NestMiddleware {
       throw new InternalServerErrorException('user.uid not handled properly in validateProductUidInUserPurchase');
     }
 
-    const query = _getParsedQuery({ product_uid: productUid, reviews: null, verified: true, user_id: user.uid });
+    // todo: change query to add verify later on
+    const query = _getParsedQuery({ product_uid: productUid, reviews: null, user_id: user.uid });
 
     let reqdPurchase: any = await this.purchaseService.getAllPurchases(query);
 

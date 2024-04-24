@@ -112,7 +112,7 @@ export class ReviewService {
 
     // parse images for object or string
     payload.images = _.map(payload.images, (image: UploadedImage | string) =>
-      typeof image === 'string' ? image : image.url,
+      typeof image === 'string' ? { url: image } : _.pick(image, ['url', 'uid', 'key']),
     );
 
     return payload;

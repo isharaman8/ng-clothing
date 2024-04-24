@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { ALLOWED_PURCHASE_STATUS } from 'src/constants/constants';
 
 // inner imports
-import { _arrayOrSplit, parseArray } from 'src/utils';
+import { _arrayOrSplit } from 'src/utils';
 
 export const _getNameAggregationFilter = (query: any = {}) => {
   const filter = [];

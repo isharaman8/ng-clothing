@@ -8,19 +8,42 @@
 
 	// inner imports
 	import { STATUS_DETAILS } from '../../../constants';
-	import { purchaseData } from '../../../stores';
 	import { parseArray, parseObject } from '../../../utils';
 	import { selectCountriesOptions } from '../../../constants';
+	import { getProductReviews } from '../../../helpers/products';
 	import { showToast } from '../../../components/misc/Toasts/toasts';
+	import { authUserData, purchaseData, reviewData } from '../../../stores';
 	import SingleOrderProduct from '../../../components/ProfileSections/UserOrders/SingleOrderProduct.svelte';
 
 	// functions
-	function buyAgain() {
-		goto(`/`);
+	async function getProductsReviews() {
+		const productUids = _.map(products, (product) => product.uid);
+
+		try {
+			const queryParams = { user_id: userDetails.user.uid, product_uid: _.join(productUids, ',') };
+			const returnData = await getProductReviews(queryParams);
+
+			if (returnData.error) {
+				throw new Error(returnData.message);
+			}
+
+			const reqdReviewData: any = parseArray(returnData.data, []);
+			console.log('reqdReviewData', reqdReviewData);
+
+			allProductReviews = reqdReviewData;
+			storeReviewData['all_products_reviews'] = reqdReviewData;
+
+			// set default values
+		} catch (error: any) {
+			showToast('Something went wrong', error.message, 'error');
+		}
 	}
 
 	// variables
+	let allProductReviews: any = [];
+	let userDetails = store.get(authUserData);
 	let { single_order: singleOrder = {} } = store.get(purchaseData);
+	let storeReviewData = parseObject(store.get(reviewData), {});
 	let {
 		text: statusTextColor,
 		background: statusBackgroundColor,
@@ -33,15 +56,15 @@
 	$: countryName = _.find(selectCountriesOptions, (country) => country.value === address.country);
 
 	// on mount
-	onMount(() => {
+	onMount(async () => {
 		const urlOrderId = $page.params.orderId;
-
-		console.log(singleOrder);
 
 		if (_.isEmpty(singleOrder) || singleOrder.uid !== urlOrderId) {
 			showToast('Invalid request', 'order not found', 'error');
 			goto('/');
 		}
+
+		await getProductsReviews();
 	});
 </script>
 
