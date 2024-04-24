@@ -5,6 +5,7 @@
 	import { CartOutline } from 'flowbite-svelte-icons';
 
 	// inner imports
+	import { parseArray } from '../../../utils';
 	import { authUserData } from '../../../stores';
 	import { createOrUpdateCart } from '../../../helpers/cart';
 	import Loader from '../../../components/misc/Loader.svelte';
@@ -28,7 +29,7 @@
 	let quantity: Number = 1;
 	let selectedSize: String = '';
 	let userDetails = store.get(authUserData);
-	let selectedImage = product.images[0] || defaultImage;
+	let selectedImage = parseArray(product.images, [])[0] || defaultImage;
 
 	// subscribe store
 	authUserData.subscribe((data: any) => (userDetails = data));

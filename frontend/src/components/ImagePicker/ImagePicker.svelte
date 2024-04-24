@@ -12,11 +12,11 @@
 	import ImagePickerSkeletonLoader from '../misc/SkeletonLoaders/ImagePickerSkeletonLoader.svelte';
 
 	// functions
-	async function localFetchUserUploads() {
+	async function localFetchUserImageUploads() {
 		uploadLoading = true;
 
 		try {
-			const tempUploads = await getUserUploads(userDetails);
+			const tempUploads = await getUserUploads(userDetails, 'image');
 
 			if (tempUploads.error) {
 				throw new Error(tempUploads.message);
@@ -59,7 +59,7 @@
 	const userDetails = store.get(authUserData);
 
 	// on mount
-	onMount(localFetchUserUploads);
+	onMount(localFetchUserImageUploads);
 </script>
 
 <div class="fixed top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center backdrop-blur-md">
