@@ -122,6 +122,27 @@ export class ProductController {
     return response.status(statusCode).send({ review: createdReview });
   }
 
+  private async getProductsReviewHandler(query: any, params: any, response: CResponse) {
+    const parsedParams = _getParsedParams(params);
+    const parsedQuery = _getParsedQuery(query);
+
+    if (parsedParams.productId) {
+      parsedQuery['productId'] = parsedParams.productId;
+    }
+
+    let reviews = await this.reviewService.getAllProductReviews(parsedQuery);
+
+    const reviewUsers = await this.getReviewUserDetails(reviews);
+
+    // get updated product images
+    reviews = await this.productService.getUpdatedImageArrayAndPopulateUserData(reviews, reviewUsers, 'review');
+
+    // parse response
+    reviews = _.map(reviews, this.reviewService.getParsedReviewResponsePayload);
+
+    return response.status(200).send({ reviews });
+  }
+
   // main controllers
 
   @Get()
@@ -174,24 +195,14 @@ export class ProductController {
     return response.status(204).send();
   }
 
+  @Get('review/all')
+  async getProductReviews(@Query() query: any, @Res() response: CResponse) {
+    await this.getProductsReviewHandler(query, {}, response);
+  }
+
   @Get(':product_uid/review')
-  async getProductReviews(@Param() params: any, @Query() query: any, @Res() response: CResponse) {
-    const parsedParams = _getParsedParams(params);
-    const parsedQuery = _getParsedQuery(query);
-
-    parsedQuery['productId'] = parsedParams.productId;
-
-    let reviews = await this.reviewService.getAllProductReviews(parsedQuery);
-
-    const reviewUsers = await this.getReviewUserDetails(reviews);
-
-    // get updated product images
-    reviews = await this.productService.getUpdatedImageArrayAndPopulateUserData(reviews, reviewUsers, 'review');
-
-    // parse response
-    reviews = _.map(reviews, this.reviewService.getParsedReviewResponsePayload);
-
-    return response.status(200).send({ reviews });
+  async getSingleProductReviews(@Param() params: any, @Query() query: any, @Res() response: CResponse) {
+    await this.getProductsReviewHandler(query, params, response);
   }
 
   @Post(':product_uid/review')

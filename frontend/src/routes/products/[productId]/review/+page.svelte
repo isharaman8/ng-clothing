@@ -7,12 +7,12 @@
 	import { CloseOutline, ExclamationCircleOutline, PlusOutline, StarOutline } from 'flowbite-svelte-icons';
 
 	// inner imports
-	import { parseObject } from '../../../../utils';
+	import { parseArray, parseObject } from '../../../../utils';
 	import { authUserData, reviewData } from '../../../../stores';
 	import Loader from '../../../../components/misc/Loader.svelte';
 	import { handleImageUpload } from '../../../../helpers/upload';
 	import { showToast } from '../../../../components/misc/Toasts/toasts';
-	import { createOrUpdateReviewFeedback } from '../../../../helpers/products';
+	import { createOrUpdateReviewFeedback, getProductReviews } from '../../../../helpers/products';
 
 	// functions
 	function handleStarColoring(idx: number) {
@@ -51,6 +51,33 @@
 		imageArray = _.cloneDeep(imageArray);
 	}
 
+	async function populateExistingReviewData() {
+		buttonLoading = true;
+
+		try {
+			const queryParams = { user_id: userDetails.user.uid };
+			const returnData = await getProductReviews(queryParams, reviewProduct.uid);
+
+			if (returnData.error) {
+				throw new Error(returnData.message);
+			}
+
+			const reqdReviewData: any = _.last(parseArray(returnData.data, [])) || {};
+
+			console.log(reqdReviewData);
+
+			// set default values
+			oldReview = reqdReviewData;
+			imageArray = parseArray(reqdReviewData.images, []);
+			fillStarsTillIdx = _.defaultTo(reqdReviewData.rating, 0);
+			textAreaValue = _.defaultTo(reqdReviewData.description, '');
+		} catch (error: any) {
+			showToast('Something went wrong', error.message, 'error');
+		} finally {
+			buttonLoading = false;
+		}
+	}
+
 	async function submitReviewData() {
 		if (fillStarsTillIdx === 0 || _.isEmpty(textAreaValue)) {
 			if (fillStarsTillIdx === 0) {
@@ -70,25 +97,40 @@
 
 		try {
 			if (!_.isEmpty(imageArray)) {
-				const fileArray = _.map(imageArray, (obj) => obj.file);
-				const uploadedImageData = await handleImageUpload(fileArray, userDetails.auth_token);
+				const fileArray = _.filter(imageArray, (obj) => obj.file).map((obj) => obj.file);
+				const alreadyPresentImageUids = _.compact(_.map(imageArray, (obj) => obj.uid));
 
-				if (uploadedImageData.error) {
-					throw new Error(uploadedImageData.message || '');
+				console.log('filearay', fileArray);
+				console.log('alreadyPresentUids', alreadyPresentImageUids);
+
+				let uploadedImageData: any;
+
+				if (!_.isEmpty(fileArray)) {
+					uploadedImageData = await handleImageUpload(fileArray, userDetails.auth_token);
+
+					if (uploadedImageData.error) {
+						throw new Error(uploadedImageData.message || '');
+					}
+
+					const imageData = uploadedImageData.data.images,
+						uploadedImageUids = _.compact(_.map(imageData, (obj) => obj.uid));
+
+					alreadyPresentImageUids.push(...uploadedImageUids);
 				}
 
-				const imageData = uploadedImageData.data.images,
-					uploadedImageUids = _.compact(_.map(imageData, (obj) => obj.uid));
-
-				payload['images'] = uploadedImageUids;
+				payload['images'] = alreadyPresentImageUids;
 			}
 
 			payload['rating'] = fillStarsTillIdx;
 			payload['description'] = textAreaValue;
 
-			console.log('PAYLOAD', payload);
-
-			const returnedReviewData = await createOrUpdateReviewFeedback(userDetails, reviewProduct.uid, payload);
+			const returnedReviewData = await createOrUpdateReviewFeedback(
+				userDetails,
+				reviewProduct.uid,
+				payload,
+				oldReview,
+				oldReview.uid
+			);
 
 			if (returnedReviewData.error) {
 				throw new Error(returnedReviewData.message || '');
@@ -113,17 +155,20 @@
 	let startRatingError = false,
 		writtenReviewError = false;
 
+	let oldReview: any = {};
 	let fileInput: HTMLInputElement | null = null;
 	let userDetails = parseObject(store.get(authUserData), {});
 	let { review_product: reviewProduct = {} } = parseObject(store.get(reviewData), {});
 	let reviewProductImage: string = _.first(reviewProduct?.images) || '';
 
 	// on mount
-	onMount(() => {
+	onMount(async () => {
 		if (_.isEmpty(reviewProduct) || _.isEmpty(userDetails)) {
 			showToast('Something went wrong', 'Unable to find product', 'error');
 			goto('/');
 		}
+
+		await populateExistingReviewData();
 	});
 </script>
 
@@ -185,11 +230,14 @@
 
 				<!-- images -->
 				{#each imageArray as image, idx}
+					{@const imgSrc = image.image_src || image.url}
+					{@const imgName = image.key || image.file?.name}
+
 					<div class="relative bg-red-100 w-fit">
 						<button class="absolute top-2 right-2 bg-white rounded-full p-2" on:click={() => handleDeleteImage(idx)}>
 							<CloseOutline class="size-2" strokeWidth="2" />
 						</button>
-						<img src={image.image_src} alt={image.file?.name} class="size-36 rounded-md object-center" />
+						<img src={imgSrc} alt={imgName} class="size-36 rounded-md object-center" />
 					</div>
 				{/each}
 			</div>

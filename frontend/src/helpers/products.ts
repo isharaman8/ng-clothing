@@ -80,3 +80,33 @@ export const createOrUpdateReviewFeedback = async (
 
 	return returnData;
 };
+
+export const getProductReviews = async (queryParams: any = {}, productUid: string | null = null) => {
+	const query = _getParsedProductsQuery(queryParams);
+	const returnData: any = { error: false, message: null, data: undefined };
+
+	let url = `${settings.config.baseApiUrl}/${ROUTES.products}`;
+
+	if (productUid) {
+		url += `/${productUid}/review`;
+	} else {
+		url += '/review/all';
+	}
+
+	console.log(url);
+
+	try {
+		const tempData = await axios.get(url, { params: query });
+
+		if (tempData.status !== 200) {
+			throw new Error(tempData.data.message);
+		}
+
+		returnData['data'] = tempData.data.reviews;
+	} catch (error: any) {
+		returnData['error'] = true;
+		returnData['message'] = error?.response?.data?.message || error.message;
+	}
+
+	return returnData;
+};
