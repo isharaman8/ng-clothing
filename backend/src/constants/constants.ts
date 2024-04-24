@@ -13,6 +13,18 @@ export const ALLOWED_USER_ROLES = Object.freeze({
 
 export const ALLOWED_MIMETYPES = Object.freeze({
   image: ['image/png', 'image/jpeg'],
+  video: [
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/x-msvideo',
+    'video/quicktime',
+    'video/x-matroska',
+    'video/3gpp',
+    'video/mpeg',
+    'video/x-flv',
+    'video/x-ms-wmv',
+  ],
 });
 
 export const ALLOWED_PRODUCT_SIZES = Object.freeze({
@@ -55,3 +67,8 @@ export const ADDRESS_TYPE_ENUM = Object.freeze({
 export const SENDGRID_TEMPLATE_UIDS = {
   verify_email: 'd-c97debc9d396462cb3349859e184d002',
 };
+
+export const ALLOWED_UPLOAD_TYPES = Object.freeze({
+  image: 'image',
+  video: 'video',
+});

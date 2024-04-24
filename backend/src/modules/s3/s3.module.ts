@@ -17,8 +17,9 @@ import { ValidateUploadMiddleware } from 'src/middlewares/validate-upload.middle
 export class S3Module implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     const allowedRoutes = [
-      { path: 's3/image', method: RequestMethod.GET },
+      { path: 's3/uploads', method: RequestMethod.GET },
       { path: 's3/image-upload', method: RequestMethod.POST },
+      { path: 's3/video-upload', method: RequestMethod.POST },
     ];
 
     consumer

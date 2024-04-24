@@ -38,6 +38,7 @@ export const _getParsedQuery = (query: QueryParams = {}) => {
     orderType: _.defaultTo(query.order_type, null),
     addresses: parseBoolean(query.addresses, false),
     productId: _.defaultTo(query.product_uid, null),
+    uploadType: _.defaultTo(query.upload_type, null),
     purchaseId: _.defaultTo(query.purchase_uid, null),
     requiredSize: _.defaultTo(query.required_size, null),
     maxPrice: parseNumber(query.max_price, Number.MAX_SAFE_INTEGER),

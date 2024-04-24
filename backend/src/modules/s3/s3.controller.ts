@@ -1,12 +1,12 @@
 // third party imports
 import * as _ from 'lodash';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Req, Res, Post, Controller, UploadedFiles, UseInterceptors, Get } from '@nestjs/common';
+import { Req, Res, Post, Controller, UploadedFiles, UseInterceptors, Get, Query } from '@nestjs/common';
 
 // inner imports
 import { S3Service } from './s3.service';
 import { _getParsedQuery } from 'src/helpers/parser';
-import { CRequest, CResponse, S3GetUrlArray } from 'src/interfaces';
+import { CRequest, CResponse, QueryParams, S3GetUrlArray } from 'src/interfaces';
 
 @Controller('s3')
 export class S3Controller {
@@ -14,7 +14,7 @@ export class S3Controller {
 
   @Post('image-upload')
   @UseInterceptors(FilesInterceptor('images'))
-  async uploadFiles(
+  async uploadImageFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() request: CRequest,
     @Res() response: CResponse,
@@ -22,42 +22,60 @@ export class S3Controller {
     let rs = [];
 
     if (!_.isEmpty(files)) {
-      rs.push(...(await this.s3Service.uploadFiles(files, request.user)));
+      rs.push(...(await this.s3Service.uploadFiles(files, request.user, 'image')));
     }
 
     return response.status(200).send({ images: rs });
   }
 
-  @Get('image')
-  async getAllImages(@Req() request: CRequest, @Res() response: CResponse) {
-    const uploadQuery = _getParsedQuery({ user_id: request.user?.uid });
+  @Post('video-upload')
+  @UseInterceptors(FilesInterceptor('videos'))
+  async uploadVideoFiles(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Req() request: CRequest,
+    @Res() response: CResponse,
+  ) {
+    let rs = [];
 
-    let images = [];
+    if (!_.isEmpty(files)) {
+      rs.push(...(await this.s3Service.uploadFiles(files, request.user, 'video')));
+    }
 
-    images = await this.s3Service.getAllUploads(uploadQuery);
+    return response.status(200).send({ videos: rs });
+  }
 
-    // update images
-    const filterExpiredUrlImages = _.filter(images, (image) => new Date(image.url_expiry_date) <= new Date());
-    const s3UrlArray: Array<S3GetUrlArray> = _.map(filterExpiredUrlImages, (image) => ({
-      key: image.key,
-      bucket: image.bucket,
-      uid: image.uid,
+  @Get('uploads')
+  async getAllUserUploads(@Query() query: QueryParams, @Req() request: CRequest, @Res() response: CResponse) {
+    const uploadQuery = _getParsedQuery(query);
+
+    uploadQuery['userId'] = request.user?.uid;
+
+    let uploads = [];
+
+    uploads = await this.s3Service.getAllUploads(uploadQuery);
+
+    // update uploads
+    const filterExpiredUrlImages = _.filter(uploads, (upload) => new Date(upload.url_expiry_date) <= new Date());
+    const s3UrlArray: Array<S3GetUrlArray> = _.map(filterExpiredUrlImages, (upload) => ({
+      key: upload.key,
+      bucket: upload.bucket,
+      uid: upload.uid,
     }));
     const updatedUrls = await this.s3Service.getUpdatedFileUrls(s3UrlArray);
 
     // update response
-    for (const image of images) {
-      const reqdImage = _.find(updatedUrls, (url) => url.uid === image.uid);
+    for (const image of uploads) {
+      const reqdUploads = _.find(updatedUrls, (url) => url.uid === image.uid);
 
-      if (reqdImage) {
-        image.url = reqdImage.url;
-        image.url_expiry_date = reqdImage.url_expiry_date;
+      if (reqdUploads) {
+        image.url = reqdUploads.url;
+        image.url_expiry_date = reqdUploads.url_expiry_date;
       }
     }
 
     // parse response
-    images = _.map(images, this.s3Service.getParsedUploadsResponse);
+    uploads = _.map(uploads, this.s3Service.getParsedUploadsResponse);
 
-    response.status(200).send({ images });
+    response.status(200).send({ uploads });
   }
 }

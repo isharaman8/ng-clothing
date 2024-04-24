@@ -1,6 +1,10 @@
 // third party imports
+import * as _ from 'lodash';
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
+// inner imports
+import { ALLOWED_UPLOAD_TYPES } from 'src/constants/constants';
 
 export type UploadDocument = HydratedDocument<Upload>;
 
@@ -33,6 +37,9 @@ export class Upload {
 
   @Prop({ required: true })
   mimetype: string;
+
+  @Prop({ required: true, enum: _.values(ALLOWED_UPLOAD_TYPES) })
+  type: string;
 }
 
 export const UploadSchema = SchemaFactory.createForClass(Upload);
