@@ -6,6 +6,7 @@ import { ROUTES } from '../constants';
 import settings from '../config/settings';
 import { getBearerToken } from '../utils';
 import type { ReturnData } from '../interfaces';
+import { _getParsedProductsQuery } from './parser';
 
 export const handleImageUpload = async (imageFile: File, authToken: string): Promise<ReturnData> => {
 	const formData = new FormData();
@@ -30,7 +31,7 @@ export const handleImageUpload = async (imageFile: File, authToken: string): Pro
 			throw new Error(response.data.message);
 		}
 
-		result['data'] = response.data;
+		result['data'] = response.data.images;
 	} catch (error: any) {
 		result['error'] = true;
 		result['message'] = error?.response?.data?.message || error.message;
@@ -39,9 +40,10 @@ export const handleImageUpload = async (imageFile: File, authToken: string): Pro
 	return result;
 };
 
-export const getUserUploads = async (userDetails: any = {}) => {
+export const getUserUploads = async (userDetails: any = {}, uploadType: string | null = null) => {
 	const result: any = { error: false, message: undefined, data: null };
-	const url = `${settings.config.baseApiUrl}/${ROUTES.uploads}/image`;
+	const url = `${settings.config.baseApiUrl}/${ROUTES.uploads}/uploads`;
+	const query = { upload_type: uploadType };
 
 	try {
 		if (!userDetails?.auth_token) {
@@ -51,14 +53,15 @@ export const getUserUploads = async (userDetails: any = {}) => {
 		const tempData = await axios.get(url, {
 			headers: {
 				Authorization: getBearerToken(userDetails)
-			}
+			},
+			params: query
 		});
 
 		if (tempData.status !== 200) {
 			throw new Error(tempData.data.message);
 		}
 
-		result['data'] = tempData.data.images;
+		result['data'] = tempData.data.uploads;
 	} catch (error: any) {
 		result['error'] = true;
 		result['message'] = error?.response?.data?.message || error.message;

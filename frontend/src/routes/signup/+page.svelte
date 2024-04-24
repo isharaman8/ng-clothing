@@ -44,7 +44,7 @@
 			const tempValue = await signup(signupData);
 
 			if (tempValue.error) {
-				throw new Error(tempValue.message);
+				throw new Error(tempValue.message || '');
 			}
 
 			returnValue = tempValue.data;
@@ -53,16 +53,16 @@
 				const returnData = await handleImageUpload(file, returnValue.auth_token);
 
 				if (returnData.error) {
-					throw new Error(returnData.message);
+					throw new Error(returnData.message || '');
 				}
 
 				// update profile_picture
-				const profilePictureUid = _.defaultTo(parseArray(returnData.data.images, [])[0]?.uid, null);
+				const profilePictureUid = _.defaultTo(parseArray(returnData.data, [])[0]?.uid, null);
 				const updateProfilePayload = { profile_picture: profilePictureUid };
 				const updatedProfileData = await updateProfile(returnValue, updateProfilePayload);
 
 				if (updatedProfileData.error) {
-					throw new Error(updatedProfileData.message);
+					throw new Error(updatedProfileData.message || '');
 				}
 
 				returnValue['user'] = updatedProfileData.data.user;
@@ -102,7 +102,7 @@
 			Password
 			<input type="password" placeholder="6+ characters" class="form_input w-full" bind:value={password} />
 		</label>
-		
+
 		<button class="bg-gray-800 px-3 py-3 w-full rounded-3xl text-white font-semibold mt-4">
 			{#if loading}
 				<Loader />
@@ -112,5 +112,4 @@
 		</button>
 	</form>
 	<p class="mt-2">Already have an account? <a class="font-semibold underline" href="/login">Sign in</a></p>
-	
 </div>

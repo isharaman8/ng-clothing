@@ -71,11 +71,11 @@
 				const returnData = await handleImageUpload(file, userDetails.auth_token);
 
 				if (returnData.error) {
-					throw new Error(returnData.message);
+					throw new Error(returnData.message || '');
 				}
 
 				// set profile_picture in updatePayload
-				updatePayload['profile_picture'] = _.defaultTo(parseArray(returnData.data.images, [])[0]?.uid, null);
+				updatePayload['profile_picture'] = _.defaultTo(parseArray(returnData.data, [])[0]?.uid, null);
 			} else if (oldSelectedImage) {
 				updatePayload['profile_picture'] = oldSelectedImage;
 			}
@@ -133,7 +133,10 @@
 	<LabeledInput labelText={'Email'} name={'email'} value={email} disabled={true} />
 	<LabeledInput labelText={'Username'} name={'username'} value={username} disabled={true} />
 
-	<button class="mt-8 bg-gray-100 text-gray-800 max-sm:w-full p-4 rounded-lg font-semibold" on:click={localUpdateProfile}>
+	<button
+		class="mt-8 bg-gray-100 text-gray-800 max-sm:w-full p-4 rounded-lg font-semibold"
+		on:click={localUpdateProfile}
+	>
 		{#if loading}
 			<Loader />
 		{:else}

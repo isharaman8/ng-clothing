@@ -74,7 +74,7 @@ export const signup = async (userData: SignupData): Promise<ReturnData> => {
 			user: parsedSignupPayload
 		});
 
-		if (tempData.status !== 200) {
+		if (tempData.status !== 201) {
 			const errorMessage = tempData.data?.message || 'Something went wrong';
 
 			throw new Error(errorMessage);

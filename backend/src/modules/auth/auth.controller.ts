@@ -56,7 +56,7 @@ export class AuthController {
     const responseData = await this.signUpOrUpdateUser(response, 200);
 
     // send verification email
-    await this.authService.sendVerificationEmail(responseData);
+    // await this.authService.sendVerificationEmail(responseData);
 
     return response.status(201).send(responseData);
   }
