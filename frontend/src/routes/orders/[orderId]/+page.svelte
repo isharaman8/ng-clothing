@@ -42,8 +42,8 @@
 	// variables
 	let allProductReviews: any = [];
 	let userDetails = store.get(authUserData);
-	let { single_order: singleOrder = {} } = store.get(purchaseData);
 	let storeReviewData = parseObject(store.get(reviewData), {});
+	let { single_order: singleOrder = {} } = store.get(purchaseData);
 	let {
 		text: statusTextColor,
 		background: statusBackgroundColor,
