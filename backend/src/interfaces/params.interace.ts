@@ -28,6 +28,7 @@ export interface QueryParams {
   user_id?: string | string[];
   username?: string | string[];
   order_type?: string | string[];
+  upload_type?: string | string[];
   product_uid?: string | string[];
   purchase_uid?: string | string[];
   required_size?: string | string[];

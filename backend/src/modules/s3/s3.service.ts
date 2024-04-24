@@ -9,11 +9,16 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 
 // inner imports
+import { IMAGE_VIDEO_TYPE } from 'src/types';
 import { S3GetUrlArray } from 'src/interfaces';
 import { Upload } from 'src/schemas/upload.schema';
 import { _getParsedQuery } from 'src/helpers/parser';
 import { ALLOWED_MIMETYPES, MAX_PRESIGNED_URL_DURATION } from 'src/constants/constants';
-import { _getMimeTypeAggregationFilter, _getUidAggregationFilter } from 'src/helpers/aggregationFilters';
+import {
+  _getUidAggregationFilter,
+  _getMimeTypeAggregationFilter,
+  _getUploadTypeAggregationFilter,
+} from 'src/helpers/aggregationFilters';
 
 @Injectable()
 export class S3Service {
@@ -29,18 +34,21 @@ export class S3Service {
     credentials: { accessKeyId: this.s3Config.accessKeyId, secretAccessKey: this.s3Config.secretAccessKey },
   });
 
-  async uploadFiles(files: Array<Express.Multer.File>, user: any = {}) {
+  async uploadFiles(files: Array<Express.Multer.File>, user: any = {}, type: IMAGE_VIDEO_TYPE) {
     const responses = [];
     const bulkWriteArray = [];
 
     for (const file of files) {
       const { originalname, mimetype, buffer, size } = file;
 
-      if (this.validateImageMimetype(mimetype)) {
+      // change false to true
+      const validateMimetype = this.validateMimetype(mimetype, type);
+
+      if (validateMimetype) {
         const response = await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype);
 
         if (response && user.uid) {
-          const newResponse = { ...response, size, mimetype, user_id: user.uid, uid: nanoid() };
+          const newResponse = { ...response, size, mimetype, type, user_id: user.uid, uid: nanoid() };
 
           responses.push(newResponse);
           bulkWriteArray.push({ insertOne: { document: newResponse } });
@@ -140,7 +148,11 @@ export class S3Service {
   }
 
   async getAllUploads(query: any = {}) {
-    const andQuery = [..._getUidAggregationFilter(query), ..._getMimeTypeAggregationFilter(query)];
+    const andQuery = [
+      ..._getUidAggregationFilter(query),
+      ..._getMimeTypeAggregationFilter(query),
+      ..._getUploadTypeAggregationFilter(query),
+    ];
 
     let images = [];
 
@@ -173,8 +185,8 @@ export class S3Service {
   }
 
   // validators
-  validateImageMimetype(mimetype: string) {
-    if (_.includes(ALLOWED_MIMETYPES.image, mimetype)) {
+  validateMimetype(mimetype: string, type: IMAGE_VIDEO_TYPE) {
+    if (_.includes(ALLOWED_MIMETYPES[type], mimetype)) {
       return true;
     }
 

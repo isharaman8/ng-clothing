@@ -174,6 +174,18 @@ export const _getMimeTypeAggregationFilter = (query: any = {}) => {
   return filter;
 };
 
+export const _getUploadTypeAggregationFilter = (query: any = {}) => {
+  const filter = [];
+
+  if (!_.isEmpty(query.uploadType)) {
+    let reqdUploadTypeArray = _arrayOrSplit(query.uploadType, ',');
+
+    filter.push({ type: { $in: reqdUploadTypeArray } });
+  }
+
+  return filter;
+};
+
 export const _getPurchaseStatusAggregationFilter = (query: any = {}) => {
   const filter = [];
   const allowedPurchaseStatusArray = _.values(ALLOWED_PURCHASE_STATUS);
