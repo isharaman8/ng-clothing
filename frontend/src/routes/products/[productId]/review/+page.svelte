@@ -12,7 +12,8 @@
 	import Loader from '../../../../components/misc/Loader.svelte';
 	import { handleImageUpload } from '../../../../helpers/upload';
 	import { showToast } from '../../../../components/misc/Toasts/toasts';
-	import { createOrUpdateReviewFeedback, getProductReviews } from '../../../../helpers/products';
+	import { createOrUpdateReviewFeedback } from '../../../../helpers/products';
+	import ConfirmationPopup from '../../../../components/misc/Popups/ConfirmationPopup.svelte';
 
 	// functions
 	function handleStarColoring(idx: number) {
@@ -52,30 +53,17 @@
 	}
 
 	async function populateExistingReviewData() {
-		buttonLoading = true;
+		const reqdReviewData: any =
+			_.find(
+				allProductReviews,
+				(review) => review.user_id === userDetails.user.uid && review.product_id === reviewProduct.uid
+			) || {};
 
-		try {
-			const queryParams = { user_id: userDetails.user.uid };
-			const returnData = await getProductReviews(queryParams, reviewProduct.uid);
-
-			if (returnData.error) {
-				throw new Error(returnData.message);
-			}
-
-			const reqdReviewData: any = _.last(parseArray(returnData.data, [])) || {};
-
-			console.log(reqdReviewData);
-
-			// set default values
-			oldReview = reqdReviewData;
-			imageArray = parseArray(reqdReviewData.images, []);
-			fillStarsTillIdx = _.defaultTo(reqdReviewData.rating, 0);
-			textAreaValue = _.defaultTo(reqdReviewData.description, '');
-		} catch (error: any) {
-			showToast('Something went wrong', error.message, 'error');
-		} finally {
-			buttonLoading = false;
-		}
+		// set default values
+		oldReview = reqdReviewData;
+		imageArray = parseArray(reqdReviewData.images, []);
+		fillStarsTillIdx = _.defaultTo(reqdReviewData.rating, 0);
+		textAreaValue = _.defaultTo(reqdReviewData.description, '');
 	}
 
 	async function submitReviewData() {
@@ -99,9 +87,6 @@
 			if (!_.isEmpty(imageArray)) {
 				const fileArray = _.filter(imageArray, (obj) => obj.file).map((obj) => obj.file);
 				const alreadyPresentImageUids = _.compact(_.map(imageArray, (obj) => obj.uid));
-
-				console.log('filearay', fileArray);
-				console.log('alreadyPresentUids', alreadyPresentImageUids);
 
 				let uploadedImageData: any;
 
@@ -145,9 +130,25 @@
 		}
 	}
 
+	function closePopup() {
+		popupOpen = false;
+	}
+
+	function openPopup() {
+		popupOpen = true;
+	}
+
+	function cancelReview() {
+		reviewData.set({});
+
+		closePopup();
+		goto('/');
+	}
+
 	// variables
 	const startLength = new Array(5);
 
+	let popupOpen = false;
 	let textAreaValue = '';
 	let imageArray: any = [];
 	let fillStarsTillIdx = 0;
@@ -158,7 +159,10 @@
 	let oldReview: any = {};
 	let fileInput: HTMLInputElement | null = null;
 	let userDetails = parseObject(store.get(authUserData), {});
-	let { review_product: reviewProduct = {} } = parseObject(store.get(reviewData), {});
+	let { review_product: reviewProduct = {}, all_products_reviews: allProductReviews = [] } = parseObject(
+		store.get(reviewData),
+		{}
+	);
 	let reviewProductImage: string = _.first(reviewProduct?.images) || '';
 
 	// on mount
@@ -262,8 +266,24 @@
 		<hr class="w-full mt-8" />
 
 		<!-- submit button -->
-		<div class="w-full flex justify-end items-center">
-			<button on:click={submitReviewData} class="w-28 mt-2 text-white text-sm font-semibold bg-gray-700 p-2 rounded-md">
+		<div class="w-full flex justify-end items-center gap-2">
+			<button
+				disabled={buttonLoading}
+				on:click={openPopup}
+				class="w-28 mt-2 text-white text-sm font-semibold bg-red-700 disabled:bg-red-500 p-2 rounded-md"
+			>
+				{#if buttonLoading}
+					<Loader borderColor={'white'} />
+				{:else}
+					Cancel
+				{/if}
+			</button>
+
+			<button
+				disabled={buttonLoading}
+				on:click={submitReviewData}
+				class="w-28 mt-2 text-white text-sm font-semibold bg-gray-700 disabled:bg-gray-500 p-2 rounded-md"
+			>
 				{#if buttonLoading}
 					<Loader borderColor={'white'} />
 				{:else}
@@ -272,4 +292,9 @@
 			</button>
 		</div>
 	</div>
+
+	<!-- popup -->
+	{#if popupOpen}
+		<ConfirmationPopup handleClick={cancelReview} handleOnClose={closePopup} />
+	{/if}
 </div>

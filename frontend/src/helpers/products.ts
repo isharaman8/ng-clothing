@@ -93,8 +93,6 @@ export const getProductReviews = async (queryParams: any = {}, productUid: strin
 		url += '/review/all';
 	}
 
-	console.log(url);
-
 	try {
 		const tempData = await axios.get(url, { params: query });
 
