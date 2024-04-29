@@ -31,19 +31,35 @@ export class ValidateUserMiddleware implements NestMiddleware {
   ) {}
 
   private validateUserRole(user: any = {}, _method: string, originalUrl: string) {
-    let validUserRole = false;
+    let validUserRole = false,
+      validUserAdminRole = false;
 
+    const adminLoginRoles = ['admin'];
+    const adminLoginRoute = '/auth/admin/login';
     const roles = parseArray(user.roles, []);
-    const allowedOriginsWithoutCheck = ['/auth/login', '/auth/signup', '/auth/profile/update'];
+    const allowedOriginsWithoutCheck = ['/auth/login', '/auth/signup', '/auth/admin/signup', '/auth/profile/update'];
 
     if (_.includes(allowedOriginsWithoutCheck, originalUrl)) {
       validUserRole = true;
     }
 
     for (const role of roles) {
+      if (originalUrl === adminLoginRoute && _.includes(adminLoginRoles, role)) {
+        validUserRole = true;
+        validUserAdminRole = true;
+
+        break;
+      }
+
       if (_.includes(ALLOWED_USER_ROLES.user, role)) {
         validUserRole = true;
+
+        break;
       }
+    }
+
+    if (!validUserAdminRole && originalUrl === adminLoginRoute) {
+      throw new UnauthorizedException('No admin user found');
     }
 
     if (!validUserRole) {
@@ -177,11 +193,13 @@ export class ValidateUserMiddleware implements NestMiddleware {
       findQuery,
     );
 
-    this.validateUserRole(req.user, req.method, req.originalUrl);
     this.validateParsedUserBody(req.originalUrl, parsedUserBody);
 
     const tempUser = await this.userService.getAllUsers(findQuery);
     oldUser = _.last(tempUser);
+
+    const reqdUserForRoleValidate = _.isEmpty(req.user) ? oldUser : req.user;
+    this.validateUserRole(reqdUserForRoleValidate, req.method, req.originalUrl);
 
     this.validateSignupRequest(req.originalUrl, oldUser);
     this.validateLoginRequest(req.originalUrl, oldUser, parsedUserBody);

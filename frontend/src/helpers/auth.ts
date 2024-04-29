@@ -24,8 +24,16 @@ const getParsedSignupPayload = (obj: any): SignupData => {
 };
 
 // exported functions
-export const login = async (email: string, password: string): Promise<ReturnData> => {
+export const login = async (email: string, password: string, routeType: 'admin' | 'user'): Promise<ReturnData> => {
 	const returnData: any = { error: false, data: null, message: undefined };
+
+	let url = `${settings.config.baseApiUrl}/${ROUTES.auth}/`;
+
+	if (routeType === 'user') {
+		url += 'login';
+	} else {
+		url += 'admin/login';
+	}
 
 	try {
 		if (!email || !password) {
@@ -37,7 +45,6 @@ export const login = async (email: string, password: string): Promise<ReturnData
 		}
 
 		const payload = { user: { email, password } };
-		const url = `${settings.config.baseApiUrl}/${ROUTES.auth}/login`;
 		const tempData = await axios.post(url, payload);
 
 		if (tempData.status !== 200) {
@@ -55,7 +62,15 @@ export const login = async (email: string, password: string): Promise<ReturnData
 	return returnData;
 };
 
-export const signup = async (userData: SignupData): Promise<ReturnData> => {
+export const signup = async (userData: SignupData, routeType: 'user' | 'admin'): Promise<ReturnData> => {
+	let route = `${settings.config.baseApiUrl}/${ROUTES.auth}/`;
+
+	if (routeType === 'user') {
+		route += 'signup';
+	} else {
+		route += 'admin/signup';
+	}
+
 	const { email, password, username, name } = userData;
 	const returnData: any = { error: false, data: null, message: undefined };
 

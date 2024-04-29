@@ -1,12 +1,12 @@
 <script lang="ts">
 	// inner imports
-	import '../../styles/login_signup.css';
+	import '../../../styles/login_signup.css';
 
-	import { login } from '../../helpers/auth';
-	import { authUserData } from '../../stores';
-	import { defaultToastMessages } from '../../constants';
-	import Loader from '../../components/misc/Loader.svelte';
-	import { showToast } from '../../components/misc/Toasts/toasts';
+	import { login } from '../../../helpers/auth';
+	import { authUserData } from '../../../stores';
+	import { defaultToastMessages } from '../../../constants';
+	import Loader from '../../../components/misc/Loader.svelte';
+	import { showToast } from '../../../components/misc/Toasts/toasts';
 
 	// third party imports
 	import _ from 'lodash';
@@ -26,7 +26,7 @@
 		loading = true;
 
 		try {
-			const tempValue = await login(email, password, 'user');
+			const tempValue = await login(email, password, 'admin');
 
 			if (tempValue.error) {
 				throw new Error(tempValue.message || '');
@@ -34,10 +34,12 @@
 
 			returnValue = tempValue.data;
 
+			console.log('returnAdminValue', returnValue);
+
 			authUserData.set(returnValue);
 
 			showToast('Login Successful', 'successfully logged in', 'success');
-			goto('/');
+			goto('/admin/dashboard');
 		} catch (error: any) {
 			showToast(defaultToastMessages.login.failure.title, error.message, 'error');
 		} finally {
@@ -48,7 +50,7 @@
 
 <div class="w-[100vw] h-[100vh] max-sm:h-auto max-sm:mt-28 flex flex-col justify-center items-center">
 	<form class="w-[30%] max-sm:w-[90%] m-auto" on:submit={handleSubmit}>
-		<h1 class="text-center w-full text-2xl font-semibold max-sm:text-3xl max-sm:mb-6">Login to start shopping</h1>
+		<h1 class="text-center w-full text-2xl font-semibold max-sm:text-3xl max-sm:mb-6">Admin Login</h1>
 		<label class="form_label">
 			Email
 			<input type="email" placeholder="john@example.com" class="form_input w-full" bind:value={email} />
@@ -64,6 +66,5 @@
 				<section>Submit</section>
 			{/if}
 		</button>
-		<p class="mt-2 text-center">Don't have an account? <a class="font-semibold underline" href="/signup">Sign up</a></p>
 	</form>
 </div>

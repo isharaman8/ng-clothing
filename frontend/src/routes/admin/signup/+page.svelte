@@ -1,15 +1,15 @@
 <script lang="ts">
 	// inner imports
-	import '../../styles/login_signup.css';
+	import '../../../styles/login_signup.css';
 
-	import { parseArray } from '../../utils';
-	import { authUserData } from '../../stores';
-	import { defaultToastMessages } from '../../constants';
-	import { handleImageUpload } from '../../helpers/upload';
-	import Loader from '../../components/misc/Loader.svelte';
-	import { signup, updateProfile } from '../../helpers/auth';
-	import { showToast } from '../../components/misc/Toasts/toasts';
-	import ImageUploader from '../../components/ImageUploader/ImageUploader.svelte';
+	import { parseArray } from '../../../utils';
+	import { authUserData } from '../../../stores';
+	import { defaultToastMessages } from '../../../constants';
+	import { handleImageUpload } from '../../../helpers/upload';
+	import Loader from '../../../components/misc/Loader.svelte';
+	import { signup, updateProfile } from '../../../helpers/auth';
+	import { showToast } from '../../../components/misc/Toasts/toasts';
+	import ImageUploader from '../../../components/ImageUploader/ImageUploader.svelte';
 
 	// third party imports
 	import _ from 'lodash';
@@ -41,7 +41,7 @@
 
 		try {
 			const signupData = { name, email, password, username };
-			const tempValue = await signup(signupData, 'user');
+			const tempValue = await signup(signupData, 'admin');
 
 			if (tempValue.error) {
 				throw new Error(tempValue.message || '');
@@ -71,7 +71,7 @@
 			authUserData.set(returnValue);
 
 			showToast(success.title, success.description, 'success');
-			goto('/');
+			goto('/admin/dashboard');
 		} catch (error: any) {
 			showToast(failure.title, error.message, 'error');
 		} finally {

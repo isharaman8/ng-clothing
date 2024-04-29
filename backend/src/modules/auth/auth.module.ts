@@ -13,8 +13,8 @@ import { SendgridService } from '../sendgrid/sendgrid.service';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { Upload, UploadSchema } from 'src/schemas/upload.schema';
 import { UserAddressService } from '../user/user-address.service';
-import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
 import { UserAddress, UserAddressSchema } from 'src/schemas/user-address.schema';
+import { ValidateUserMiddleware } from 'src/middlewares/validate-user.middleware';
 
 @Module({
   imports: [
@@ -42,6 +42,8 @@ export class AuthModule implements NestModule {
       .forRoutes(
         { path: 'auth/login', method: RequestMethod.POST },
         { path: 'auth/signup', method: RequestMethod.POST },
+        { path: 'auth/admin/login', method: RequestMethod.POST },
+        { path: 'auth/admin/signup', method: RequestMethod.POST },
         { path: 'auth/profile/update', method: RequestMethod.PATCH },
       );
   }

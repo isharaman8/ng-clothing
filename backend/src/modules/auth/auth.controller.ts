@@ -30,9 +30,14 @@ export class AuthController {
   ) {}
 
   // internal helpers
-  private async signUpOrUpdateUser(response: CResponse, statusCode: number) {
+  private async signUpOrUpdateUser(response: CResponse, statusCode: number, roles: Array<string> = []) {
     const { oldUser, user, uploads } = response.locals;
     const payload = this.userService.getParsedUserBody(user);
+
+    // set roles in payload
+    if (!_.isEmpty(roles)) {
+      _.set(payload, 'roles', roles);
+    }
 
     let userToken: string;
     let createdOrUpdatedUser: CreateOrUpdateUserDto;
@@ -51,9 +56,40 @@ export class AuthController {
     return { user: createdOrUpdatedUser, auth_token: userToken };
   }
 
+  private async handleLogin(response: CResponse) {
+    let userToken: string;
+    let { oldUser, uploads } = response.locals;
+
+    userToken = await this.authService.getAuthToken(oldUser);
+
+    // get updated profile picture url
+    const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser], uploads);
+
+    oldUser = tempUser[0];
+
+    // parse response
+    oldUser = this.userService.getParsedUserResponsePayload(oldUser);
+
+    return response.status(200).send({ user: oldUser, auth_token: userToken });
+  }
+
   @Post('signup')
   async signUpUser(@Body('user') _user: CreateOrUpdateUserDto, @Res() response: CResponse) {
-    const responseData = await this.signUpOrUpdateUser(response, 200);
+    const normalUserRoles = ['user'];
+
+    const responseData = await this.signUpOrUpdateUser(response, 200, normalUserRoles);
+
+    // send verification email
+    // await this.authService.sendVerificationEmail(responseData);
+
+    return response.status(201).send(responseData);
+  }
+
+  @Post('admin/signup')
+  async adminSignUpUser(@Body('user') _user: CreateOrUpdateUserDto, @Res() response: CResponse) {
+    const adminUserRoles = ['user', 'admin'];
+
+    const responseData = await this.signUpOrUpdateUser(response, 200, adminUserRoles);
 
     // send verification email
     // await this.authService.sendVerificationEmail(responseData);
@@ -70,20 +106,12 @@ export class AuthController {
 
   @Post('login')
   async loginUser(@Body('user') _user: LoginUserDto, @Res() response: CResponse) {
-    let userToken: string;
-    let { oldUser, uploads } = response.locals;
+    await this.handleLogin(response);
+  }
 
-    userToken = await this.authService.getAuthToken(oldUser);
-
-    // get updated profile picture url
-    const tempUser = await this.userService.getUpdatedProfilePictureUrl([oldUser], uploads);
-
-    oldUser = tempUser[0];
-
-    // parse response
-    oldUser = this.userService.getParsedUserResponsePayload(oldUser);
-
-    return response.status(200).send({ user: oldUser, auth_token: userToken });
+  @Post('admin/login')
+  async adminLoginUser(@Body('user') _user: LoginUserDto, @Res() response: CResponse) {
+    await this.handleLogin(response);
   }
 
   @Get('/profile')
