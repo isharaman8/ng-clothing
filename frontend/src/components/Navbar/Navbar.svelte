@@ -108,7 +108,6 @@
 	$: userData = store.get(authUserData);
 	$: products = store.get(productData);
 
-	
 	// store subscribe
 	productData.subscribe((data) => (products = data));
 	cartData.subscribe((value: any) => (userCart = value));
@@ -116,12 +115,13 @@
 
 	// on mount
 	onMount(() => {
+		document.body.addEventListener('click', handleOutsideClick);
+
 		if (_.isEmpty(userData)) {
 			goto('/login');
 			return;
 		}
 
-		document.body.addEventListener('click', handleOutsideClick);
 		localGetUserCart();
 	});
 </script>
@@ -215,7 +215,7 @@
 						/>
 					</div>
 					{#if searchResultsVisible}
-						<SearchBox products={products}/>
+						<SearchBox {products} />
 					{/if}
 				</form>
 				<CloseSolid on:click={toggleSearchVisibility} class="text-gray-500 absolute top-4 right-4" />
@@ -248,8 +248,8 @@
 				/>
 			</div>
 			{#if searchResultsVisible}
-				<SearchBox products={products}/>
-		  	{/if}
+				<SearchBox {products} />
+			{/if}
 		</form>
 
 		<!-- cart and login -->
@@ -320,5 +320,5 @@
 
 <!-- overlay  -->
 {#if searchResultsVisible}
-	<div class="absolute w-screen h-screen top-0 left-0 bg-[rgba(0,0,0,0.5)] z-0"></div>
+	<div class="fixed w-screen h-screen top-0 left-0 bg-[rgba(0,0,0,0.5)] z-0"></div>
 {/if}
