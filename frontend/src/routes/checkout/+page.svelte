@@ -52,7 +52,7 @@
 	let { checkout_purchase: { products = [] } = { products: [] } } = purchaseDetails;
 </script>
 
-<div class="mt-24 p-8 flex flex-col justify-center items-center">
+<div class="mt-24 p-8 flex flex-col justify-center items-center min-h-[90vh]">
 	<div class="w-[80%]">
 		<!-- user address select -->
 		<div class="mt-5">
@@ -60,14 +60,16 @@
 		</div>
 	</div>
 
-	<button
-		on:click={localAddPurchase}
-		class="mt-4 p-4 rounded-lg bg-gray-700 text-gray-100 font-medium fixed bottom-4 right-4 min-w-36"
-	>
-		{#if checkOutLoading}
-			<Loader />
-		{:else}
-			Checkout
-		{/if}
-	</button>
+	{#if currentlySelectedAddress}
+		<button
+			on:click={localAddPurchase}
+			class="mt-4 p-4 rounded-lg bg-gray-700 text-gray-100 font-medium fixed bottom-4 right-4 min-w-36"
+		>
+			{#if checkOutLoading}
+				<Loader />
+			{:else}
+				Checkout
+			{/if}
+		</button>
+	{/if}
 </div>

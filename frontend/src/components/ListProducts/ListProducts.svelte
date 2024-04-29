@@ -18,7 +18,7 @@
 
 	let products = store.get(productData);
 
-	const localProducts = JSON.parse(JSON.stringify(products))
+	const localProducts = JSON.parse(JSON.stringify(products));
 
 	productData.subscribe((data) => (products = data));
 </script>
@@ -32,7 +32,7 @@
 	{/if}
 
 	<!-- products -->
-	<div class="grid  grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8">
+	<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8">
 		{#if !loading}
 			{#each localProducts as product}
 				<ProductCard {product} />
